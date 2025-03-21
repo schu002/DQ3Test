@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ドラクエ風RPG - スクロール対応</title>
+    <title>ドラクエ風RPG - 大きなマップ対応</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
 </head>
 <body>
@@ -27,10 +27,14 @@
         let cursors;
         let camera;
 
+        // マップサイズ
+        const MAP_WIDTH = 8192;
+        const MAP_HEIGHT = 8192;
+
         const game = new Phaser.Game(config);
 
         function preload() {
-            this.load.image('map', 'world.png');  // 大きな背景画像（1600x1200）
+            this.load.image('map', 'world.png');  // 8192x8192 の背景画像
             this.load.image('character', 'player.png'); // プレイヤー画像（32x32）
         }
 
@@ -38,13 +42,16 @@
             // 大きな背景画像を追加（座標 0,0 に配置）
             this.add.image(0, 0, 'map').setOrigin(0, 0);
 
-            // プレイヤーを追加（初期位置は中央付近）
-            player = this.physics.add.sprite(320, 240, 'character');
+            // プレイヤーを追加（初期位置はマップ中央）
+            player = this.physics.add.sprite(MAP_WIDTH / 2, MAP_HEIGHT / 2, 'character');
             player.setCollideWorldBounds(true); // 画面外に出ないようにする
 
-            // カメラの設定
+            // ??【修正】ワールドの境界を 8192x8192 に設定
+            this.physics.world.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
+
+            // ??【修正】カメラの範囲を 8192x8192 に設定
             camera = this.cameras.main;
-            camera.setBounds(0, 0, 8192, 8192);  // カメラの範囲（マップサイズ）
+            camera.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
             camera.startFollow(player, true, 0.1, 0.1); // プレイヤーに追従
             camera.setZoom(1); // ズーム倍率（1.0 = 等倍）
 
@@ -54,7 +61,7 @@
 
         function update() {
             // 移動速度
-            const speed = 200;
+            const speed = 300;
 
             // プレイヤーの移動処理
             player.setVelocity(0);
