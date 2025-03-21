@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ドラクエ風RPG</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
+</head>
+<body>
+    <script>
+        const config = {
+            type: Phaser.AUTO,
+            width: 640,
+            height: 480,
+            scene: {
+                preload: preload,
+                create: create,
+                update: update
+            }
+        };
+
+        let player;
+        let cursors;
+
+        const game = new Phaser.Game(config);
+
+        function preload() {
+            this.load.image('tiles', 'tileset.png'); // タイルセット画像をロード
+            this.load.image('character', 'player.png'); // プレイヤー画像をロード
+        }
+
+        function create() {
+            this.add.image(320, 240, 'tiles'); // 背景にタイルを表示
+            player = this.add.sprite(320, 240, 'character'); // プレイヤーを表示
+            cursors = this.input.keyboard.createCursorKeys(); // キー入力を取得
+        }
+
+        function update() {
+            if (cursors.left.isDown) player.x -= 2;
+            if (cursors.right.isDown) player.x += 2;
+            if (cursors.up.isDown) player.y -= 2;
+            if (cursors.down.isDown) player.y += 2;
+        }
+    </script>
+</body>
+</html>
