@@ -51,11 +51,12 @@
             this.add.image(0, 0, 'map').setOrigin(0, 0);
 
             // ??【修正】プレイヤーの初期位置を `32x32` にスナップ
-            let startX = Phaser.Math.Snap.To(MAP_WIDTH/2-TILE_SIZE/2, TILE_SIZE);
-            let startY = Phaser.Math.Snap.To(MAP_HEIGHT/2-TILE_SIZE/2, TILE_SIZE);
+            let startX = Phaser.Math.Snap.To(MAP_WIDTH/2, TILE_SIZE);
+            let startY = Phaser.Math.Snap.To(MAP_HEIGHT/2, TILE_SIZE);
 
             // プレイヤーを追加
             player = this.physics.add.sprite(startX, startY, 'character', 0);
+            player.setOrigin(0, 0);  // 原点を左上に設定
             player.setCollideWorldBounds(true);
 
             // ワールドとカメラの設定
@@ -90,13 +91,12 @@
             // どれかのキーが押されていた場合、移動を開始
             if (moveX !== 0 || moveY !== 0) {
                 isMoving = true;
-                player.anims.play('walk', true); // ?? アニメーション開始
+                player.anims.play('walk', true);
 
-                // ??【修正】移動後の位置も `32x32` にスナップ
-                let targetX = Phaser.Math.Snap.To(player.x + moveX, TILE_SIZE);
-                let targetY = Phaser.Math.Snap.To(player.y + moveY, TILE_SIZE);
+                // 現在位置からの相対移動で計算
+                let targetX = player.x + moveX;
+                let targetY = player.y + moveY;
 
-                // ?? Tween を使って移動をスムーズに
                 this.tweens.add({
                     targets: player,
                     x: targetX,
