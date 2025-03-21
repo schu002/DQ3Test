@@ -94,40 +94,24 @@
             let keyPressed = false;
 
             // ??yC³zƒL[‚ð‰Ÿ‚µ‚½uŠÔ‚É1‰ñ‚¾‚¯ˆÚ“®‚µA‚»‚ÌŒã‚Í `MOVE_DELAY` ‚É]‚¤
-            if (Phaser.Input.Keyboard.JustDown(cursors.left)) {
-                moveX = -TILE_SIZE;
-                direction = 2; // ¶Œü‚«
-                keyPressed = true;
-            } else if (Phaser.Input.Keyboard.JustDown(cursors.right)) {
-                moveX = TILE_SIZE;
-                direction = 3; // ‰EŒü‚«
-                keyPressed = true;
-            } else if (Phaser.Input.Keyboard.JustDown(cursors.up)) {
-                moveY = -TILE_SIZE;
-                direction = 1; // Œã‚ëŒü‚«
-                keyPressed = true;
-            } else if (Phaser.Input.Keyboard.JustDown(cursors.down)) {
-                moveY = TILE_SIZE;
-                direction = 0; // ³–ÊŒü‚«
-                keyPressed = true;
-            }
-
-            // ??yC³z‰Ÿ‚µ‚Á‚Ï‚È‚µ‚ÌŽž‚Í `MOVE_DELAY` ‚É]‚Á‚ÄˆÀ’è‰»
-            if (!keyPressed && isHolding && time > moveTimer) {
-                if (cursors.left.isDown) {
+            if (!isHolding) {
+                if (Phaser.Input.Keyboard.JustDown(cursors.left)) {
                     moveX = -TILE_SIZE;
                     direction = 2;
-                } else if (cursors.right.isDown) {
+                    keyPressed = true;
+                } else if (Phaser.Input.Keyboard.JustDown(cursors.right)) {
                     moveX = TILE_SIZE;
                     direction = 3;
-                } else if (cursors.up.isDown) {
+                    keyPressed = true;
+                } else if (Phaser.Input.Keyboard.JustDown(cursors.up)) {
                     moveY = -TILE_SIZE;
                     direction = 1;
-                } else if (cursors.down.isDown) {
+                    keyPressed = true;
+                } else if (Phaser.Input.Keyboard.JustDown(cursors.down)) {
                     moveY = TILE_SIZE;
                     direction = 0;
+                    keyPressed = true;
                 }
-                moveTimer = time + MOVE_DELAY; // ŽŸ‚ÌˆÚ“®ƒ^ƒCƒ~ƒ“ƒO‚ðƒZƒbƒg
             }
 
             if (keyPressed) {
