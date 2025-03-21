@@ -72,9 +72,14 @@
             // 歩行アニメーションの設定
             this.anims.create({
                 key: 'walk',
-                frames: this.anims.generateFrameNumbers('character', { start: 0, end: 1 }),
-                frameRate: 6,
+                frames: this.anims.generateFrameNumbers('character', { frames: [0, 1] }),
+                frameRate: 4,
                 repeat: -1
+            });
+
+            // デバッグ用：アニメーションの状態を確認
+            player.on('animationupdate', function (anim, frame) {
+                console.log('Current frame:', frame.textureFrame);
             });
         }
 
