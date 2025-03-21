@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ドラクエ風RPG - 32x32 移動 (位置ズレ修正)</title>
+    <title>ドラクエ風RPG - 32x32 移動 (歩行アニメーション修正)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
 </head>
 <body>
@@ -37,7 +37,8 @@
         let player;
         let cursors;
         let camera;
-        let isMoving = false; // ?? 移動中かどうかのフラグ
+        let isMoving = false; // 移動中かどうかのフラグ
+        let stepCount = 0; // 歩行フレームの管理
 
         const game = new Phaser.Game(config);
 
@@ -50,9 +51,9 @@
             // 大きな背景画像を追加（座標 0,0 に配置）
             this.add.image(0, 0, 'map').setOrigin(0, 0);
 
-            // ??【修正】プレイヤーの初期位置を `32x32` にスナップ
-            let startX = Phaser.Math.Snap.To(MAP_WIDTH/2, TILE_SIZE);
-            let startY = Phaser.Math.Snap.To(MAP_HEIGHT/2, TILE_SIZE);
+            // プレイヤーの初期位置を `32x32` にスナップ
+            let startX = Phaser.Math.Snap.To(MAP_WIDTH / 2, TILE_SIZE);
+            let startY = Phaser.Math.Snap.To(MAP_HEIGHT / 2, TILE_SIZE);
 
             // プレイヤーを追加
             player = this.physics.add.sprite(startX, startY, 'character', 0);
@@ -68,23 +69,10 @@
 
             // キーボード入力の設定
             cursors = this.input.keyboard.createCursorKeys();
-
-            // 歩行アニメーションの設定
-            this.anims.create({
-                key: 'walk',
-                frames: this.anims.generateFrameNumbers('character', { frames: [0, 1] }),
-                frameRate: 4,
-                repeat: -1
-            });
-
-            // デバッグ用：アニメーションの状態を確認
-            player.on('animationupdate', function (anim, frame) {
-                console.log('Current frame:', frame.textureFrame);
-            });
         }
 
         function update() {
-            if (isMoving) return; // ?? 移動中ならキー入力を無視
+            if (isMoving) return; // 移動中ならキー入力を無視
 
             // 移動方向を決定
             let moveX = 0, moveY = 0;
@@ -96,21 +84,22 @@
             // どれかのキーが押されていた場合、移動を開始
             if (moveX !== 0 || moveY !== 0) {
                 isMoving = true;
-                player.anims.play('walk', true);
+
+                // ?? 【修正】歩行アニメーションを手動で切り替える
+                stepCount = (stepCount + 1) % 2; // 0, 1 を交互に
+                player.setFrame(stepCount);
 
                 // 現在位置からの相対移動で計算
-                let targetX = player.x + moveX;
-                let targetY = player.y + moveY;
+                let targetX = Phaser.Math.Snap.To(player.x + moveX, TILE_SIZE);
+                let targetY = Phaser.Math.Snap.To(player.y + moveY, TILE_SIZE);
 
                 this.tweens.add({
                     targets: player,
                     x: targetX,
                     y: targetY,
-                    duration: 150, // ?? 150ms で 32px 移動
+                    duration: 150, // 150ms で 32px 移動
                     onComplete: () => {
                         isMoving = false;
-                        player.anims.stop();
-                        player.setFrame(0);  // 静止時は右足前（フレーム0）
                     }
                 });
             }
