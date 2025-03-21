@@ -19,7 +19,7 @@
         const MAP_HEIGHT = 8192;
 
         // 移動間隔（押しっぱなし時のディレイ）
-        const MOVE_DELAY = 150; // 150ms ごとに移動
+        const MOVE_DELAY = 200; // 200ms ごとに移動
 
         // ゲーム設定
         const config = {
@@ -92,33 +92,29 @@
 
             let moveX = 0, moveY = 0;
 
-            // ??【修正】キーを押した瞬間にフラグをセットし、連続移動を防止
-            if (Phaser.Input.Keyboard.JustDown(cursors.left)) {
-                if (!isHolding) {
-                    moveX = -TILE_SIZE;
-                    direction = 2; // 左向き
-                    isHolding = true;
-                }
-            } else if (Phaser.Input.Keyboard.JustDown(cursors.right)) {
-                if (!isHolding) {
-                    moveX = TILE_SIZE;
-                    direction = 3; // 右向き
-                    isHolding = true;
-                }
-            } else if (Phaser.Input.Keyboard.JustDown(cursors.up)) {
-                if (!isHolding) {
-                    moveY = -TILE_SIZE;
-                    direction = 1; // 後ろ向き
-                    isHolding = true;
-                }
-            } else if (Phaser.Input.Keyboard.JustDown(cursors.down)) {
-                if (!isHolding) {
-                    moveY = TILE_SIZE;
-                    direction = 0; // 正面向き
-                    isHolding = true;
-                }
+            // ??【修正】キーを押した瞬間に1回だけ移動し、その後は `MOVE_DELAY` に従う
+            if (Phaser.Input.Keyboard.JustDown(cursors.left) && !isHolding) {
+                moveX = -TILE_SIZE;
+                direction = 2; // 左向き
+                isHolding = true;
+                moveTimer = time + MOVE_DELAY;
+            } else if (Phaser.Input.Keyboard.JustDown(cursors.right) && !isHolding) {
+                moveX = TILE_SIZE;
+                direction = 3; // 右向き
+                isHolding = true;
+                moveTimer = time + MOVE_DELAY;
+            } else if (Phaser.Input.Keyboard.JustDown(cursors.up) && !isHolding) {
+                moveY = -TILE_SIZE;
+                direction = 1; // 後ろ向き
+                isHolding = true;
+                moveTimer = time + MOVE_DELAY;
+            } else if (Phaser.Input.Keyboard.JustDown(cursors.down) && !isHolding) {
+                moveY = TILE_SIZE;
+                direction = 0; // 正面向き
+                isHolding = true;
+                moveTimer = time + MOVE_DELAY;
             } else if (isHolding && time > moveTimer) {
-                // ??【修正】押しっぱなしの時はディレイを考慮して移動
+                // ??【修正】押しっぱなし時の連続移動を `MOVE_DELAY` に従って安定化
                 if (cursors.left.isDown) {
                     moveX = -TILE_SIZE;
                     direction = 2;
@@ -132,9 +128,10 @@
                     moveY = TILE_SIZE;
                     direction = 0;
                 }
+                moveTimer = time + MOVE_DELAY; // 次の移動タイミングをセット
             }
 
-            // ??【修正】キーを離したら `isHolding` を解除（次の移動受付を可能に）
+            // ??【修正】キーを離したら `isHolding` を解除
             if (Phaser.Input.Keyboard.JustUp(cursors.left) || Phaser.Input.Keyboard.JustUp(cursors.right) ||
                 Phaser.Input.Keyboard.JustUp(cursors.up) || Phaser.Input.Keyboard.JustUp(cursors.down)) {
                 isHolding = false;
@@ -142,11 +139,9 @@
 
             if (moveX !== 0 || moveY !== 0) {
                 isMoving = true;
-                moveTimer = time + MOVE_DELAY; // ?? 次の移動までの時間を設定
 
-                // 現在位置からの相対移動で計算
-                let targetX = Phaser.Math.Snap.To(player.x + moveX, TILE_SIZE);
-                let targetY = Phaser.Math.Snap.To(player.y + moveY, TILE_SIZE);
+                let targetX = player.x + moveX;
+                let targetY = player.y + moveY;
 
                 this.tweens.add({
                     targets: player,
@@ -160,10 +155,8 @@
             }
         }
 
-        // ??【追加】現在の方向に応じたフレームを取得
         function getCurrentFrame() {
-            const baseFrame = direction * 2; // 方向ごとにフレームを 2 個ずつ割り当て
-            return baseFrame + stepCount;
+            return direction * 2 + stepCount;
         }
     </script>
 </body>
