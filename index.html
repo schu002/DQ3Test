@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ドラクエ風RPG - 大きなマップ対応</title>
+    <title>ドラクエ風RPG - 歩行アニメーション</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
 </head>
 <body>
@@ -35,7 +35,7 @@
 
         function preload() {
             this.load.image('map', 'world.png');  // 8192x8192 の背景画像
-            this.load.image('character', 'player.png'); // プレイヤー画像（32x32）
+            this.load.spritesheet('character', 'player.png', { frameWidth: 32, frameHeight: 32 });
         }
 
         function create() {
@@ -43,37 +43,56 @@
             this.add.image(0, 0, 'map').setOrigin(0, 0);
 
             // プレイヤーを追加（初期位置はマップ中央）
-            player = this.physics.add.sprite(MAP_WIDTH / 2, MAP_HEIGHT / 2, 'character');
-            player.setCollideWorldBounds(true); // 画面外に出ないようにする
+            player = this.physics.add.sprite(MAP_WIDTH / 2, MAP_HEIGHT / 2, 'character', 0);
+            player.setCollideWorldBounds(true);
 
-            // ??【修正】ワールドの境界を 8192x8192 に設定
+            // ワールドとカメラの設定
             this.physics.world.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
-
-            // ??【修正】カメラの範囲を 8192x8192 に設定
             camera = this.cameras.main;
             camera.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
-            camera.startFollow(player, true, 0.1, 0.1); // プレイヤーに追従
-            camera.setZoom(1); // ズーム倍率（1.0 = 等倍）
+            camera.startFollow(player, true, 0.1, 0.1);
+            camera.setZoom(1);
 
             // キーボード入力の設定
             cursors = this.input.keyboard.createCursorKeys();
+
+            // ??【追加】歩行アニメーションの設定（フレーム 0: 静止, 1: 右足前, 2: 左足前）
+            this.anims.create({
+                key: 'walk',
+                frames: this.anims.generateFrameNumbers('character', { start: 1, end: 2 }), // 1 → 2 を交互に
+                frameRate: 6, // アニメーション速度（1秒間に6フレーム）
+                repeat: -1 // 無限ループ
+            });
         }
 
         function update() {
             // 移動速度
-            const speed = 300;
+            const speed = 200;
+            let moving = false; // 移動中かどうかのフラグ
 
             // プレイヤーの移動処理
             player.setVelocity(0);
             if (cursors.left.isDown) {
                 player.setVelocityX(-speed);
+                moving = true;
             } else if (cursors.right.isDown) {
                 player.setVelocityX(speed);
+                moving = true;
             }
             if (cursors.up.isDown) {
                 player.setVelocityY(-speed);
+                moving = true;
             } else if (cursors.down.isDown) {
                 player.setVelocityY(speed);
+                moving = true;
+            }
+
+            // ??【追加】アニメーションの制御
+            if (moving) {
+                player.anims.play('walk', true); // 歩行アニメーションを再生
+            } else {
+                player.anims.stop(); // アニメーションを停止
+                player.setFrame(0); // 静止画像（フレーム0）に戻す
             }
         }
     </script>
