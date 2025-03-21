@@ -2,16 +2,20 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ドラクエ風RPG - 2倍拡大</title>
+    <title>ドラクエ風RPG - 2倍表示 & 2倍のウィンドウサイズ</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
 </head>
 <body>
     <script>
+        // ??【修正】画面サイズ（2倍に変更）
+        const SCREEN_WIDTH = 1280;  // 640 * 2
+        const SCREEN_HEIGHT = 960;  // 480 * 2
+
         // ゲーム設定
         const config = {
             type: Phaser.AUTO,
-            width: 640,  // 画面の幅（ウィンドウサイズ）
-            height: 480, // 画面の高さ（ウィンドウサイズ）
+            width: SCREEN_WIDTH,  // ??【修正】画面サイズを 2 倍に
+            height: SCREEN_HEIGHT,
             physics: {
                 default: 'arcade',
                 arcade: { debug: false }
@@ -27,7 +31,7 @@
         let cursors;
         let camera;
 
-        // マップサイズ（オリジナルサイズ）
+        // マップサイズ
         const MAP_WIDTH = 8192;
         const MAP_HEIGHT = 8192;
 
@@ -52,7 +56,7 @@
             camera.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
             camera.startFollow(player, true, 0.1, 0.1);
 
-            // ??【追加】画面を 2 倍に拡大
+            // ??【修正】画面を 2 倍に拡大
             camera.setZoom(2);
 
             // キーボード入力の設定
