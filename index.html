@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ドラクエ風RPG - 32x32 移動</title>
+    <title>ドラクエ風RPG - 32x32 移動 (位置ズレ修正)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
 </head>
 <body>
@@ -10,6 +10,13 @@
         // 画面サイズ（2倍に拡大）
         const SCREEN_WIDTH = 1280;
         const SCREEN_HEIGHT = 960;
+
+        // タイルサイズ
+        const TILE_SIZE = 32;
+
+        // マップサイズ
+        const MAP_WIDTH = 8192;
+        const MAP_HEIGHT = 8192;
 
         // ゲーム設定
         const config = {
@@ -31,11 +38,6 @@
         let cursors;
         let camera;
         let isMoving = false; // ?? 移動中かどうかのフラグ
-        const TILE_SIZE = 32; // ?? 1マスのサイズ
-
-        // マップサイズ
-        const MAP_WIDTH = 8192;
-        const MAP_HEIGHT = 8192;
 
         const game = new Phaser.Game(config);
 
@@ -48,8 +50,12 @@
             // 大きな背景画像を追加（座標 0,0 に配置）
             this.add.image(0, 0, 'map').setOrigin(0, 0);
 
-            // プレイヤーを追加（初期位置はマップ中央）
-            player = this.physics.add.sprite(MAP_WIDTH / 2, MAP_HEIGHT / 2, 'character', 0);
+            // ??【修正】プレイヤーの初期位置を `32x32` にスナップ
+            let startX = Phaser.Math.Snap.To(MAP_WIDTH / 2, TILE_SIZE);
+            let startY = Phaser.Math.Snap.To(MAP_HEIGHT / 2, TILE_SIZE);
+
+            // プレイヤーを追加
+            player = this.physics.add.sprite(startX, startY, 'character', 0);
             player.setCollideWorldBounds(true);
 
             // ワールドとカメラの設定
@@ -86,7 +92,7 @@
                 isMoving = true;
                 player.anims.play('walk', true); // ?? アニメーション開始
 
-                // ?? タイリング位置にスナップして移動
+                // ??【修正】移動後の位置も `32x32` にスナップ
                 let targetX = Phaser.Math.Snap.To(player.x + moveX, TILE_SIZE);
                 let targetY = Phaser.Math.Snap.To(player.y + moveY, TILE_SIZE);
 
