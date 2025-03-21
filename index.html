@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ドラクエ風RPG - キー入力の調整</title>
+    <title>ドラクエ風RPG - 押しっぱなしで移動継続</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
 </head>
 <body>
@@ -17,6 +17,9 @@
         // マップサイズ
         const MAP_WIDTH = 8192;
         const MAP_HEIGHT = 8192;
+
+        // 移動間隔（押しっぱなし時のディレイ）
+        const MOVE_DELAY = 150; // 150ms ごとに移動
 
         // ゲーム設定
         const config = {
@@ -40,6 +43,7 @@
         let isMoving = false; // 移動中かどうかのフラグ
         let stepCount = 0; // 歩行フレームの管理
         let direction = 0; // 方向（0:正面, 1:後ろ, 2:左, 3:右）
+        let moveTimer = 0; // 次の移動までのカウント
 
         const game = new Phaser.Game(config);
 
@@ -82,21 +86,22 @@
             });
         }
 
-        function update() {
+        function update(time) {
             if (isMoving) return; // 移動中ならキー入力を無視
 
-            // ??【修正】キーが押された瞬間だけ処理する
             let moveX = 0, moveY = 0;
-            if (Phaser.Input.Keyboard.JustDown(cursors.left)) {
+
+            // ??【修正】キーが押された瞬間だけでなく、押しっぱなしでも移動
+            if (Phaser.Input.Keyboard.JustDown(cursors.left) || (cursors.left.isDown && time > moveTimer)) {
                 moveX = -TILE_SIZE;
                 direction = 2; // 左向き
-            } else if (Phaser.Input.Keyboard.JustDown(cursors.right)) {
+            } else if (Phaser.Input.Keyboard.JustDown(cursors.right) || (cursors.right.isDown && time > moveTimer)) {
                 moveX = TILE_SIZE;
                 direction = 3; // 右向き
-            } else if (Phaser.Input.Keyboard.JustDown(cursors.up)) {
+            } else if (Phaser.Input.Keyboard.JustDown(cursors.up) || (cursors.up.isDown && time > moveTimer)) {
                 moveY = -TILE_SIZE;
                 direction = 1; // 後ろ向き
-            } else if (Phaser.Input.Keyboard.JustDown(cursors.down)) {
+            } else if (Phaser.Input.Keyboard.JustDown(cursors.down) || (cursors.down.isDown && time > moveTimer)) {
                 moveY = TILE_SIZE;
                 direction = 0; // 正面向き
             }
@@ -104,8 +109,9 @@
             // どれかのキーが押された場合のみ移動
             if (moveX !== 0 || moveY !== 0) {
                 isMoving = true;
+                moveTimer = time + MOVE_DELAY; // ?? 次の移動までの時間を設定
 
-                // ?? 現在位置からの相対移動で計算
+                // 現在位置からの相対移動で計算
                 let targetX = Phaser.Math.Snap.To(player.x + moveX, TILE_SIZE);
                 let targetY = Phaser.Math.Snap.To(player.y + moveY, TILE_SIZE);
 
@@ -113,7 +119,7 @@
                     targets: player,
                     x: targetX,
                     y: targetY,
-                    duration: 150, // 150ms で 32px 移動
+                    duration: MOVE_DELAY, // 150ms で 32px 移動
                     onComplete: () => {
                         isMoving = false;
                     }
