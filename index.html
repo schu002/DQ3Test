@@ -2,19 +2,19 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ドラクエ風RPG - 2倍表示 & 2倍のウィンドウサイズ</title>
+    <title>ドラクエ風RPG - 32x32 移動</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
 </head>
 <body>
     <script>
-        // ??【修正】画面サイズ（2倍に変更）
-        const SCREEN_WIDTH = 1280;  // 640 * 2
-        const SCREEN_HEIGHT = 960;  // 480 * 2
+        // 画面サイズ（2倍に拡大）
+        const SCREEN_WIDTH = 1280;
+        const SCREEN_HEIGHT = 960;
 
         // ゲーム設定
         const config = {
             type: Phaser.AUTO,
-            width: SCREEN_WIDTH,  // ??【修正】画面サイズを 2 倍に
+            width: SCREEN_WIDTH,
             height: SCREEN_HEIGHT,
             physics: {
                 default: 'arcade',
@@ -30,6 +30,8 @@
         let player;
         let cursors;
         let camera;
+        let isMoving = false; // ?? 移動中かどうかのフラグ
+        const TILE_SIZE = 32; // ?? 1マスのサイズ
 
         // マップサイズ
         const MAP_WIDTH = 8192;
@@ -55,14 +57,12 @@
             camera = this.cameras.main;
             camera.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
             camera.startFollow(player, true, 0.1, 0.1);
-
-            // ??【修正】画面を 2 倍に拡大
             camera.setZoom(2);
 
             // キーボード入力の設定
             cursors = this.input.keyboard.createCursorKeys();
 
-            // ??【追加】歩行アニメーションの設定
+            // 歩行アニメーションの設定
             this.anims.create({
                 key: 'walk',
                 frames: this.anims.generateFrameNumbers('character', { start: 1, end: 2 }),
@@ -72,33 +72,36 @@
         }
 
         function update() {
-            // 移動速度
-            const speed = 200;
-            let moving = false;
+            if (isMoving) return; // ?? 移動中ならキー入力を無視
 
-            // プレイヤーの移動処理
-            player.setVelocity(0);
-            if (cursors.left.isDown) {
-                player.setVelocityX(-speed);
-                moving = true;
-            } else if (cursors.right.isDown) {
-                player.setVelocityX(speed);
-                moving = true;
-            }
-            if (cursors.up.isDown) {
-                player.setVelocityY(-speed);
-                moving = true;
-            } else if (cursors.down.isDown) {
-                player.setVelocityY(speed);
-                moving = true;
-            }
+            // 移動方向を決定
+            let moveX = 0, moveY = 0;
+            if (cursors.left.isDown) moveX = -TILE_SIZE;
+            else if (cursors.right.isDown) moveX = TILE_SIZE;
+            else if (cursors.up.isDown) moveY = -TILE_SIZE;
+            else if (cursors.down.isDown) moveY = TILE_SIZE;
 
-            // アニメーションの制御
-            if (moving) {
-                player.anims.play('walk', true);
-            } else {
-                player.anims.stop();
-                player.setFrame(0);
+            // どれかのキーが押されていた場合、移動を開始
+            if (moveX !== 0 || moveY !== 0) {
+                isMoving = true;
+                player.anims.play('walk', true); // ?? アニメーション開始
+
+                // ?? タイリング位置にスナップして移動
+                let targetX = Phaser.Math.Snap.To(player.x + moveX, TILE_SIZE);
+                let targetY = Phaser.Math.Snap.To(player.y + moveY, TILE_SIZE);
+
+                // ?? Tween を使って移動をスムーズに
+                this.tweens.add({
+                    targets: player,
+                    x: targetX,
+                    y: targetY,
+                    duration: 150, // ?? 150ms で 32px 移動
+                    onComplete: () => {
+                        isMoving = false;
+                        player.anims.stop(); // ?? アニメーションを停止
+                        player.setFrame(0); // ?? 静止画像に戻す
+                    }
+                });
             }
         }
     </script>
