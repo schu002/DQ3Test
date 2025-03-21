@@ -91,30 +91,29 @@
             if (isMoving || time < moveTimer) return; // ?? ˆÚ“®’†‚Ü‚½‚ÍˆÚ“®‘Ò‹@ŠÔ“à‚È‚ç–³‹
 
             let moveX = 0, moveY = 0;
+            let keyPressed = false;
 
             // ??yC³zƒL[‚ğ‰Ÿ‚µ‚½uŠÔ‚É1‰ñ‚¾‚¯ˆÚ“®‚µA‚»‚ÌŒã‚Í `MOVE_DELAY` ‚É]‚¤
-            if (Phaser.Input.Keyboard.JustDown(cursors.left) && !isHolding) {
+            if (Phaser.Input.Keyboard.JustDown(cursors.left)) {
                 moveX = -TILE_SIZE;
                 direction = 2; // ¶Œü‚«
-                isHolding = true;
-                moveTimer = time + MOVE_DELAY;
-            } else if (Phaser.Input.Keyboard.JustDown(cursors.right) && !isHolding) {
+                keyPressed = true;
+            } else if (Phaser.Input.Keyboard.JustDown(cursors.right)) {
                 moveX = TILE_SIZE;
                 direction = 3; // ‰EŒü‚«
-                isHolding = true;
-                moveTimer = time + MOVE_DELAY;
-            } else if (Phaser.Input.Keyboard.JustDown(cursors.up) && !isHolding) {
+                keyPressed = true;
+            } else if (Phaser.Input.Keyboard.JustDown(cursors.up)) {
                 moveY = -TILE_SIZE;
                 direction = 1; // Œã‚ëŒü‚«
-                isHolding = true;
-                moveTimer = time + MOVE_DELAY;
-            } else if (Phaser.Input.Keyboard.JustDown(cursors.down) && !isHolding) {
+                keyPressed = true;
+            } else if (Phaser.Input.Keyboard.JustDown(cursors.down)) {
                 moveY = TILE_SIZE;
                 direction = 0; // ³–ÊŒü‚«
-                isHolding = true;
-                moveTimer = time + MOVE_DELAY;
-            } else if (isHolding && time > moveTimer) {
-                // ??yC³z‰Ÿ‚µ‚Á‚Ï‚È‚µ‚Ì˜A‘±ˆÚ“®‚ğ `MOVE_DELAY` ‚É]‚Á‚ÄˆÀ’è‰»
+                keyPressed = true;
+            }
+
+            // ??yC³z‰Ÿ‚µ‚Á‚Ï‚È‚µ‚Ì‚Í `MOVE_DELAY` ‚É]‚Á‚ÄˆÀ’è‰»
+            if (!keyPressed && isHolding && time > moveTimer) {
                 if (cursors.left.isDown) {
                     moveX = -TILE_SIZE;
                     direction = 2;
@@ -131,6 +130,11 @@
                 moveTimer = time + MOVE_DELAY; // Ÿ‚ÌˆÚ“®ƒ^ƒCƒ~ƒ“ƒO‚ğƒZƒbƒg
             }
 
+            if (keyPressed) {
+                isHolding = true;
+                moveTimer = time + MOVE_DELAY;
+            }
+
             // ??yC³zƒL[‚ğ—£‚µ‚½‚ç `isHolding` ‚ğ‰ğœ
             if (Phaser.Input.Keyboard.JustUp(cursors.left) || Phaser.Input.Keyboard.JustUp(cursors.right) ||
                 Phaser.Input.Keyboard.JustUp(cursors.up) || Phaser.Input.Keyboard.JustUp(cursors.down)) {
@@ -139,7 +143,6 @@
 
             if (moveX !== 0 || moveY !== 0) {
                 isMoving = true;
-
                 let targetX = player.x + moveX;
                 let targetY = player.y + moveY;
 
