@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ドラクエ風RPG - 歩行アニメーション</title>
+    <title>ドラクエ風RPG - 2倍拡大</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
 </head>
 <body>
@@ -27,7 +27,7 @@
         let cursors;
         let camera;
 
-        // マップサイズ
+        // マップサイズ（オリジナルサイズ）
         const MAP_WIDTH = 8192;
         const MAP_HEIGHT = 8192;
 
@@ -51,24 +51,26 @@
             camera = this.cameras.main;
             camera.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
             camera.startFollow(player, true, 0.1, 0.1);
-            camera.setZoom(1);
+
+            // ??【追加】画面を 2 倍に拡大
+            camera.setZoom(2);
 
             // キーボード入力の設定
             cursors = this.input.keyboard.createCursorKeys();
 
-            // ??【追加】歩行アニメーションの設定（フレーム 0: 静止, 1: 右足前, 2: 左足前）
+            // ??【追加】歩行アニメーションの設定
             this.anims.create({
                 key: 'walk',
-                frames: this.anims.generateFrameNumbers('character', { start: 1, end: 2 }), // 1 → 2 を交互に
-                frameRate: 6, // アニメーション速度（1秒間に6フレーム）
-                repeat: -1 // 無限ループ
+                frames: this.anims.generateFrameNumbers('character', { start: 1, end: 2 }),
+                frameRate: 6,
+                repeat: -1
             });
         }
 
         function update() {
             // 移動速度
             const speed = 200;
-            let moving = false; // 移動中かどうかのフラグ
+            let moving = false;
 
             // プレイヤーの移動処理
             player.setVelocity(0);
@@ -87,12 +89,12 @@
                 moving = true;
             }
 
-            // ??【追加】アニメーションの制御
+            // アニメーションの制御
             if (moving) {
-                player.anims.play('walk', true); // 歩行アニメーションを再生
+                player.anims.play('walk', true);
             } else {
-                player.anims.stop(); // アニメーションを停止
-                player.setFrame(0); // 静止画像（フレーム0）に戻す
+                player.anims.stop();
+                player.setFrame(0);
             }
         }
     </script>
