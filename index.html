@@ -72,8 +72,8 @@
             // 歩行アニメーションの設定
             this.anims.create({
                 key: 'walk',
-                frames: this.anims.generateFrameNumbers('character', { start: 1, end: 2 }),
-                frameRate: 6,
+                frames: this.anims.generateFrameNumbers('character', { start: 0, end: 2 }),
+                frameRate: 8,
                 repeat: -1
             });
         }
@@ -104,8 +104,8 @@
                     duration: 150, // ?? 150ms で 32px 移動
                     onComplete: () => {
                         isMoving = false;
-                        player.anims.stop(); // ?? アニメーションを停止
-                        player.setFrame(0); // ?? 静止画像に戻す
+                        player.anims.stop();
+                        player.setFrame(1);  // 静止フレームを1に変更
                     }
                 });
             }
