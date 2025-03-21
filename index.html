@@ -51,8 +51,8 @@
             this.add.image(0, 0, 'map').setOrigin(0, 0);
 
             // ??【修正】プレイヤーの初期位置を `32x32` にスナップ
-            let startX = Phaser.Math.Snap.To(MAP_WIDTH / 2, TILE_SIZE);
-            let startY = Phaser.Math.Snap.To(MAP_HEIGHT / 2, TILE_SIZE);
+            let startX = Phaser.Math.Snap.To(MAP_WIDTH/2-TILE_SIZE/2, TILE_SIZE);
+            let startY = Phaser.Math.Snap.To(MAP_HEIGHT/2-TILE_SIZE/2, TILE_SIZE);
 
             // プレイヤーを追加
             player = this.physics.add.sprite(startX, startY, 'character', 0);
