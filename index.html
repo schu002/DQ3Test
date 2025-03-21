@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ドラクエ風RPG - 32x32 移動 (歩行アニメーション修正)</title>
+    <title>ドラクエ風RPG - 32x32 移動（常にアニメーション）</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
 </head>
 <body>
@@ -69,6 +69,16 @@
 
             // キーボード入力の設定
             cursors = this.input.keyboard.createCursorKeys();
+
+            // ??【追加】一定時間ごとにフレームを変更するタイマー
+            this.time.addEvent({
+                delay: 250, // ?? 250ms（1/4秒）ごとに切り替え
+                loop: true,
+                callback: () => {
+                    stepCount = (stepCount + 1) % 2; // 0, 1 を交互に
+                    player.setFrame(stepCount);
+                }
+            });
         }
 
         function update() {
@@ -84,10 +94,6 @@
             // どれかのキーが押されていた場合、移動を開始
             if (moveX !== 0 || moveY !== 0) {
                 isMoving = true;
-
-                // ?? 【修正】歩行アニメーションを手動で切り替える
-                stepCount = (stepCount + 1) % 2; // 0, 1 を交互に
-                player.setFrame(stepCount);
 
                 // 現在位置からの相対移動で計算
                 let targetX = Phaser.Math.Snap.To(player.x + moveX, TILE_SIZE);
