@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ドラクエ風RPG - 方向ごとのアニメーション</title>
+    <title>ドラクエ風RPG - キー入力の調整</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
 </head>
 <body>
@@ -85,23 +85,23 @@
         function update() {
             if (isMoving) return; // 移動中ならキー入力を無視
 
-            // 移動方向を決定
+            // ??【修正】キーが押された瞬間だけ処理する
             let moveX = 0, moveY = 0;
-            if (cursors.left.isDown) {
+            if (Phaser.Input.Keyboard.JustDown(cursors.left)) {
                 moveX = -TILE_SIZE;
                 direction = 2; // 左向き
-            } else if (cursors.right.isDown) {
+            } else if (Phaser.Input.Keyboard.JustDown(cursors.right)) {
                 moveX = TILE_SIZE;
                 direction = 3; // 右向き
-            } else if (cursors.up.isDown) {
+            } else if (Phaser.Input.Keyboard.JustDown(cursors.up)) {
                 moveY = -TILE_SIZE;
                 direction = 1; // 後ろ向き
-            } else if (cursors.down.isDown) {
+            } else if (Phaser.Input.Keyboard.JustDown(cursors.down)) {
                 moveY = TILE_SIZE;
                 direction = 0; // 正面向き
             }
 
-            // どれかのキーが押されていた場合、移動を開始
+            // どれかのキーが押された場合のみ移動
             if (moveX !== 0 || moveY !== 0) {
                 isMoving = true;
 
