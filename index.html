@@ -2,15 +2,20 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ドラクエ風RPG</title>
+    <title>ドラクエ風RPG - スクロール対応</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
 </head>
 <body>
     <script>
+        // ゲーム設定
         const config = {
             type: Phaser.AUTO,
-            width: 640,
-            height: 480,
+            width: 640,  // 画面の幅（ウィンドウサイズ）
+            height: 480, // 画面の高さ（ウィンドウサイズ）
+            physics: {
+                default: 'arcade',
+                arcade: { debug: false }
+            },
             scene: {
                 preload: preload,
                 create: create,
@@ -20,25 +25,49 @@
 
         let player;
         let cursors;
+        let camera;
 
         const game = new Phaser.Game(config);
 
         function preload() {
-            this.load.image('tiles', 'tileset.png'); // タイルセット画像をロード
-            this.load.image('character', 'player.png'); // プレイヤー画像をロード
+            this.load.image('map', 'world.png');  // 大きな背景画像（1600x1200）
+            this.load.image('character', 'player.png'); // プレイヤー画像（32x32）
         }
 
         function create() {
-            this.add.image(320, 240, 'tiles'); // 背景にタイルを表示
-            player = this.add.sprite(320, 240, 'character'); // プレイヤーを表示
-            cursors = this.input.keyboard.createCursorKeys(); // キー入力を取得
+            // 大きな背景画像を追加（座標 0,0 に配置）
+            this.add.image(0, 0, 'map').setOrigin(0, 0);
+
+            // プレイヤーを追加（初期位置は中央付近）
+            player = this.physics.add.sprite(320, 240, 'character');
+            player.setCollideWorldBounds(true); // 画面外に出ないようにする
+
+            // カメラの設定
+            camera = this.cameras.main;
+            camera.setBounds(0, 0, 8192, 8192);  // カメラの範囲（マップサイズ）
+            camera.startFollow(player, true, 0.1, 0.1); // プレイヤーに追従
+            camera.setZoom(1); // ズーム倍率（1.0 = 等倍）
+
+            // キーボード入力の設定
+            cursors = this.input.keyboard.createCursorKeys();
         }
 
         function update() {
-            if (cursors.left.isDown) player.x -= 2;
-            if (cursors.right.isDown) player.x += 2;
-            if (cursors.up.isDown) player.y -= 2;
-            if (cursors.down.isDown) player.y += 2;
+            // 移動速度
+            const speed = 200;
+
+            // プレイヤーの移動処理
+            player.setVelocity(0);
+            if (cursors.left.isDown) {
+                player.setVelocityX(-speed);
+            } else if (cursors.right.isDown) {
+                player.setVelocityX(speed);
+            }
+            if (cursors.up.isDown) {
+                player.setVelocityY(-speed);
+            } else if (cursors.down.isDown) {
+                player.setVelocityY(speed);
+            }
         }
     </script>
 </body>
