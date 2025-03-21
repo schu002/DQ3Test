@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ドラクエ風RPG - 32x32 移動（常にアニメーション）</title>
+    <title>ドラクエ風RPG - 方向ごとのアニメーション</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
 </head>
 <body>
@@ -39,6 +39,7 @@
         let camera;
         let isMoving = false; // 移動中かどうかのフラグ
         let stepCount = 0; // 歩行フレームの管理
+        let direction = 0; // 方向（0:正面, 1:後ろ, 2:左, 3:右）
 
         const game = new Phaser.Game(config);
 
@@ -72,11 +73,11 @@
 
             // ??【追加】一定時間ごとにフレームを変更するタイマー
             this.time.addEvent({
-                delay: 250, // ?? 250ms（1/4秒）ごとに切り替え
+                delay: 250, // 250ms ごとに切り替え
                 loop: true,
                 callback: () => {
                     stepCount = (stepCount + 1) % 2; // 0, 1 を交互に
-                    player.setFrame(stepCount);
+                    player.setFrame(getCurrentFrame());
                 }
             });
         }
@@ -86,16 +87,25 @@
 
             // 移動方向を決定
             let moveX = 0, moveY = 0;
-            if (cursors.left.isDown) moveX = -TILE_SIZE;
-            else if (cursors.right.isDown) moveX = TILE_SIZE;
-            else if (cursors.up.isDown) moveY = -TILE_SIZE;
-            else if (cursors.down.isDown) moveY = TILE_SIZE;
+            if (cursors.left.isDown) {
+                moveX = -TILE_SIZE;
+                direction = 2; // 左向き
+            } else if (cursors.right.isDown) {
+                moveX = TILE_SIZE;
+                direction = 3; // 右向き
+            } else if (cursors.up.isDown) {
+                moveY = -TILE_SIZE;
+                direction = 1; // 後ろ向き
+            } else if (cursors.down.isDown) {
+                moveY = TILE_SIZE;
+                direction = 0; // 正面向き
+            }
 
             // どれかのキーが押されていた場合、移動を開始
             if (moveX !== 0 || moveY !== 0) {
                 isMoving = true;
 
-                // 現在位置からの相対移動で計算
+                // ?? 現在位置からの相対移動で計算
                 let targetX = Phaser.Math.Snap.To(player.x + moveX, TILE_SIZE);
                 let targetY = Phaser.Math.Snap.To(player.y + moveY, TILE_SIZE);
 
@@ -109,6 +119,12 @@
                     }
                 });
             }
+        }
+
+        // ??【追加】現在の方向に応じたフレームを取得
+        function getCurrentFrame() {
+            const baseFrame = direction * 2; // 方向ごとにフレームを 2 個ずつ割り当て
+            return baseFrame + stepCount;
         }
     </script>
 </body>
