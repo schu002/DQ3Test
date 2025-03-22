@@ -15,8 +15,8 @@
         const TILE_SIZE = 32;
 
         // マップサイズ
-        const MAP_WIDTH = 1024;  // 32x39 のマップ
-        const MAP_HEIGHT = 1248;
+        const MAP_WIDTH = 320;  // 10x10 のマップ
+        const MAP_HEIGHT = 320;
 
         // 移動間隔
         const MOVE_DELAY = 250;
@@ -45,8 +45,8 @@
         const game = new Phaser.Game(config);
 
         function preload() {
-            this.load.image('towns', 'townset.png'); // タイルセット画像
-            this.load.tilemapTiledJSON('map', 'ariahan.json'); // マップデータ
+            this.load.image('tiles', 'tileset.png'); // タイルセット画像
+            this.load.tilemapTiledJSON('map', 'tilemap.json'); // マップデータ
             this.load.spritesheet('character', 'player.png', { frameWidth: 32, frameHeight: 32 });
             this.load.audio('bgm', 'bgm.mp3');
         }
@@ -54,8 +54,8 @@
         function create() {
             // マップを読み込む
             const map = this.make.tilemap({ key: 'map' });
-            const townset = map.addTilesetImage('townset', 'towns');
-            const layer = map.createLayer('Ariahan', townset, 0, 0);
+            const tileset = map.addTilesetImage('tileset', 'tiles');
+            const layer = map.createLayer('Ground', tileset, 0, 0);
 
             // プレイヤーの初期位置
             let startX = Phaser.Math.Snap.To(MAP_WIDTH / 2, TILE_SIZE);
