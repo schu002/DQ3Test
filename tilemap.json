@@ -6,7 +6,13 @@
   "tilesets": [
     {
       "firstgid": 1,
-      "source": "tileset.json"
+      "name": "tileset",
+      "tilewidth": 32,
+      "tileheight": 32,
+      "columns": 8,
+      "image": "tileset.png",
+      "imagewidth": 256,
+      "imageheight": 256
     }
   ],
   "layers": [

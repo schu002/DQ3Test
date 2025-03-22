@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ドラクエ風RPG - BGMを追加</title>
+    <title>ドラクエ風RPG - タイルマップ修正</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
 </head>
 <body>
@@ -14,14 +14,14 @@
         // タイルサイズ
         const TILE_SIZE = 32;
 
-        // マップサイズ
-        const MAP_WIDTH = 8192;
-        const MAP_HEIGHT = 8192;
+        // マップサイズ（10x10 のタイルマップ）
+        const MAP_WIDTH = 10 * TILE_SIZE;
+        const MAP_HEIGHT = 10 * TILE_SIZE;
 
         // 移動間隔
         const MOVE_DELAY = 250;
 
-        let player, cursors, camera, bgm;
+        let player, cursors, camera, bgm, map;
         let isMoving = false; // 移動中かどうかのフラグ
         let stepCount = 0; // 歩行フレームの管理
         let direction = 0; // 方向（0:正面, 1:後ろ, 2:左, 3:右）
@@ -45,14 +45,20 @@
         const game = new Phaser.Game(config);
 
         function preload() {
-            this.load.image('map', 'world.png');  // 8192x8192 の背景画像
+            this.load.image('tileset', 'tileset.png'); // タイルセット画像
+            this.load.tilemapTiledJSON('map', 'tilemap.json'); // マップデータ
             this.load.spritesheet('character', 'player.png', { frameWidth: 32, frameHeight: 32 });
-            this.load.audio('bgm', 'field.mp3');  // ?? BGMをロード（"bgm.mp3" はゲームフォルダ内に配置）
+            this.load.audio('bgm', 'field.mp3');
         }
 
         function create() {
-            // 大きな背景画像を追加（座標 0,0 に配置）
-            this.add.image(0, 0, 'map').setOrigin(0, 0);
+            // マップを読み込む
+            map = this.make.tilemap({ key: 'map' });
+            const tileset = map.addTilesetImage('tileset', 'tileset'); // `tileset.png` を利用
+
+            // 地面レイヤーを作成
+            const layer = map.createLayer('Ground', tileset, 0, 0);
+            layer.setScale(1); // タイルの拡大率を 1x に設定
 
             // プレイヤーの初期位置
             let startX = Phaser.Math.Snap.To(MAP_WIDTH / 2, TILE_SIZE);
