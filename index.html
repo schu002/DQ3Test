@@ -62,6 +62,10 @@
             layer.setCollisionByExclusion([-1]);  // すべてのタイルを衝突可能にする
             console.log("タイルマップが正常にロードされました");
 
+            let graphics = this.add.graphics();
+            graphics.fillStyle(0xff0000, 1); // 赤色
+            graphics.fillRect(100, 100, 50, 50);
+
             // プレイヤーの初期位置
             let startX = Phaser.Math.Snap.To(MAP_WIDTH / 2, TILE_SIZE);
             let startY = Phaser.Math.Snap.To(MAP_HEIGHT / 2, TILE_SIZE);
