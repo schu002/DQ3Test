@@ -9,10 +9,7 @@
       "name": "tiles",
       "tilewidth": 32,
       "tileheight": 32,
-      "columns": 8,
-      "image": "tileset.png",
-      "imagewidth": 256,
-      "imageheight": 256
+      "columns": 8
     }
   ],
   "layers": [

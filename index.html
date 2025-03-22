@@ -45,19 +45,19 @@
         const game = new Phaser.Game(config);
 
         function preload() {
-            this.load.image('tiles', 'tileset.png'); // タイルセット画像
-            this.load.tilemapTiledJSON('map', 'tilemap.json'); // マップデータ
-            this.load.spritesheet('character', 'player.png', { frameWidth: 32, frameHeight: 32 });
-            this.load.audio('bgm', 'field.mp3');
+            this.load.image("tiles", "tileset.png"); // ?? タイルセット画像を明示的にロード
+            this.load.tilemapTiledJSON("map", "tilemap.json"); // マップデータ
+            this.load.spritesheet("character", "player.png", { frameWidth: 32, frameHeight: 32 });
+            this.load.audio("bgm", "field.mp3");
         }
 
         function create() {
             // マップを読み込む
-            const map = this.make.tilemap({ key: 'map' });
-            const tileset = map.addTilesetImage("tiles", "tiles"); // `tileset.png` に対応
+            const map = this.make.tilemap({ key: "map" });
+            const tileset = map.addTilesetImage(null, "tiles");
 
             // 地面レイヤーを作成
-            const layer = map.createLayer('Ground', tileset, 0, 0);
+            const layer = map.createLayer("Ground", tileset, 0, 0);
             layer.setScale(1); // タイルの拡大率を 1x に設定
             layer.setCollisionByExclusion([-1]);  // すべてのタイルを衝突可能にする
             console.log("タイルマップが正常にロードされました");
