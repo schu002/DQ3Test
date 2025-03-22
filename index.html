@@ -107,16 +107,39 @@
                 direction = 0;
             }
 
+            // ??【修正】押しっぱなしでも `MOVE_DELAY` ごとに連続移動
+            if (moveX === 0 && moveY === 0 && time > moveTimer) {
+                if (cursors.left.isDown) {
+                    moveX = -TILE_SIZE;
+                    direction = 2;
+                } else if (cursors.right.isDown) {
+                    moveX = TILE_SIZE;
+                    direction = 3;
+                } else if (cursors.up.isDown) {
+                    moveY = -TILE_SIZE;
+                    direction = 1;
+                } else if (cursors.down.isDown) {
+                    moveY = TILE_SIZE;
+                    direction = 0;
+                }
+                moveTimer = time + MOVE_DELAY; // 次の移動タイミングをセット
+            }
+
             if (moveX !== 0 || moveY !== 0) {
                 isMoving = true;
-                moveTimer = time + MOVE_DELAY;
+                moveTimer = time + MOVE_DELAY; // ?? 次の移動予約を確保
+
+                let targetX = player.x + moveX;
+                let targetY = player.y + moveY;
 
                 this.tweens.add({
                     targets: player,
-                    x: player.x + moveX,
-                    y: player.y + moveY,
+                    x: targetX,
+                    y: targetY,
                     duration: MOVE_DELAY,
-                    onComplete: () => { isMoving = false; }
+                    onComplete: () => {
+                        isMoving = false; // ?? 移動完了後にフラグを解除
+                    }
                 });
             }
         }
