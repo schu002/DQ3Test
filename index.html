@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ドラクエ風RPG - キー入力を確実に受け付ける修正</title>
+    <title>ドラクエ風RPG - 短押しも長押しも確実に反映</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
 </head>
 <body>
@@ -19,7 +19,7 @@
         const MAP_HEIGHT = 8192;
 
         // 移動間隔（押しっぱなし時のディレイ）
-        const MOVE_DELAY = 300; // ?? 300ms に変更（適度に遅くする）
+        const MOVE_DELAY = 250; // ?? 250ms に設定
 
         // ゲーム設定
         const config = {
@@ -87,11 +87,11 @@
         }
 
         function update(time) {
-            if (isMoving || time < moveTimer) return; // ?? 移動中または移動待機時間内なら無視
+            if (isMoving) return; // ?? 移動中ならキー入力を無視（フリーズ防止）
 
             let moveX = 0, moveY = 0;
 
-            // ??【修正】キーを押した瞬間に即移動
+            // ??【修正】キーを押した瞬間に即移動させる（短押し対策）
             if (Phaser.Input.Keyboard.JustDown(cursors.left)) {
                 moveX = -TILE_SIZE;
                 direction = 2;
@@ -126,7 +126,7 @@
 
             if (moveX !== 0 || moveY !== 0) {
                 isMoving = true;
-                moveTimer = time + MOVE_DELAY; // 移動開始時に次の移動を予約
+                moveTimer = time + MOVE_DELAY; // ?? 次の移動予約を確保
 
                 let targetX = player.x + moveX;
                 let targetY = player.y + moveY;
@@ -137,7 +137,7 @@
                     y: targetY,
                     duration: MOVE_DELAY,
                     onComplete: () => {
-                        isMoving = false; // 移動完了後にフラグを解除
+                        isMoving = false; // ?? 移動完了後にフラグを解除
                     }
                 });
             }
