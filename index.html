@@ -21,7 +21,7 @@
         // 移動間隔
         const MOVE_DELAY = 250;
 
-        let player, cursors, camera, bgm, map;
+        let player, cursors, camera, bgm;
         let isMoving = false; // 移動中かどうかのフラグ
         let stepCount = 0; // 歩行フレームの管理
         let direction = 0; // 方向（0:正面, 1:後ろ, 2:左, 3:右）
@@ -45,7 +45,7 @@
         const game = new Phaser.Game(config);
 
         function preload() {
-            this.load.image('tileset', 'tileset.png'); // タイルセット画像
+            this.load.image('tiles', 'tileset.png'); // タイルセット画像
             this.load.tilemapTiledJSON('map', 'tilemap.json'); // マップデータ
             this.load.spritesheet('character', 'player.png', { frameWidth: 32, frameHeight: 32 });
             this.load.audio('bgm', 'field.mp3');
@@ -53,8 +53,8 @@
 
         function create() {
             // マップを読み込む
-            map = this.make.tilemap({ key: 'map' });
-            const tileset = map.addTilesetImage('tileset', 'tileset'); // `tileset.png` を利用
+            const map = this.make.tilemap({ key: 'map' });
+            const tileset = map.addTilesetImage('tiles', 'tiles'); // `tileset.png` に対応
 
             // 地面レイヤーを作成
             const layer = map.createLayer('Ground', tileset, 0, 0);
