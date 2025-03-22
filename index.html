@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ドラクエ風RPG - 確実にキーが反応する修正</title>
+    <title>ドラクエ風RPG - キー入力を確実に受け付ける修正</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
 </head>
 <body>
@@ -19,7 +19,7 @@
         const MAP_HEIGHT = 8192;
 
         // 移動間隔（押しっぱなし時のディレイ）
-        const MOVE_DELAY = 250; // 250ms ごとに移動（適切な遅延を設定）
+        const MOVE_DELAY = 300; // ?? 300ms に変更（適度に遅くする）
 
         // ゲーム設定
         const config = {
@@ -93,7 +93,7 @@
             let moveX = 0, moveY = 0;
             let newKey = null;
 
-            // ??【修正】キーを押した瞬間に1マスだけ移動し、次の移動を遅延
+            // ??【修正】キーを押した瞬間に即移動し、moveTimer をリセット
             if (Phaser.Input.Keyboard.JustDown(cursors.left)) {
                 moveX = -TILE_SIZE;
                 newKey = "left";
@@ -136,12 +136,12 @@
 
             if (newKey !== null) {
                 if (newKey !== lastKey) {
-                    moveTimer = time + MOVE_DELAY; // 新しいキーが押された場合、すぐに移動を許可
+                    moveTimer = time; // ?? 新しいキーが押された場合、即座に移動を許可
                 }
                 lastKey = newKey;
             }
 
-            // ??【修正】キーを離したら移動を再受付
+            // ??【修正】キーを離したら次の移動を受付可能にする
             if (Phaser.Input.Keyboard.JustUp(cursors.left) || Phaser.Input.Keyboard.JustUp(cursors.right) ||
                 Phaser.Input.Keyboard.JustUp(cursors.up) || Phaser.Input.Keyboard.JustUp(cursors.down)) {
                 lastKey = null;
