@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ドラクエ風RPG - 左右キーを交互に押しても確実に動く</title>
+    <title>ドラクエ風RPG - 反対方向に押しても止まらない</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
 </head>
 <body>
@@ -44,7 +44,6 @@
         let stepCount = 0; // 歩行フレームの管理
         let direction = 0; // 方向（0:正面, 1:後ろ, 2:左, 3:右）
         let moveTimer = 0; // 次の移動までのカウント
-        let isHolding = false; // キーが押されているかどうか
         let lastDirection = null; // 最後に押された方向
 
         const game = new Phaser.Game(config);
@@ -94,7 +93,7 @@
             let moveX = 0, moveY = 0;
             let newDirection = null;
 
-            // ??【修正】1回押したときに即移動
+            // ??【修正】キーを押した瞬間に即移動
             if (Phaser.Input.Keyboard.JustDown(cursors.left)) {
                 moveX = -TILE_SIZE;
                 newDirection = 2;
@@ -110,7 +109,7 @@
             }
 
             // ??【修正】押しっぱなしでも `MOVE_DELAY` ごとに連続移動
-            if (newDirection === null && isHolding && time > moveTimer) {
+            if (newDirection === null && time > moveTimer) {
                 if (cursors.left.isDown) {
                     moveX = -TILE_SIZE;
                     newDirection = 2;
@@ -127,22 +126,21 @@
                 moveTimer = time + MOVE_DELAY; // 次の移動タイミングをセット
             }
 
-            // ??【修正】キーの方向が変わったら `isHolding` をリセット
+            // ??【修正】反対方向のキーを押したら即移動
             if (newDirection !== null && newDirection !== lastDirection) {
-                isHolding = false;
+                moveTimer = 0; // 次の移動を即座に許可
             }
 
             if (newDirection !== null) {
-                isHolding = true;
                 moveTimer = time + MOVE_DELAY;
                 direction = newDirection;
                 lastDirection = newDirection;
             }
 
-            // ??【修正】キーを離したら `isHolding` を解除
+            // ??【修正】キーを離したら移動を再受付
             if (Phaser.Input.Keyboard.JustUp(cursors.left) || Phaser.Input.Keyboard.JustUp(cursors.right) ||
                 Phaser.Input.Keyboard.JustUp(cursors.up) || Phaser.Input.Keyboard.JustUp(cursors.down)) {
-                isHolding = false;
+                lastDirection = null;
             }
 
             if (moveX !== 0 || moveY !== 0) {
