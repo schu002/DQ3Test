@@ -54,11 +54,13 @@
         function create() {
             // マップを読み込む
             const map = this.make.tilemap({ key: 'map' });
-            const tileset = map.addTilesetImage('tiles', 'tiles'); // `tileset.png` に対応
+            const tileset = map.addTilesetImage("tiles", "tiles"); // `tileset.png` に対応
 
             // 地面レイヤーを作成
             const layer = map.createLayer('Ground', tileset, 0, 0);
             layer.setScale(1); // タイルの拡大率を 1x に設定
+            layer.setCollisionByExclusion([-1]);  // すべてのタイルを衝突可能にする
+            console.log("タイルマップが正常にロードされました");
 
             // プレイヤーの初期位置
             let startX = Phaser.Math.Snap.To(MAP_WIDTH / 2, TILE_SIZE);
