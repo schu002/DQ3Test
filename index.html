@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ドラクエ風RPG - 1回のキー押しで1マス移動＆移動速度調整</title>
+    <title>ドラクエ風RPG - 1マス移動を確実に & 速度調整</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
 </head>
 <body>
@@ -18,8 +18,8 @@
         const MAP_WIDTH = 8192;
         const MAP_HEIGHT = 8192;
 
-        // 移動間隔（押しっぱなし時のディレイを少し遅く調整）
-        const MOVE_DELAY = 250; // 250ms ごとに移動（遅くするために調整）
+        // 移動間隔（押しっぱなし時のディレイ）を少し遅くする
+        const MOVE_DELAY = 250; // ?? 250ms に変更（少し遅く）
 
         // ゲーム設定
         const config = {
@@ -93,7 +93,7 @@
             let moveX = 0, moveY = 0;
             let newDirection = null;
 
-            // ??【修正】キーを押した瞬間に1マスだけ移動し、次の移動を遅延
+            // ??【修正】キーを押した瞬間に即移動し、moveTimer をリセット
             if (Phaser.Input.Keyboard.JustDown(cursors.left)) {
                 moveX = -TILE_SIZE;
                 newDirection = 2;
@@ -108,7 +108,7 @@
                 newDirection = 0;
             }
 
-            // ??【修正】押しっぱなしでも `MOVE_DELAY + 50ms` ごとに連続移動
+            // ??【修正】押しっぱなしでも `MOVE_DELAY` ごとに連続移動
             if (newDirection === null && time > moveTimer) {
                 if (cursors.left.isDown) {
                     moveX = -TILE_SIZE;
@@ -123,13 +123,24 @@
                     moveY = TILE_SIZE;
                     newDirection = 0;
                 }
-                moveTimer = time + MOVE_DELAY + 50; // ?? 50ms 遅延を追加し、移動速度を調整
+                moveTimer = time + MOVE_DELAY; // 次の移動タイミングをセット
+            }
+
+            // ??【修正】反対方向のキーを押したら即移動 & moveTimer をリセット
+            if (newDirection !== null && newDirection !== lastDirection) {
+                moveTimer = 0; // 次の移動を即座に許可
             }
 
             if (newDirection !== null) {
                 moveTimer = time + MOVE_DELAY;
                 direction = newDirection;
                 lastDirection = newDirection;
+            }
+
+            // ??【修正】キーを離したら移動を再受付
+            if (Phaser.Input.Keyboard.JustUp(cursors.left) || Phaser.Input.Keyboard.JustUp(cursors.right) ||
+                Phaser.Input.Keyboard.JustUp(cursors.up) || Phaser.Input.Keyboard.JustUp(cursors.down)) {
+                lastDirection = null;
             }
 
             if (moveX !== 0 || moveY !== 0) {
