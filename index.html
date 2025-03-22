@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ドラクエ風RPG - 短押しも長押しも確実に反映</title>
+    <title>ドラクエ風RPG - BGMを追加</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
 </head>
 <body>
@@ -21,7 +21,12 @@
         // 移動間隔（押しっぱなし時のディレイ）
         const MOVE_DELAY = 250; // ?? 250ms に設定
 
-        // ゲーム設定
+        let player, cursors, camera, bgm;
+        let isMoving = false; // 移動中かどうかのフラグ
+        let stepCount = 0; // 歩行フレームの管理
+        let direction = 0; // 方向（0:正面, 1:後ろ, 2:左, 3:右）
+        let moveTimer = 0; // 次の移動までのカウント
+
         const config = {
             type: Phaser.AUTO,
             width: SCREEN_WIDTH,
@@ -37,19 +42,12 @@
             }
         };
 
-        let player;
-        let cursors;
-        let camera;
-        let isMoving = false; // 移動中かどうかのフラグ
-        let stepCount = 0; // 歩行フレームの管理
-        let direction = 0; // 方向（0:正面, 1:後ろ, 2:左, 3:右）
-        let moveTimer = 0; // 次の移動までのカウント
-
         const game = new Phaser.Game(config);
 
         function preload() {
             this.load.image('map', 'world.png');  // 8192x8192 の背景画像
             this.load.spritesheet('character', 'player.png', { frameWidth: 32, frameHeight: 32 });
+            this.load.audio('bgm', 'field.mp3');  // ?? BGMをロード（"bgm.mp3" はゲームフォルダ内に配置）
         }
 
         function create() {
@@ -75,6 +73,10 @@
             // キーボード入力の設定
             cursors = this.input.keyboard.createCursorKeys();
 
+            // ??【追加】BGMを再生（ループ設定）
+            bgm = this.sound.add('bgm', { loop: true, volume: 0.5 }); // 音量 50%
+            bgm.play();
+
             // ??【追加】一定時間ごとにフレームを変更するタイマー
             this.time.addEvent({
                 delay: 250, // 250ms ごとに切り替え
@@ -87,7 +89,7 @@
         }
 
         function update(time) {
-            if (isMoving) return; // ?? 移動中ならキー入力を無視（フリーズ防止）
+            if (isMoving) return; // ?? 移動中ならキー入力を無視
 
             let moveX = 0, moveY = 0;
 
