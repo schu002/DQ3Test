@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ドラクエ風RPG - BGMを追加</title>
+    <title>ドラクエ風RPG - タイルマップ版</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
 </head>
 <body>
@@ -15,11 +15,11 @@
         const TILE_SIZE = 32;
 
         // マップサイズ
-        const MAP_WIDTH = 8192;
-        const MAP_HEIGHT = 8192;
+        const MAP_WIDTH = 1024;  // 32x39 のマップ
+        const MAP_HEIGHT = 1248;
 
-        // 移動間隔（押しっぱなし時のディレイ）
-        const MOVE_DELAY = 250; // ?? 250ms に設定
+        // 移動間隔
+        const MOVE_DELAY = 250;
 
         let player, cursors, camera, bgm;
         let isMoving = false; // 移動中かどうかのフラグ
@@ -45,41 +45,44 @@
         const game = new Phaser.Game(config);
 
         function preload() {
-            this.load.image('map', 'world.png');  // 8192x8192 の背景画像
+            this.load.image('towns', 'townset.png'); // タイルセット画像
+            this.load.tilemapTiledJSON('map', 'ariahan.json'); // マップデータ
             this.load.spritesheet('character', 'player.png', { frameWidth: 32, frameHeight: 32 });
-            this.load.audio('bgm', 'field.mp3');  // ?? BGMをロード（"bgm.mp3" はゲームフォルダ内に配置）
+            this.load.audio('bgm', 'bgm.mp3');
         }
 
         function create() {
-            // 大きな背景画像を追加（座標 0,0 に配置）
-            this.add.image(0, 0, 'map').setOrigin(0, 0);
+            // マップを読み込む
+            const map = this.make.tilemap({ key: 'map' });
+            const townset = map.addTilesetImage('townset', 'towns');
+            const layer = map.createLayer('Ariahan', townset, 0, 0);
 
-            // プレイヤーの初期位置を `32x32` にスナップ
+            // プレイヤーの初期位置
             let startX = Phaser.Math.Snap.To(MAP_WIDTH / 2, TILE_SIZE);
             let startY = Phaser.Math.Snap.To(MAP_HEIGHT / 2, TILE_SIZE);
 
             // プレイヤーを追加
             player = this.physics.add.sprite(startX, startY, 'character', 0);
-            player.setOrigin(0, 0);  // 原点を左上に設定
+            player.setOrigin(0, 0);
             player.setCollideWorldBounds(true);
 
-            // ワールドとカメラの設定
+            // カメラ設定
             this.physics.world.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
             camera = this.cameras.main;
             camera.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
             camera.startFollow(player, true, 0.1, 0.1);
             camera.setZoom(2);
 
-            // キーボード入力の設定
+            // キーボード入力
             cursors = this.input.keyboard.createCursorKeys();
 
-            // ??【追加】BGMを再生（ループ設定）
-            bgm = this.sound.add('bgm', { loop: true, volume: 0.5 }); // 音量 50%
+            // BGM
+            bgm = this.sound.add('bgm', { loop: true, volume: 0.3 });
             bgm.play();
 
-            // ??【追加】一定時間ごとにフレームを変更するタイマー
+            // 歩行アニメーション
             this.time.addEvent({
-                delay: 250, // 250ms ごとに切り替え
+                delay: 250,
                 loop: true,
                 callback: () => {
                     stepCount = (stepCount + 1) % 2; // 0, 1 を交互に
@@ -89,11 +92,10 @@
         }
 
         function update(time) {
-            if (isMoving) return; // ?? 移動中ならキー入力を無視
+            if (isMoving) return; // 移動中ならキー入力を無視
 
             let moveX = 0, moveY = 0;
 
-            // ??【修正】キーを押した瞬間に即移動させる（短押し対策）
             if (Phaser.Input.Keyboard.JustDown(cursors.left)) {
                 moveX = -TILE_SIZE;
                 direction = 2;
@@ -108,39 +110,16 @@
                 direction = 0;
             }
 
-            // ??【修正】押しっぱなしでも `MOVE_DELAY` ごとに連続移動
-            if (moveX === 0 && moveY === 0 && time > moveTimer) {
-                if (cursors.left.isDown) {
-                    moveX = -TILE_SIZE;
-                    direction = 2;
-                } else if (cursors.right.isDown) {
-                    moveX = TILE_SIZE;
-                    direction = 3;
-                } else if (cursors.up.isDown) {
-                    moveY = -TILE_SIZE;
-                    direction = 1;
-                } else if (cursors.down.isDown) {
-                    moveY = TILE_SIZE;
-                    direction = 0;
-                }
-                moveTimer = time + MOVE_DELAY; // 次の移動タイミングをセット
-            }
-
             if (moveX !== 0 || moveY !== 0) {
                 isMoving = true;
-                moveTimer = time + MOVE_DELAY; // ?? 次の移動予約を確保
-
-                let targetX = player.x + moveX;
-                let targetY = player.y + moveY;
+                moveTimer = time + MOVE_DELAY;
 
                 this.tweens.add({
                     targets: player,
-                    x: targetX,
-                    y: targetY,
+                    x: player.x + moveX,
+                    y: player.y + moveY,
                     duration: MOVE_DELAY,
-                    onComplete: () => {
-                        isMoving = false; // ?? 移動完了後にフラグを解除
-                    }
+                    onComplete: () => { isMoving = false; }
                 });
             }
         }
