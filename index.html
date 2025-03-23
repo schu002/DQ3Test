@@ -59,7 +59,7 @@
             // 地面レイヤーを作成
             const layer = map.createLayer("Town", tileset, 0, 0);
             layer.setScale(1); // タイルの拡大率を 1x に設定
-            layer.setCollisionByExclusion([-1]);  // すべてのタイルを衝突可能にする
+            map.setCollision([ 7, 17, 18 ]);
 
             // プレイヤーの初期位置
             let startX = Phaser.Math.Snap.To(10, TILE_SIZE);
@@ -69,6 +69,7 @@
             player = this.physics.add.sprite(startX, startY, 'character', 0);
             player.setOrigin(0, 0);
             player.setCollideWorldBounds(true);
+            this.physics.add.collider(player, layer);
 
             // カメラ設定
             this.physics.world.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
