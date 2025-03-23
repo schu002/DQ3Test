@@ -15,8 +15,8 @@
         const TILE_SIZE = 32;
 
         // マップサイズ（10x10 のタイルマップ）
-        const MAP_WIDTH = 20 * TILE_SIZE;
-        const MAP_HEIGHT = 20 * TILE_SIZE;
+        const MAP_WIDTH = 32 * TILE_SIZE;
+        const MAP_HEIGHT = 39 * TILE_SIZE;
 
         // 移動間隔
         const MOVE_DELAY = 250;
@@ -45,30 +45,25 @@
         const game = new Phaser.Game(config);
 
         function preload() {
-            this.load.image("tiles", "tileset.png"); // ?? タイルセット画像を明示的にロード
-            this.load.tilemapTiledJSON("map", "tilemap.json"); // マップデータ
-            this.load.spritesheet("character", "player.png", { frameWidth: 32, frameHeight: 32 });
-            this.load.audio("bgm", "field.mp3");
+            this.load.tilemapTiledJSON("map", "ariahan.json"); // マップデータ
+            this.load.image("tiles", "town.png"); // ?? タイルセット画像を明示的にロード
+            this.load.spritesheet("character", "soldier.png", { frameWidth: 32, frameHeight: 32 });
+            this.load.audio("bgm", "town.mp3");
         }
 
         function create() {
             // マップを読み込む
             const map = this.make.tilemap({ key: "map" });
-            const tileset = map.addTilesetImage(null, "tiles");
+            const tileset = map.addTilesetImage('tiles');
 
             // 地面レイヤーを作成
-            const layer = map.createLayer("Ground", tileset, 0, 0);
+            const layer = map.createLayer("Town", tileset, 0, 0);
             layer.setScale(1); // タイルの拡大率を 1x に設定
             layer.setCollisionByExclusion([-1]);  // すべてのタイルを衝突可能にする
-            console.log("タイルマップが正常にロードされました");
-
-            let graphics = this.add.graphics();
-            graphics.fillStyle(0xff0000, 1); // 赤色
-            graphics.fillRect(100, 100, 50, 50);
 
             // プレイヤーの初期位置
-            let startX = Phaser.Math.Snap.To(MAP_WIDTH / 2, TILE_SIZE);
-            let startY = Phaser.Math.Snap.To(MAP_HEIGHT / 2, TILE_SIZE);
+            let startX = Phaser.Math.Snap.To(10, TILE_SIZE);
+            let startY = Phaser.Math.Snap.To(800, TILE_SIZE);
 
             // プレイヤーを追加
             player = this.physics.add.sprite(startX, startY, 'character', 0);
