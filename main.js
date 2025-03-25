@@ -125,8 +125,7 @@ function moveNPC(scene) {
     }
 
     // 壁などにぶつからないようにチェック
-    let tile = scene.groundLayer.getTileAtWorldXY(targetX, targetY);
-    if (!tile || tile.index > 16) return; // 壁なら移動しない
+    if (!canMove(scene, targetX, targetY)) return;
 
     // NPC の移動
     npcMoveTimer = scene.time.now + MOVE_DELAY;
@@ -182,8 +181,7 @@ function update(time) {
         let targetY = player.y + moveY;
 
         // 壁などには移動できない
-        var tile = this.groundLayer.getTileAtWorldXY(targetX, targetY);
-        if (!tile || tile.index > 16) {
+        if (!canMove(this, targetX, targetY)) {
             isMoving = false;
         } else {
             this.tweens.add({
@@ -201,3 +199,10 @@ function update(time) {
 
 function getPlayerFrame() { return playerDir * 2 + stepCount; }
 function getNpcFrame() { return npcDir * 2 + stepCount; }
+function canMove(scene, x, y) {
+    var tile = scene.groundLayer.getTileAtWorldXY(x, y);
+    if (!tile || tile.index > 16) return false;
+    if (x == player.x && y == player.y) return false;
+    if (x == npc.x && y == npc.y) return false;
+	return true;
+}
