@@ -22,7 +22,7 @@ var DIR = {
 class NPC {
     constructor(scene, x, y, texture) {
         this.scene = scene;
-        this.sprite = scene.physics.add.sprite(x, y, texture, 0);
+        this.sprite = scene.physics.add.sprite(x * TILE_SIZE, y * TILE_SIZE, texture, 0);
         this.sprite.setOrigin(0, 0);
         this.direction = Phaser.Math.Between(0, 3); // ランダムな方向
         this.moveTimer = 0;
@@ -86,8 +86,7 @@ function preload() {
     this.load.tilemapTiledJSON("map", "ariahan.json"); // マップデータ
     this.load.image("tiles", "town.png"); // タイルセット画像
     this.load.spritesheet("character", "soldier.png", { frameWidth: 32, frameHeight: 32 });
-    this.load.spritesheet("npc1", "npc1.png", { frameWidth: 32, frameHeight: 32 }); // 町人１
-    this.load.spritesheet("npc2", "npc2.png", { frameWidth: 32, frameHeight: 32 }); // 町人２
+    this.load.json("npcData", "ariahan.json");
     this.load.audio("bgm", "town.mp3");
 }
 
@@ -106,9 +105,21 @@ function create() {
     player = this.physics.add.sprite(startX, startY, 'character', 0);
     player.setOrigin(0, 0);
 
-    // 町人を追加
-    npcList.push(new NPC(this, 15 * TILE_SIZE, 20 * TILE_SIZE, "npc1"));
-    npcList.push(new NPC(this, 4 * TILE_SIZE, 24 * TILE_SIZE, "npc2"));
+    // 画像をロード
+    npcList = [];
+    const npcData = this.cache.json.get("npcData").objects;
+    if (!npcData) return;
+    npcData.forEach(npc => {
+        this.load.spritesheet(npc.name, npc.image, { frameWidth: 32, frameHeight: 32 });
+    });
+
+    // 追加のロードを開始
+    this.load.once("complete", () => {
+        npcData.forEach(npc => {
+            npcList.push(new NPC(this, npc.x, npc.y, npc.name));
+        });
+    }, this);
+    this.load.start();
 
     // カメラ設定
     this.physics.world.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
