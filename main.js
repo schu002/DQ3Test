@@ -73,6 +73,16 @@ class MainScene extends Phaser.Scene {
     }
 }
 
+class Player extends Phaser.GameObjects.Sprite {
+    constructor(scene, x, y, image) {
+        super(scene, x * TILE_SIZE, y * TILE_SIZE-CARA_OFFSET, image);
+        scene.add.existing(this);
+        scene.physics.add.existing(this);
+        this.setOrigin(0, 0);
+        this.setFrame(0); // �����t���[����ݒ�
+    }
+}
+
 class NPC {
     constructor(scene, x, y, name, move, dir) {
         this.scene = scene;
@@ -136,12 +146,20 @@ const game = new Phaser.Game(config);
 function preload() {
     this.load.tilemapTiledJSON("map", "ariahan.json"); // マップデータ
     this.load.image("tiles", "town.png"); // タイルセット画像
-    this.load.spritesheet("character", "soldier.png", { frameWidth: 32, frameHeight: 32 });
-    this.load.json("npcData", "ariahan.json");
+    this.load.json("townData", "ariahan.json");
     this.load.audio("bgm", "town.mp3");
+    this.load.spritesheet("player1", "soldier.png", { frameWidth: 32, frameHeight: 32 });
 }
 
 function create() {
+    const townData = this.cache.json.get("townData");
+    if (!townData || !townData.player || !townData.objects) {
+    	console.error("Error: player data not found in JSON.");
+	    return;
+    }
+    const playerData = townData.player;
+    const npcData = townData.objects;
+
     // マップを読み込む
     const map = this.make.tilemap({ key: "map" });
     const tileset = map.addTilesetImage('tiles');
@@ -151,15 +169,10 @@ function create() {
     this.groundLayer.setScale(1);
 
     // プレイヤーを追加
-    let startX = 0 * TILE_SIZE;
-    let startY = 25 * TILE_SIZE - CARA_OFFSET;
-    player = this.physics.add.sprite(startX, startY, 'character', 0);
-    player.setOrigin(0, 0);
+    player = new Player(this, playerData.x, playerData.y, playerData.name);
 
     // 画像をロード
     npcList = [];
-    const npcData = this.cache.json.get("npcData").objects;
-    if (!npcData) return;
     npcData.forEach(npc => {
         this.load.spritesheet(npc.name, npc.image, { frameWidth: 32, frameHeight: 32 });
     });
