@@ -90,22 +90,17 @@ class Player extends Phaser.GameObjects.Sprite {
     	this.direction = dir;
     	if (dir < 0) return;
 
-        let targetX = this.x;
-        let targetY = this.y;
-        if (this.direction == DIR.DOWN) targetY += TILE_SIZE;
-        else if (this.direction == DIR.UP) targetY -= TILE_SIZE;
-        else if (this.direction == DIR.LEFT) targetX -= TILE_SIZE;
-        else if (this.direction == DIR.RIGHT) targetX += TILE_SIZE;
-        else return;
+        let position = [this.x, this.y];
+        if (!updatePosition(position, dir)) return;
 
         // 螢√↑縺ｩ縺ｫ縺ｯ遘ｻ蜍輔〒縺阪↑縺・
-        this.isMoving = canMove(this.scene, targetX, targetY);
+        this.isMoving = canMove(this.scene, position);
         if (!this.isMoving) return;
 
         this.scene.tweens.add({
             targets: this,
-            x: targetX,
-            y: targetY,
+            x: position[0],
+            y: position[1],
             duration: MOVE_DELAY,
             onComplete: () => {
                 this.isMoving = false;
@@ -132,23 +127,18 @@ class NPC {
     move() {
         if (!this.canMove) return;
 
-        let targetX = this.sprite.x;
-        let targetY = this.sprite.y;
         this.direction = Phaser.Math.Between(0, 3);
-
-        if (this.direction == DIR.DOWN) targetY += TILE_SIZE;
-        else if (this.direction == DIR.UP) targetY -= TILE_SIZE;
-        else if (this.direction == DIR.LEFT) targetX -= TILE_SIZE;
-        else targetX += TILE_SIZE;
+        let position = [this.sprite.x, this.sprite.y];
+        if (!updatePosition(position, this.direction)) return;
 
         // 螢√↑縺ｩ縺ｫ縺ｶ縺､縺九ｉ縺ｪ縺・ｈ縺・↓繝√ぉ繝・け
-        if (!canMove(this.scene, targetX, targetY)) return;
+        if (!canMove(this.scene, position)) return;
 
         // 遘ｻ蜍募・逅・
         this.scene.tweens.add({
             targets: this.sprite,
-            x: targetX,
-            y: targetY,
+            x: position[0],
+            y: position[1],
             duration: MOVE_DELAY
         });
     }
@@ -262,7 +252,18 @@ function update(time) {
     player.move(dir);
 }
 
-function canMove(scene, x, y) {
+function updatePosition(position, dir)
+{
+    if		(dir == DIR.DOWN)  position[1] += TILE_SIZE;
+    else if (dir == DIR.UP)	   position[1] -= TILE_SIZE;
+    else if (dir == DIR.LEFT)  position[0] -= TILE_SIZE;
+    else if (dir == DIR.RIGHT) position[0] += TILE_SIZE;
+    else return false;
+    return true;
+}
+
+function canMove(scene, position) {
+    let x = position[0], y = position[1];
     var tile = scene.groundLayer.getTileAtWorldXY(x, y+CARA_OFFSET);
     if (!tile || tile.index > 16) return false;
     if (x == player.x && y == player.y) return false;
