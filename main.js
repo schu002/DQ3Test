@@ -156,13 +156,13 @@ function create() {
     	console.error("Error: player data not found in JSON.");
 	    return;
     }
-    const playerData = townData.player;
-    const npcData = townData.objects;
 
+    const playerData = townData.player;
     this.load.spritesheet(playerData.name, playerData.image, { frameWidth: 32, frameHeight: 32 });
 
     // 画像をロード
     npcList = [];
+    const npcData = townData.objects;
     npcData.forEach(npc => {
         this.load.spritesheet(npc.name, npc.image, { frameWidth: 32, frameHeight: 32 });
     });
