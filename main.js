@@ -74,9 +74,11 @@ class MainScene extends Phaser.Scene {
 }
 
 class Player {
-    constructor(scene, x, y, name, dir) {
+    constructor(scene, row, col, name, dir) {
         this.scene = scene;
-    	this.sprite = scene.physics.add.sprite(x * TILE_SIZE, y * TILE_SIZE-CARA_OFFSET, name, 0);
+        this.row = row;
+        this.col = col;
+    	this.sprite = scene.physics.add.sprite(col * TILE_SIZE, row * TILE_SIZE-CARA_OFFSET, name, 0);
         this.sprite.setOrigin(0, 0);
         this.direction = dir;
         this.isMoving = false;
@@ -88,7 +90,7 @@ class Player {
     	this.direction = dir;
     	if (dir < 0) return;
 
-        let position = [this.sprite.x, this.sprite.y];
+        let position = [this.row, this.col];
         if (!updatePosition(position, dir)) return;
 
         // 螢√↑縺ｩ縺ｫ縺ｯ遘ｻ蜍輔〒縺阪↑縺・
@@ -97,11 +99,13 @@ class Player {
 
         this.scene.tweens.add({
             targets: this.sprite,
-            x: position[0],
-            y: position[1],
+            x: position[1] * TILE_SIZE,
+            y: position[0] * TILE_SIZE - CARA_OFFSET,
             duration: MOVE_DELAY,
             onComplete: () => {
                 this.isMoving = false;
+                this.row = position[0];
+                this.col = position[1];
             }
         });
     }
@@ -113,9 +117,11 @@ class Player {
 }
 
 class NPC {
-    constructor(scene, x, y, name, move, dir) {
+    constructor(scene, row, col, name, move, dir) {
         this.scene = scene;
-        this.sprite = scene.physics.add.sprite(x * TILE_SIZE, y * TILE_SIZE-CARA_OFFSET, name, 0);
+        this.row = row;
+        this.col = col;
+        this.sprite = scene.physics.add.sprite(col * TILE_SIZE, row * TILE_SIZE-CARA_OFFSET, name, 0);
         this.sprite.setOrigin(0, 0);
         this.direction = (dir < 0)? Phaser.Math.Between(0, 3) : dir; // 繝ｩ繝ｳ繝繝縺ｪ譁ｹ蜷・
         this.canMove = move;
@@ -126,7 +132,7 @@ class NPC {
         if (!this.canMove) return;
 
         this.direction = Phaser.Math.Between(0, 3);
-        let position = [this.sprite.x, this.sprite.y];
+        let position = [this.row, this.col];
         if (!updatePosition(position, this.direction)) return;
 
         // 螢√↑縺ｩ縺ｫ縺ｶ縺､縺九ｉ縺ｪ縺・ｈ縺・↓繝√ぉ繝・け
@@ -135,9 +141,13 @@ class NPC {
         // 遘ｻ蜍募・逅・
         this.scene.tweens.add({
             targets: this.sprite,
-            x: position[0],
-            y: position[1],
-            duration: MOVE_DELAY
+            x: position[1] * TILE_SIZE,
+            y: position[0] * TILE_SIZE - CARA_OFFSET,
+            duration: MOVE_DELAY,
+            onComplete: () => {
+                this.row = position[0];
+                this.col = position[1];
+            }
         });
     }
 
@@ -198,9 +208,9 @@ function create() {
 	    this.groundLayer.setScale(1);
 
 	    // 繝励Ξ繧､繝､繝ｼ繧定ｿｽ蜉
-	    player = new Player(this, playerData.x, playerData.y, playerData.name, playerData.dir);
+	    player = new Player(this, playerData.row, playerData.col, playerData.name, playerData.dir);
         npcData.forEach(npc => {
-            npcList.push(new NPC(this, npc.x, npc.y, npc.name, npc.move, npc.dir));
+            npcList.push(new NPC(this, npc.row, npc.col, npc.name, npc.move, npc.dir));
         });
 
 	    // 繧ｫ繝｡繝ｩ險ｭ螳・
@@ -252,19 +262,19 @@ function update(time) {
 
 function updatePosition(position, dir)
 {
-    if		(dir == DIR.DOWN)  position[1] += TILE_SIZE;
-    else if (dir == DIR.UP)	   position[1] -= TILE_SIZE;
-    else if (dir == DIR.LEFT)  position[0] -= TILE_SIZE;
-    else if (dir == DIR.RIGHT) position[0] += TILE_SIZE;
+    if		(dir == DIR.DOWN)  position[0] += 1;
+    else if (dir == DIR.UP)	   position[0] -= 1;
+    else if (dir == DIR.LEFT)  position[1] -= 1;
+    else if (dir == DIR.RIGHT) position[1] += 1;
     else return false;
     return true;
 }
 
 function canMove(scene, position) {
-    let x = position[0], y = position[1];
-    var tile = scene.groundLayer.getTileAtWorldXY(x, y+CARA_OFFSET);
+	let row = position[0], col = position[1];
+    var tile = scene.groundLayer.getTileAtWorldXY(col * TILE_SIZE, row * TILE_SIZE);
     if (!tile || tile.index > 16) return false;
-    if (x == player.x && y == player.y) return false;
-    if (npcList.some(npc => x == npc.sprite.x && y == npc.sprite.y)) return false;
+    if (row == player.row && col == player.col) return false;
+    if (npcList.some(npc => row == npc.row && col == npc.col)) return false;
 	return true;
 }

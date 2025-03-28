@@ -59,8 +59,8 @@
         }],
  "player": {
     "name": "player1",
-    "x": 0,
-    "y": 25,
+    "row": 25,
+    "col": 0,
     "image": "soldier.png",
     "move": true,
     "dir": 3
@@ -68,64 +68,64 @@
  "objects": [
     {
       "name": "npc1",
-      "x": 15,
-      "y": 20,
+      "row": 20,
+      "col": 15,
       "image": "man.png",
       "move": true,
       "dir": -1
     },
     {
       "name": "npc2",
-      "x": 4,
-      "y": 24,
+      "row": 24,
+      "col": 4,
       "image": "woman.png",
       "move": true,
       "dir": -1
     },
     {
       "name": "npc3",
-      "x": 10,
-      "y": 21,
+      "row": 21,
+      "col": 10,
       "image": "merchant.png",
       "move": false,
       "dir": 0
     },
     {
       "name": "npc4",
-      "x": 11,
-      "y": 29,
+      "row": 29,
+      "col": 11,
       "image": "merchant.png",
       "move": false,
       "dir": 3
     },
     {
       "name": "npc5",
-      "x": 20,
-      "y": 30,
+      "row": 30,
+      "col": 20,
       "image": "merchant.png",
       "move": false,
       "dir": 0
     },
     {
       "name": "npc6",
-      "x": 29,
-      "y": 32,
+      "row": 32,
+      "col": 29,
       "image": "oldman.png",
       "move": false,
       "dir": 2
     },
     {
       "name": "npc7",
-      "x": 21,
-      "y": 34,
+      "row": 34,
+      "col": 21,
       "image": "fencer.png",
       "move": false,
       "dir": 2
     },
     {
       "name": "npc8",
-      "x": 27,
-      "y": 5,
+      "row": 5,
+      "col": 27,
       "image": "father.png",
       "move": false,
       "dir": 0
