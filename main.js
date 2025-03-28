@@ -74,10 +74,11 @@ class MainScene extends Phaser.Scene {
 }
 
 class Player extends Phaser.GameObjects.Sprite {
-    constructor(scene, x, y, image) {
-        super(scene, x * TILE_SIZE, y * TILE_SIZE-CARA_OFFSET, image);
+    constructor(scene, x, y, name, dir) {
+        super(scene, x * TILE_SIZE, y * TILE_SIZE-CARA_OFFSET, name);
         scene.add.existing(this);
         scene.physics.add.existing(this);
+        this.direction = dir;
         this.setOrigin(0, 0);
         this.setFrame(0); // �����t���[����ݒ�
     }
@@ -128,7 +129,6 @@ let player, cursors, camera, bgm;
 let npcList = [];	// 町人リスト
 let isMoving = false; // 移動中かどうかのフラグ
 let stepCount = 0;	// 歩行フレームの管理
-let playerDir = 0;	// プレイヤーの移動方向（0:正面, 1:後ろ, 2:左, 3:右）
 
 const config = {
     type: Phaser.AUTO,
@@ -148,7 +148,6 @@ function preload() {
     this.load.image("tiles", "town.png"); // タイルセット画像
     this.load.json("townData", "ariahan.json");
     this.load.audio("bgm", "town.mp3");
-    this.load.spritesheet("player1", "soldier.png", { frameWidth: 32, frameHeight: 32 });
 }
 
 function create() {
@@ -160,16 +159,7 @@ function create() {
     const playerData = townData.player;
     const npcData = townData.objects;
 
-    // マップを読み込む
-    const map = this.make.tilemap({ key: "map" });
-    const tileset = map.addTilesetImage('tiles');
-
-    // 地面レイヤーを作成
-    this.groundLayer = map.createLayer("Town", tileset, 0, 0);
-    this.groundLayer.setScale(1);
-
-    // プレイヤーを追加
-    player = new Player(this, playerData.x, playerData.y, playerData.name);
+    this.load.spritesheet(playerData.name, playerData.image, { frameWidth: 32, frameHeight: 32 });
 
     // 画像をロード
     npcList = [];
@@ -179,18 +169,29 @@ function create() {
 
     // 追加のロードを開始
     this.load.once("complete", () => {
+	    // マップを読み込む
+	    const map = this.make.tilemap({ key: "map" });
+	    const tileset = map.addTilesetImage('tiles');
+
+	    // 地面レイヤーを作成
+	    this.groundLayer = map.createLayer("Town", tileset, 0, 0);
+	    this.groundLayer.setScale(1);
+
+	    // プレイヤーを追加
+	    player = new Player(this, playerData.x, playerData.y, playerData.name, playerData.dir);
+
         npcData.forEach(npc => {
             npcList.push(new NPC(this, npc.x, npc.y, npc.name, npc.move, npc.dir));
         });
+
+	    // カメラ設定
+	    this.physics.world.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
+	    camera = this.cameras.main;
+	    camera.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
+	    camera.startFollow(player, true, 0.1, 0.1);
+	    camera.setZoom(2);
     }, this);
     this.load.start();
-
-    // カメラ設定
-    this.physics.world.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
-    camera = this.cameras.main;
-    camera.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
-    camera.startFollow(player, true, 0.1, 0.1);
-    camera.setZoom(2);
 
     // キーボード入力
     cursors = this.input.keyboard.createCursorKeys();
@@ -227,16 +228,16 @@ function update(time) {
 
 	if (cursors.left.isDown) {
         moveX = -TILE_SIZE;
-        playerDir = DIR.LEFT;
+        player.direction = DIR.LEFT;
     } else if (cursors.right.isDown) {
         moveX = TILE_SIZE;
-        playerDir = DIR.RIGHT;
+        player.direction = DIR.RIGHT;
     } else if (cursors.up.isDown) {
         moveY = -TILE_SIZE;
-        playerDir = DIR.UP;
+        player.direction = DIR.UP;
     } else if (cursors.down.isDown) {
         moveY = TILE_SIZE;
-        playerDir = DIR.DOWN;
+        player.direction = DIR.DOWN;
     }
 
     if (moveX !== 0 || moveY !== 0) {
@@ -261,7 +262,7 @@ function update(time) {
     }
 }
 
-function getPlayerFrame() { return playerDir * 2 + stepCount; }
+function getPlayerFrame() { return player.direction * 2 + stepCount; }
 function getNpcFrame() { return npcDir * 2 + stepCount; }
 function canMove(scene, x, y) {
     var tile = scene.groundLayer.getTileAtWorldXY(x, y+CARA_OFFSET);
