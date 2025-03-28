@@ -1,16 +1,16 @@
-// âÊñ ÉTÉCÉYÅi2î{Ç…ägëÂÅj
+// ÁîªÈù¢„Çµ„Ç§„Ç∫Ôºà2ÂÄç„Å´Êã°Â§ßÔºâ
 const SCREEN_WIDTH = 960;
 const SCREEN_HEIGHT = 720;
 
-// É^ÉCÉãÉTÉCÉY
+// „Çø„Ç§„É´„Çµ„Ç§„Ç∫
 const TILE_SIZE = 32;
 
-// É}ÉbÉvÉTÉCÉYÅiÉ^ÉCÉãÉ}ÉbÉvÇÃëÂÇ´Ç≥Åj
+// „Éû„ÉÉ„Éó„Çµ„Ç§„Ç∫Ôºà„Çø„Ç§„É´„Éû„ÉÉ„Éó„ÅÆÂ§ß„Åç„ÅïÔºâ
 const MAP_WIDTH = 32 * TILE_SIZE;
 const MAP_HEIGHT = 39 * TILE_SIZE;
 
-// à⁄ìÆä‘äu
-const MOVE_DELAY = 250;
+// ÁßªÂãïÈñìÈöî
+const MOVE_DELAY = 280;
 
 var DIR = {
 	DOWN	: 0,
@@ -19,12 +19,65 @@ var DIR = {
 	RIGHT	: 3
 };
 
+class MainScene extends Phaser.Scene {
+    constructor() {
+        super({ key: "MainScene" });
+        this.isTalking = false;  // ‰ºöË©±‰∏≠„Åã„Å©„ÅÜ„Åã„ÅÆ„Éï„É©„Ç∞
+    }
+
+    preload() {
+        preload.call(this);
+    }
+
+    create() {
+        create.call(this);
+
+        // A„Ç≠„Éº„ÅÆÂÖ•ÂäõË®≠ÂÆö
+        this.input.keyboard.on("keydown-A", this.toggleConversation, this);
+
+        // ‰ºöË©±„Ç¶„Ç£„É≥„Éâ„Ç¶ÔºàÈªí„ÅÑËÉåÊôØ„ÅÆÂõõËßíÔºâ„Çí‰ΩúÊàê
+        this.dialogBox = this.add.graphics();
+        this.dialogBox.fillStyle(0x000000, 0.9);
+        this.dialogBox.fillRect(280, 400, 400, 130);
+        this.dialogBox.setScrollFactor(0);
+        this.dialogBox.setDepth(10);
+        this.dialogBox.setVisible(false);  // Âàù„ÇÅ„ÅØÈùûË°®Á§∫
+
+        // ‰ºöË©±„ÉÜ„Ç≠„Çπ„Éà
+        this.dialogText = this.add.text(300, 410, "„Åì„Çì„Å´„Å°„ÅØ", {
+            fontSize: "24px",
+            fill: "#ffffff",
+            fontFamily: "MS UI Gothic"
+        });
+        this.dialogText.setScrollFactor(0);
+        this.dialogText.setDepth(11);
+        this.dialogText.setVisible(false);
+    }
+
+    toggleConversation() {
+        if (this.isTalking) {
+            // ‰ºöË©±„ÇíÈñâ„Åò„Çã
+            this.dialogBox.setVisible(false);
+            this.dialogText.setVisible(false);
+        } else {
+            // ‰ºöË©±„ÇíË°®Á§∫
+            this.dialogBox.setVisible(true);
+            this.dialogText.setVisible(true);
+        }
+        this.isTalking = !this.isTalking;
+    }
+
+    update() {
+        update.call(this);
+    }
+}
+
 class NPC {
     constructor(scene, x, y, texture) {
         this.scene = scene;
         this.sprite = scene.physics.add.sprite(x * TILE_SIZE, y * TILE_SIZE, texture, 0);
         this.sprite.setOrigin(0, 0);
-        this.direction = Phaser.Math.Between(0, 3); // ÉâÉìÉ_ÉÄÇ»ï˚å¸
+        this.direction = Phaser.Math.Between(0, 3); // „É©„É≥„ÉÄ„É†„Å™ÊñπÂêë
         this.moveTimer = 0;
     }
 
@@ -40,10 +93,10 @@ class NPC {
         else if (this.direction == DIR.LEFT) targetX -= TILE_SIZE;
         else targetX += TILE_SIZE;
 
-        // ï«Ç»Ç«Ç…Ç‘Ç¬Ç©ÇÁÇ»Ç¢ÇÊÇ§Ç…É`ÉFÉbÉN
+        // Â£Å„Å™„Å©„Å´„Å∂„Å§„Åã„Çâ„Å™„ÅÑ„Çà„ÅÜ„Å´„ÉÅ„Çß„ÉÉ„ÇØ
         if (!canMove(this.scene, targetX, targetY)) return;
 
-        // à⁄ìÆèàóù
+        // ÁßªÂãïÂá¶ÁêÜ
         this.moveTimer = this.scene.time.now + MOVE_DELAY;
         this.scene.tweens.add({
             targets: this.sprite,
@@ -59,53 +112,48 @@ class NPC {
 }
 
 let player, cursors, camera, bgm;
-let npcList = [];	// í¨êlÉäÉXÉg
-let isMoving = false; // à⁄ìÆíÜÇ©Ç«Ç§Ç©ÇÃÉtÉâÉO
-let stepCount = 0;	// ï‡çsÉtÉåÅ[ÉÄÇÃä«óù
-let playerDir = 0;	// ÉvÉåÉCÉÑÅ[ÇÃà⁄ìÆï˚å¸Åi0:ê≥ñ , 1:å„ÇÎ, 2:ç∂, 3:âEÅj
-let playerTimer = 0; // éüÇÃà⁄ìÆÇ‹Ç≈ÇÃÉJÉEÉìÉg
+let npcList = [];	// Áî∫‰∫∫„É™„Çπ„Éà
+let isMoving = false; // ÁßªÂãï‰∏≠„Åã„Å©„ÅÜ„Åã„ÅÆ„Éï„É©„Ç∞
+let stepCount = 0;	// Ê≠©Ë°å„Éï„É¨„Éº„É†„ÅÆÁÆ°ÁêÜ
+let playerDir = 0;	// „Éó„É¨„Ç§„É§„Éº„ÅÆÁßªÂãïÊñπÂêëÔºà0:Ê≠£Èù¢, 1:Âæå„Çç, 2:Â∑¶, 3:Âè≥Ôºâ
 
 const config = {
     type: Phaser.AUTO,
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT,
+    scene: [MainScene],
     physics: {
         default: 'arcade',
         arcade: { debug: false }
-    },
-    scene: {
-        preload: preload,
-        create: create,
-        update: update
     }
 };
 
 const game = new Phaser.Game(config);
 
 function preload() {
-    this.load.tilemapTiledJSON("map", "ariahan.json"); // É}ÉbÉvÉfÅ[É^
-    this.load.image("tiles", "town.png"); // É^ÉCÉãÉZÉbÉgâÊëú
+    this.load.tilemapTiledJSON("map", "ariahan.json"); // „Éû„ÉÉ„Éó„Éá„Éº„Çø
+    this.load.image("tiles", "town.png"); // „Çø„Ç§„É´„Çª„ÉÉ„ÉàÁîªÂÉè
     this.load.spritesheet("character", "soldier.png", { frameWidth: 32, frameHeight: 32 });
     this.load.json("npcData", "ariahan.json");
     this.load.audio("bgm", "town.mp3");
 }
 
 function create() {
-    // É}ÉbÉvÇì«Ç›çûÇﬁ
+    // „Éû„ÉÉ„Éó„ÇíË™≠„ÅøËæº„ÇÄ
     const map = this.make.tilemap({ key: "map" });
     const tileset = map.addTilesetImage('tiles');
 
-    // ínñ ÉåÉCÉÑÅ[ÇçÏê¨
+    // Âú∞Èù¢„É¨„Ç§„É§„Éº„Çí‰ΩúÊàê
     this.groundLayer = map.createLayer("Town", tileset, 0, 0);
     this.groundLayer.setScale(1);
 
-    // ÉvÉåÉCÉÑÅ[Çí«â¡
+    // „Éó„É¨„Ç§„É§„Éº„ÇíËøΩÂä†
     let startX = Phaser.Math.Snap.To(10, TILE_SIZE);
     let startY = Phaser.Math.Snap.To(800, TILE_SIZE);
     player = this.physics.add.sprite(startX, startY, 'character', 0);
     player.setOrigin(0, 0);
 
-    // âÊëúÇÉçÅ[Éh
+    // ÁîªÂÉè„Çí„É≠„Éº„Éâ
     npcList = [];
     const npcData = this.cache.json.get("npcData").objects;
     if (!npcData) return;
@@ -113,7 +161,7 @@ function create() {
         this.load.spritesheet(npc.name, npc.image, { frameWidth: 32, frameHeight: 32 });
     });
 
-    // í«â¡ÇÃÉçÅ[ÉhÇäJén
+    // ËøΩÂä†„ÅÆ„É≠„Éº„Éâ„ÇíÈñãÂßã
     this.load.once("complete", () => {
         npcData.forEach(npc => {
             npcList.push(new NPC(this, npc.x, npc.y, npc.name));
@@ -121,34 +169,34 @@ function create() {
     }, this);
     this.load.start();
 
-    // ÉJÉÅÉâê›íË
+    // „Ç´„É°„É©Ë®≠ÂÆö
     this.physics.world.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
     camera = this.cameras.main;
     camera.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
     camera.startFollow(player, true, 0.1, 0.1);
     camera.setZoom(2);
 
-    // ÉLÅ[É{Å[Éhì¸óÕ
+    // „Ç≠„Éº„Éú„Éº„ÉâÂÖ•Âäõ
     cursors = this.input.keyboard.createCursorKeys();
 
     // BGM
     bgm = this.sound.add('bgm', { loop: true, volume: 0.3 });
     bgm.play();
 
-    // ï‡çsÉAÉjÉÅÅ[ÉVÉáÉì
+    // Ê≠©Ë°å„Ç¢„Éã„É°„Éº„Ç∑„Éß„É≥
     this.time.addEvent({
         delay: 250,
         loop: true,
         callback: () => {
-            stepCount = (stepCount + 1) % 2; // 0, 1 Çåå›Ç…
+            stepCount = (stepCount + 1) % 2; // 0, 1 „Çí‰∫§‰∫í„Å´
             player.setFrame(getPlayerFrame());
             npcList.forEach(npc => npc.updateFrame());
         }
     });
 
-    // í¨êlÇÃÉâÉìÉ_ÉÄà⁄ìÆÇå¬ï Ç…èàóù
+    // Áî∫‰∫∫„ÅÆ„É©„É≥„ÉÄ„É†ÁßªÂãï„ÇíÂÄãÂà•„Å´Âá¶ÁêÜ
     this.time.addEvent({
-        delay: 2000, // 2ïbÇ≤Ç∆Ç…à⁄ìÆ
+        delay: 2000, // 2Áßí„Åî„Å®„Å´ÁßªÂãï
         loop: true,
         callback: () => {
 	        npcList.forEach(npc => npc.move());
@@ -156,7 +204,7 @@ function create() {
     });
 }
 
-// í¨êlÇÉâÉìÉ_ÉÄÇ»ï˚å¸Ç…à⁄ìÆÇ≥ÇπÇÈä÷êî
+// Áî∫‰∫∫„Çí„É©„É≥„ÉÄ„É†„Å™ÊñπÂêë„Å´ÁßªÂãï„Åï„Åõ„ÇãÈñ¢Êï∞
 function moveNPC(scene) {
     let targetX = npc.x;
     let targetY = npc.y;
@@ -172,10 +220,10 @@ function moveNPC(scene) {
         targetX += TILE_SIZE;
     }
 
-    // ï«Ç»Ç«Ç…Ç‘Ç¬Ç©ÇÁÇ»Ç¢ÇÊÇ§Ç…É`ÉFÉbÉN
+    // Â£Å„Å™„Å©„Å´„Å∂„Å§„Åã„Çâ„Å™„ÅÑ„Çà„ÅÜ„Å´„ÉÅ„Çß„ÉÉ„ÇØ
     if (!canMove(scene, targetX, targetY)) return;
 
-    // NPC ÇÃà⁄ìÆ
+    // NPC „ÅÆÁßªÂãï
     scene.tweens.add({
         targets: npc,
         x: targetX,
@@ -185,49 +233,30 @@ function moveNPC(scene) {
 }
 
 function update(time) {
-    if (isMoving) return; // à⁄ìÆíÜÇ»ÇÁÉLÅ[ì¸óÕÇñ≥éã
+    if (isMoving) return; // ÁßªÂãï‰∏≠„Å™„Çâ„Ç≠„ÉºÂÖ•Âäõ„ÇíÁÑ°Ë¶ñ
 
     let moveX = 0, moveY = 0;
 
-    if (Phaser.Input.Keyboard.JustDown(cursors.left)) {
+	if (cursors.left.isDown) {
         moveX = -TILE_SIZE;
         playerDir = DIR.LEFT;
-    } else if (Phaser.Input.Keyboard.JustDown(cursors.right)) {
+    } else if (cursors.right.isDown) {
         moveX = TILE_SIZE;
         playerDir = DIR.RIGHT;
-    } else if (Phaser.Input.Keyboard.JustDown(cursors.up)) {
+    } else if (cursors.up.isDown) {
         moveY = -TILE_SIZE;
         playerDir = DIR.UP;
-    } else if (Phaser.Input.Keyboard.JustDown(cursors.down)) {
+    } else if (cursors.down.isDown) {
         moveY = TILE_SIZE;
         playerDir = DIR.DOWN;
     }
 
-    if (moveX === 0 && moveY === 0 && time > playerTimer) {
-        if (cursors.left.isDown) {
-            moveX = -TILE_SIZE;
-            playerDir = DIR.LEFT;
-        } else if (cursors.right.isDown) {
-            moveX = TILE_SIZE;
-            playerDir = DIR.RIGHT;
-        } else if (cursors.up.isDown) {
-            moveY = -TILE_SIZE;
-            playerDir = DIR.UP;
-        } else if (cursors.down.isDown) {
-            moveY = TILE_SIZE;
-            playerDir = DIR.DOWN;
-        }
-        playerTimer = time + MOVE_DELAY;
-    }
-
     if (moveX !== 0 || moveY !== 0) {
         isMoving = true;
-        playerTimer = time + MOVE_DELAY;
-
         let targetX = player.x + moveX;
         let targetY = player.y + moveY;
 
-        // ï«Ç»Ç«Ç…ÇÕà⁄ìÆÇ≈Ç´Ç»Ç¢
+        // Â£Å„Å™„Å©„Å´„ÅØÁßªÂãï„Åß„Åç„Å™„ÅÑ
         if (!canMove(this, targetX, targetY)) {
             isMoving = false;
         } else {
