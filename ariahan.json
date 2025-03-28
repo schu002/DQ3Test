@@ -57,18 +57,46 @@
             },
          "tilewidth":32
         }],
+ "player": {
+    "name": "player1",
+    "x": 0,
+    "y": 25,
+    "image": "soldier.png",
+    "move": true,
+    "dir": 3
+  },
  "objects": [
     {
       "name": "npc1",
       "x": 15,
       "y": 20,
-      "image": "npc1.png"
+      "image": "npc1.png",
+      "move": true,
+      "dir": -1
     },
     {
       "name": "npc2",
       "x": 4,
       "y": 24,
-      "image": "npc2.png"
+      "image": "npc2.png",
+      "move": true,
+      "dir": -1
+    },
+    {
+      "name": "npc3",
+      "x": 10,
+      "y": 21,
+      "image": "npc3.png",
+      "move": false,
+      "dir": 0
+    },
+    {
+      "name": "npc4",
+      "x": 11,
+      "y": 29,
+      "image": "npc3.png",
+      "move": false,
+      "dir": 3
     }
  ],
  "version":1

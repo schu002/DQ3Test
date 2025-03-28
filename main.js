@@ -11,6 +11,7 @@ const MAP_HEIGHT = 39 * TILE_SIZE;
 
 // 移動間隔
 const MOVE_DELAY = 280;
+const CARA_OFFSET = 8;
 
 var DIR = {
 	DOWN	: 0,
@@ -73,15 +74,17 @@ class MainScene extends Phaser.Scene {
 }
 
 class NPC {
-    constructor(scene, x, y, texture) {
+    constructor(scene, x, y, name, move, dir) {
         this.scene = scene;
-        this.sprite = scene.physics.add.sprite(x * TILE_SIZE, y * TILE_SIZE, texture, 0);
+        this.sprite = scene.physics.add.sprite(x * TILE_SIZE, y * TILE_SIZE-CARA_OFFSET, name, 0);
         this.sprite.setOrigin(0, 0);
-        this.direction = Phaser.Math.Between(0, 3); // ランダムな方向
+        this.direction = (dir < 0)? Phaser.Math.Between(0, 3) : dir; // ランダムな方向
+        this.canMove = move;
         this.moveTimer = 0;
     }
 
     move() {
+        if (!this.canMove) return;
         if (this.moveTimer > this.scene.time.now) return;
 
         let targetX = this.sprite.x;
@@ -148,8 +151,8 @@ function create() {
     this.groundLayer.setScale(1);
 
     // プレイヤーを追加
-    let startX = Phaser.Math.Snap.To(10, TILE_SIZE);
-    let startY = Phaser.Math.Snap.To(800, TILE_SIZE);
+    let startX = 0 * TILE_SIZE;
+    let startY = 25 * TILE_SIZE - CARA_OFFSET;
     player = this.physics.add.sprite(startX, startY, 'character', 0);
     player.setOrigin(0, 0);
 
@@ -164,7 +167,7 @@ function create() {
     // 追加のロードを開始
     this.load.once("complete", () => {
         npcData.forEach(npc => {
-            npcList.push(new NPC(this, npc.x, npc.y, npc.name));
+            npcList.push(new NPC(this, npc.x, npc.y, npc.name, npc.move, npc.dir));
         });
     }, this);
     this.load.start();
@@ -201,34 +204,6 @@ function create() {
         callback: () => {
 	        npcList.forEach(npc => npc.move());
         }
-    });
-}
-
-// 町人をランダムな方向に移動させる関数
-function moveNPC(scene) {
-    let targetX = npc.x;
-    let targetY = npc.y;
-
-    npcDir = Phaser.Math.Between(0, 3);
-    if (npcDir == DIR.DOWN) {
-        targetY += TILE_SIZE;
-    } else if (npcDir == DIR.UP) {
-        targetY -= TILE_SIZE;
-    } else if (npcDir == DIR.LEFT) {
-        targetX -= TILE_SIZE;
-    } else {
-        targetX += TILE_SIZE;
-    }
-
-    // 壁などにぶつからないようにチェック
-    if (!canMove(scene, targetX, targetY)) return;
-
-    // NPC の移動
-    scene.tweens.add({
-        targets: npc,
-        x: targetX,
-        y: targetY,
-        duration: MOVE_DELAY
     });
 }
 
@@ -276,7 +251,7 @@ function update(time) {
 function getPlayerFrame() { return playerDir * 2 + stepCount; }
 function getNpcFrame() { return npcDir * 2 + stepCount; }
 function canMove(scene, x, y) {
-    var tile = scene.groundLayer.getTileAtWorldXY(x, y);
+    var tile = scene.groundLayer.getTileAtWorldXY(x, y+CARA_OFFSET);
     if (!tile || tile.index > 16) return false;
     if (x == player.x && y == player.y) return false;
     if (npcList.some(npc => x == npc.sprite.x && y == npc.sprite.y)) return false;
