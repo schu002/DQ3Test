@@ -5,8 +5,12 @@ const SCREEN_HEIGHT = 720;
 // 移動間隔
 const MOVE_DELAY = 280;
 const CARA_OFFSET = 8;
+const TILE_DESK = 26;
+const IMG_MERCHANT = "merchant.png";
 
-let TILE_SIZE = 32
+let TILE_SIZE = 32;
+let MAP_WIDTH = 0;
+let MAP_HEIGHT = 0;
 
 var DIR = {
 	DOWN	: 0,
@@ -54,11 +58,32 @@ class MainScene extends Phaser.Scene {
         if (this.isTalking) {
             this.dialogBox.setVisible(false);
             this.dialogText.setVisible(false);
-        } else {
-            this.dialogBox.setVisible(true);
-            this.dialogText.setVisible(true);
+	        this.isTalking = false;
+	        let npc = npcList.find(n => n.isTalking);
+	        if (npc) npc.isTalking = false;
+	        return;
         }
-        this.isTalking = !this.isTalking;
+
+	    let pos = [player.row, player.col];
+	    if (!updatePosition(pos, player.direction)) return;
+
+	    let npc = npcList.find(n => n.row === pos[0] && n.col === pos[1]);
+	    if (!npc) {
+			if (getTileIndex(this, pos[0], pos[1]) != TILE_DESK) return;
+		    if (!updatePosition(pos, player.direction)) return;
+		    npc = npcList.find(n => n.row === pos[0] && n.col === pos[1]);
+		    if (!npc) return;
+		    if (npc.image != IMG_MERCHANT) return;
+	    }
+
+	    // 町人をプレイヤーのいる方向に向ける
+	    npc.direction = getInverseDir(player.direction); // プレイヤーと反対向き
+	    npc.sprite.setFrame(npc.direction * 2); // 町人の向きを即座に反映
+	    npc.isTalking = true;
+
+        this.dialogBox.setVisible(true);
+        this.dialogText.setVisible(true);
+        this.isTalking = true;
     }
 
     update() {
@@ -110,19 +135,23 @@ class Player {
 }
 
 class NPC {
-    constructor(scene, row, col, name, move, dir) {
+    constructor(scene, row, col, name, image, move, dir) {
         this.scene = scene;
         this.row = row;
         this.col = col;
+        this.name = name;
+        this.image = image;
         this.sprite = scene.physics.add.sprite(col * TILE_SIZE, row * TILE_SIZE-CARA_OFFSET, name, 0);
         this.sprite.setOrigin(0, 0);
         this.direction = (dir < 0)? Phaser.Math.Between(0, 3) : dir; // ランダムな方向
-        this.canMove = move;
+        this.movable = move;
+        this.isTalking = false;
         this.stepCount = 0;
     }
 
     move() {
-        if (!this.canMove) return;
+        if (!this.movable) return;
+        if (this.isTalking) return;
 
         this.direction = Phaser.Math.Between(0, 3);
         let position = [this.row, this.col];
@@ -181,8 +210,8 @@ function create() {
     }
 
     TILE_SIZE = townData.tilewidth;
-    const MAP_WIDTH = townData.width * TILE_SIZE;
-    const MAP_HEIGHT = townData.height * TILE_SIZE;
+    MAP_WIDTH = townData.width * TILE_SIZE;
+    MAP_HEIGHT = townData.height * TILE_SIZE;
 
     const playerData = townData.player;
     this.load.spritesheet(playerData.name, playerData.image, { frameWidth: 32, frameHeight: 32 });
@@ -207,7 +236,7 @@ function create() {
 	    // プレイヤーと町人を追加
 	    player = new Player(this, playerData.row, playerData.col, playerData.name, playerData.dir);
         npcData.forEach(npc => {
-            npcList.push(new NPC(this, npc.row, npc.col, npc.name, npc.move, npc.dir));
+            npcList.push(new NPC(this, npc.row, npc.col, npc.name, npc.image, npc.move, npc.dir));
         });
 
 	    // カメラ設定
@@ -274,4 +303,18 @@ function canMove(scene, position) {
     if (row == player.row && col == player.col) return false;
     if (npcList.some(npc => row == npc.row && col == npc.col)) return false;
 	return true;
+}
+
+function getInverseDir(dir)
+{
+	if		(dir == DIR.DOWN)  return DIR.UP;
+	else if (dir == DIR.UP)	   return DIR.DOWN;
+	else if (dir == DIR.LEFT)  return DIR.RIGHT;
+	else if (dir == DIR.RIGHT) return DIR.LEFT;
+	else return dir;
+}
+
+function getTileIndex(scene, row, col) {
+    let tile = scene.groundLayer.getTileAt(col, row);
+    return tile ? tile.index : -1;
 }
