@@ -1,8 +1,8 @@
-// 逕サ髱「繧オ繧、繧コ・・蛟阪↓諡。螟ァ・・
+// 画面サイズ（2倍に拡大）
 const SCREEN_WIDTH = 960;
 const SCREEN_HEIGHT = 720;
 
-// 遘サ蜍暮俣髫・
+// 移動間隔
 const MOVE_DELAY = 280;
 const CARA_OFFSET = 8;
 
@@ -18,7 +18,7 @@ var DIR = {
 class MainScene extends Phaser.Scene {
     constructor() {
         super({ key: "MainScene" });
-        this.isTalking = false;  // 莨夊ゥア荳ュ縺九←縺・°縺ョ繝輔Λ繧ー
+        this.isTalking = false;  // 会話中かどうかのフラグ
     }
 
     preload() {
@@ -28,19 +28,19 @@ class MainScene extends Phaser.Scene {
     create() {
         create.call(this);
 
-        // A繧ュ繝シ縺ョ蜈・蜉幄ィュ螳・
+        // Aキーの入力設定
         this.input.keyboard.on("keydown-A", this.toggleConversation, this);
 
-        // 莨夊ゥア繧ヲ繧」繝ウ繝峨え・磯サ偵＞閭梧勹縺ョ蝗幄ァ抵シ峨ｒ菴懈・
+        // 会話ウィンドウ（黒い背景の四角）を作成
         this.dialogBox = this.add.graphics();
         this.dialogBox.fillStyle(0x000000, 0.9);
         this.dialogBox.fillRect(280, 400, 400, 130);
         this.dialogBox.setScrollFactor(0);
         this.dialogBox.setDepth(10);
-        this.dialogBox.setVisible(false);  // 蛻昴ａ縺ッ髱櫁。ィ遉コ
+        this.dialogBox.setVisible(false);
 
-        // 莨夊ゥア繝・く繧ケ繝・
-        this.dialogText = this.add.text(300, 410, "縺薙ｓ縺ォ縺。縺ッ", {
+        // 会話テキスト
+        this.dialogText = this.add.text(300, 410, "こんにちは", {
             fontSize: "24px",
             fill: "#ffffff",
             fontFamily: "MS UI Gothic"
@@ -52,11 +52,9 @@ class MainScene extends Phaser.Scene {
 
     toggleConversation() {
         if (this.isTalking) {
-            // 莨夊ゥア繧帝哩縺倥ｋ
             this.dialogBox.setVisible(false);
             this.dialogText.setVisible(false);
         } else {
-            // 莨夊ゥア繧定。ィ遉コ
             this.dialogBox.setVisible(true);
             this.dialogText.setVisible(true);
         }
@@ -88,7 +86,7 @@ class Player {
         let position = [this.row, this.col];
         if (!updatePosition(position, dir)) return;
 
-        // 螢√↑縺ゥ縺ォ縺ッ遘サ蜍輔〒縺阪↑縺・
+        // 壁などにぶつからないようにチェック
         this.isMoving = canMove(this.scene, position);
         if (!this.isMoving) return;
 
@@ -118,7 +116,7 @@ class NPC {
         this.col = col;
         this.sprite = scene.physics.add.sprite(col * TILE_SIZE, row * TILE_SIZE-CARA_OFFSET, name, 0);
         this.sprite.setOrigin(0, 0);
-        this.direction = (dir < 0)? Phaser.Math.Between(0, 3) : dir; // 繝ゥ繝ウ繝繝縺ェ譁ケ蜷・
+        this.direction = (dir < 0)? Phaser.Math.Between(0, 3) : dir; // ランダムな方向
         this.canMove = move;
         this.stepCount = 0;
     }
@@ -130,10 +128,10 @@ class NPC {
         let position = [this.row, this.col];
         if (!updatePosition(position, this.direction)) return;
 
-        // 螢√↑縺ゥ縺ォ縺カ縺、縺九ｉ縺ェ縺・ｈ縺・↓繝√ぉ繝・け
+        // 壁などにぶつからないようにチェック
         if (!canMove(this.scene, position)) return;
 
-        // 遘サ蜍募・逅・
+        // 移動処理
         this.scene.tweens.add({
             targets: this.sprite,
             x: position[1] * TILE_SIZE,
@@ -153,7 +151,7 @@ class NPC {
 }
 
 let player, cursors, camera, bgm;
-let npcList = [];	// 逕コ莠コ繝ェ繧ケ繝・
+let npcList = [];	// 町人リスト
 
 const config = {
     type: Phaser.AUTO,
@@ -169,8 +167,8 @@ const config = {
 const game = new Phaser.Game(config);
 
 function preload() {
-    this.load.tilemapTiledJSON("map", "ariahan.json"); // 繝槭ャ繝励ョ繝シ繧ソ
-    this.load.image("tiles", "town.png"); // 繧ソ繧、繝ォ繧サ繝・ヨ逕サ蜒・
+    this.load.tilemapTiledJSON("map", "ariahan.json"); // マップデータ
+    this.load.image("tiles", "town.png"); // タイルセット画像
     this.load.json("townData", "ariahan.json");
     this.load.audio("bgm", "town.mp3");
 }
@@ -189,30 +187,30 @@ function create() {
     const playerData = townData.player;
     this.load.spritesheet(playerData.name, playerData.image, { frameWidth: 32, frameHeight: 32 });
 
-    // 逕サ蜒上ｒ繝ュ繝シ繝・
+    // 町人画像をロード
     npcList = [];
     const npcData = townData.objects;
     npcData.forEach(npc => {
         this.load.spritesheet(npc.name, npc.image, { frameWidth: 32, frameHeight: 32 });
     });
 
-    // 霑ス蜉縺ョ繝ュ繝シ繝峨ｒ髢句ァ・
+    // 追加のロードを開始
     this.load.once("complete", () => {
-	    // 繝槭ャ繝励ｒ隱ュ縺ソ霎シ繧
+	    // マップを読み込む
 	    const map = this.make.tilemap({ key: "map" });
 	    const tileset = map.addTilesetImage('tiles');
 
-	    // 蝨ー髱「繝ャ繧、繝、繝シ繧剃ス懈・
+	    // 地面レイヤーを作成
 	    this.groundLayer = map.createLayer("Town", tileset, 0, 0);
 	    this.groundLayer.setScale(1);
 
-	    // 繝励Ξ繧、繝、繝シ繧定ソス蜉
+	    // プレイヤーと町人を追加
 	    player = new Player(this, playerData.row, playerData.col, playerData.name, playerData.dir);
         npcData.forEach(npc => {
             npcList.push(new NPC(this, npc.row, npc.col, npc.name, npc.move, npc.dir));
         });
 
-	    // 繧ォ繝。繝ゥ險ュ螳・
+	    // カメラ設定
 	    this.physics.world.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
 	    camera = this.cameras.main;
 	    camera.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
@@ -221,14 +219,14 @@ function create() {
     }, this);
     this.load.start();
 
-    // 繧ュ繝シ繝懊・繝牙・蜉・
+    // キーボード入力
     cursors = this.input.keyboard.createCursorKeys();
 
     // BGM
     bgm = this.sound.add('bgm', { loop: true, volume: 0.3 });
     bgm.play();
 
-    // 豁ゥ陦後い繝九Γ繝シ繧キ繝ァ繝ウ
+    // 歩行アニメーション
     this.time.addEvent({
         delay: 250,
         loop: true,
@@ -238,9 +236,9 @@ function create() {
         }
     });
 
-    // 逕コ莠コ縺ョ繝ゥ繝ウ繝繝遘サ蜍輔ｒ蛟句挨縺ォ蜃ヲ逅・
+    // 町人のランダム移動を個別に処理
     this.time.addEvent({
-        delay: 2000, // 2遘偵＃縺ィ縺ォ遘サ蜍・
+        delay: 2000,
         loop: true,
         callback: () => {
 	        npcList.forEach(npc => npc.move());
