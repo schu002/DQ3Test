@@ -230,8 +230,8 @@ function create() {
 	    const tileset = map.addTilesetImage('tiles');
 
 	    // 地面レイヤーを作成
-	    this.groundLayer = map.createLayer("Town", tileset, 0, 0);
-	    this.groundLayer.setScale(1);
+	    this.townLayer = map.createLayer("Town", tileset, 0, 0);
+	    this.townLayer.setScale(1);
 
 	    // プレイヤーと町人を追加
 	    player = new Player(this, playerData.row, playerData.col, playerData.name, playerData.dir);
@@ -298,7 +298,7 @@ function updatePosition(position, dir)
 
 function canMove(scene, position) {
 	let row = position[0], col = position[1];
-    var tile = scene.groundLayer.getTileAtWorldXY(col * TILE_SIZE, row * TILE_SIZE);
+    var tile = scene.townLayer.getTileAtWorldXY(col * TILE_SIZE, row * TILE_SIZE);
     if (!tile || tile.index > 16) return false;
     if (row == player.row && col == player.col) return false;
     if (npcList.some(npc => row == npc.row && col == npc.col)) return false;
@@ -315,6 +315,6 @@ function getInverseDir(dir)
 }
 
 function getTileIndex(scene, row, col) {
-    let tile = scene.groundLayer.getTileAt(col, row);
+    let tile = scene.townLayer.getTileAt(col, row);
     return tile ? tile.index : -1;
 }
