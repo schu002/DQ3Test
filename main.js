@@ -5,7 +5,8 @@ const SCREEN_HEIGHT = 720;
 // 移動間隔
 const MOVE_DELAY = 280;
 const CARA_OFFSET = 8;
-const TILE_DESK = 26;
+const TILE_OBS = 15;
+const TILE_DESK = 20;
 const IMG_MERCHANT = "merchant.png";
 
 let TILE_SIZE = 32;
@@ -108,22 +109,29 @@ class Player {
     	this.direction = dir;
     	if (dir < 0) return;
 
-        let position = [this.row, this.col];
-        if (!updatePosition(position, dir)) return;
+        let pos = [this.row, this.col];
+        if (!updatePosition(pos, dir)) return;
 
         // 壁などにぶつからないようにチェック
-        this.isMoving = canMove(this.scene, position);
-        if (!this.isMoving) return;
+        this.isMoving = canMove(this.scene, pos);
+        if (!this.isMoving) {
+			let idx = getTileIndex(this.scene, pos[0], pos[1]);
+			if (pos[0] == 16 && pos[1] == 9) {
+			    this.scene.townLayer.setVisible(false);
+			    this.scene.luidaLayer.setVisible(true);
+			}
+	        return;
+        }
 
         this.scene.tweens.add({
             targets: this.sprite,
-            x: position[1] * TILE_SIZE,
-            y: position[0] * TILE_SIZE - CARA_OFFSET,
+            x: pos[1] * TILE_SIZE,
+            y: pos[0] * TILE_SIZE - CARA_OFFSET,
             duration: MOVE_DELAY,
             onComplete: () => {
                 this.isMoving = false;
-                this.row = position[0];
-                this.col = position[1];
+                this.row = pos[0];
+                this.col = pos[1];
             }
         });
     }
@@ -154,21 +162,21 @@ class NPC {
         if (this.isTalking) return;
 
         this.direction = Phaser.Math.Between(0, 3);
-        let position = [this.row, this.col];
-        if (!updatePosition(position, this.direction)) return;
+        let pos = [this.row, this.col];
+        if (!updatePosition(pos, this.direction)) return;
 
         // 壁などにぶつからないようにチェック
-        if (!canMove(this.scene, position)) return;
+        if (!canMove(this.scene, pos)) return;
 
         // 移動処理
         this.scene.tweens.add({
             targets: this.sprite,
-            x: position[1] * TILE_SIZE,
-            y: position[0] * TILE_SIZE - CARA_OFFSET,
+            x: pos[1] * TILE_SIZE,
+            y: pos[0] * TILE_SIZE - CARA_OFFSET,
             duration: MOVE_DELAY,
             onComplete: () => {
-                this.row = position[0];
-                this.col = position[1];
+                this.row = pos[0];
+                this.col = pos[1];
             }
         });
     }
@@ -232,6 +240,9 @@ function create() {
 	    // 地面レイヤーを作成
 	    this.townLayer = map.createLayer("Town", tileset, 0, 0);
 	    this.townLayer.setScale(1);
+	    this.luidaLayer = map.createLayer("Luida", tileset, 0, 0);
+	    this.luidaLayer.setScale(1);
+	    this.luidaLayer.setVisible(false);
 
 	    // プレイヤーと町人を追加
 	    player = new Player(this, playerData.row, playerData.col, playerData.name, playerData.dir);
@@ -298,8 +309,8 @@ function updatePosition(position, dir)
 
 function canMove(scene, position) {
 	let row = position[0], col = position[1];
-    var tile = scene.townLayer.getTileAtWorldXY(col * TILE_SIZE, row * TILE_SIZE);
-    if (!tile || tile.index > 16) return false;
+	let idx = getTileIndex(scene, row, col);
+	if (idx < 0 || idx >= TILE_OBS) return false;
     if (row == player.row && col == player.col) return false;
     if (npcList.some(npc => row == npc.row && col == npc.col)) return false;
 	return true;
@@ -315,6 +326,11 @@ function getInverseDir(dir)
 }
 
 function getTileIndex(scene, row, col) {
-    let tile = scene.townLayer.getTileAt(col, row);
+    let tile;
+    if (scene.townLayer.visible) {
+	    tile = scene.townLayer.getTileAt(col, row);
+    } else {
+	    tile = scene.luidaLayer.getTileAt(col, row);
+    }
     return tile ? tile.index : -1;
 }
