@@ -4,12 +4,12 @@ const SCREEN_HEIGHT = 720;
 
 // 移動間隔
 const MOVE_DELAY = 280;
-const CARA_OFFSET = 8;
 const TILE_OBS = 15;
 const TILE_DESK = 20;
 const IMG_MERCHANT = "merchant.png";
 
-let TILE_SIZE = 32;
+window.TILE_SIZE = 32;
+window.CARA_OFFSET = 8;
 let MAP_WIDTH = 0;
 let MAP_HEIGHT = 0;
 
@@ -20,9 +20,11 @@ var DIR = {
 	RIGHT	: 3
 };
 
-class MainScene extends Phaser.Scene {
+import Player from "./player.js";
+
+class TownScene extends Phaser.Scene {
     constructor() {
-        super({ key: "MainScene" });
+        super({ key: "TownScene" });
         this.isTalking = false;  // 会話中かどうかのフラグ
     }
 
@@ -92,49 +94,6 @@ class MainScene extends Phaser.Scene {
     }
 }
 
-class Player {
-    constructor(scene, row, col, name, dir) {
-        this.scene = scene;
-        this.row = row;
-        this.col = col;
-    	this.sprite = scene.physics.add.sprite(col * TILE_SIZE, row * TILE_SIZE-CARA_OFFSET, name, 0);
-        this.sprite.setOrigin(0, 0);
-        this.direction = dir;
-        this.isMoving = false;
-        this.stepCount = 0;
-    }
-
-    move(dir) {
-	    if (this.isMoving) return;
-    	this.direction = dir;
-    	if (dir < 0) return;
-
-        let pos = [this.row, this.col];
-        if (!updatePosition(pos, dir)) return;
-
-        // 壁などにぶつからないようにチェック
-        this.isMoving = canMove(this.scene, pos, true);
-        if (!this.isMoving) return;
-
-        this.scene.tweens.add({
-            targets: this.sprite,
-            x: pos[1] * TILE_SIZE,
-            y: pos[0] * TILE_SIZE - CARA_OFFSET,
-            duration: MOVE_DELAY,
-            onComplete: () => {
-                this.isMoving = false;
-                this.row = pos[0];
-                this.col = pos[1];
-            }
-        });
-    }
-
-    updateFrame() {
-        this.stepCount ^= 1;
-        this.sprite.setFrame(this.direction * 2 + this.stepCount);
-    }
-}
-
 class NPC {
     constructor(scene, row, col, name, image, move, dir) {
         this.scene = scene;
@@ -187,7 +146,7 @@ const config = {
     type: Phaser.AUTO,
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT,
-    scene: [MainScene],
+    scene: [TownScene],
     physics: {
         default: 'arcade',
         arcade: { debug: false }
@@ -287,7 +246,27 @@ function update(time) {
     else if (cursors.down.isDown) dir = DIR.DOWN;
     else return;
 
-    player.move(dir);
+    if (player.isMoving) return;
+	player.direction = dir;
+
+    let pos = [player.row, player.col];
+    if (!updatePosition(pos, dir)) return;
+
+    // 壁などにぶつからないようにチェック
+    player.isMoving = canMove(player.scene, pos, true);
+    if (!player.isMoving) return;
+
+    player.scene.tweens.add({
+        targets: player.sprite,
+        x: pos[1] * TILE_SIZE,
+        y: pos[0] * TILE_SIZE - CARA_OFFSET,
+        duration: MOVE_DELAY,
+        onComplete: () => {
+            player.isMoving = false;
+            player.row = pos[0];
+            player.col = pos[1];
+        }
+    });
 }
 
 function updatePosition(position, dir)
