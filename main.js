@@ -113,15 +113,8 @@ class Player {
         if (!updatePosition(pos, dir)) return;
 
         // 壁などにぶつからないようにチェック
-        this.isMoving = canMove(this.scene, pos);
-        if (!this.isMoving) {
-			let idx = getTileIndex(this.scene, pos[0], pos[1]);
-			if (pos[0] == 16 && pos[1] == 9) {
-			    this.scene.townLayer.setVisible(false);
-			    this.scene.luidaLayer.setVisible(true);
-			}
-	        return;
-        }
+        this.isMoving = canMove(this.scene, pos, true);
+        if (!this.isMoving) return;
 
         this.scene.tweens.add({
             targets: this.sprite,
@@ -166,7 +159,7 @@ class NPC {
         if (!updatePosition(pos, this.direction)) return;
 
         // 壁などにぶつからないようにチェック
-        if (!canMove(this.scene, pos)) return;
+        if (!canMove(this.scene, pos, false)) return;
 
         // 移動処理
         this.scene.tweens.add({
@@ -307,13 +300,33 @@ function updatePosition(position, dir)
     return true;
 }
 
-function canMove(scene, position) {
+function canMove(scene, position, isPlayer) {
 	let row = position[0], col = position[1];
 	let idx = getTileIndex(scene, row, col);
-	if (idx < 0 || idx >= TILE_OBS) return false;
+	if (idx < 0) return false;
+	if (idx >= TILE_OBS) {
+    	if (isPlayer) changeLayer(scene, position);
+		return false;
+	}
     if (row == player.row && col == player.col) return false;
     if (npcList.some(npc => row == npc.row && col == npc.col)) return false;
 	return true;
+}
+
+function changeLayer(scene, pos)
+{
+	let idx = getTileIndex(scene, pos[0], pos[1]);
+	if (scene.townLayer.visible) {
+		if (pos[0] == 16 && (pos[1] == 9 || pos[1] == 10)) {
+		    scene.townLayer.setVisible(false);
+		    scene.luidaLayer.setVisible(true);
+		}
+	} else if (scene.luidaLayer.visible) {
+		if (pos[0] == 17 && (pos[1] == 9 || pos[1] == 10)) {
+		    scene.townLayer.setVisible(true);
+		    scene.luidaLayer.setVisible(false);
+		}
+	}
 }
 
 function getInverseDir(dir)
