@@ -142,7 +142,7 @@ class NPC {
         this.col = col;
         this.name = name;
         this.image = image;
-        this.sprite = scene.physics.add.sprite(col * TILE_SIZE, row * TILE_SIZE-CARA_OFFSET, name, 0);
+        this.sprite = scene.physics.add.sprite(col * TILE_SIZE, row * TILE_SIZE-CARA_OFFSET, image, 0);
         this.sprite.setOrigin(0, 0);
         this.direction = (dir < 0)? Phaser.Math.Between(0, 3) : dir; // ランダムな方向
         this.movable = move;
@@ -219,9 +219,9 @@ function create() {
 
     // 町人画像をロード
     npcList = [];
-    const npcData = townData.objects;
+    const npcData = townData.objects.town;
     npcData.forEach(npc => {
-        this.load.spritesheet(npc.name, npc.image, { frameWidth: 32, frameHeight: 32 });
+        this.load.spritesheet(npc.image, npc.image, { frameWidth: 32, frameHeight: 32 });
     });
 
     // 追加のロードを開始
@@ -320,13 +320,26 @@ function changeLayer(scene, pos)
 		if (pos[0] == 16 && (pos[1] == 9 || pos[1] == 10)) {
 		    scene.townLayer.setVisible(false);
 		    scene.luidaLayer.setVisible(true);
+		    swapNPCs(scene, "luida");
 		}
 	} else if (scene.luidaLayer.visible) {
 		if (pos[0] == 17 && (pos[1] == 9 || pos[1] == 10)) {
 		    scene.townLayer.setVisible(true);
 		    scene.luidaLayer.setVisible(false);
+		    swapNPCs(scene, "town");
 		}
 	}
+}
+
+function swapNPCs(scene, layer) {
+    // 既存の NPC を削除
+    npcList.forEach(npc => npc.sprite.destroy());
+    npcList = [];
+
+    const npcData = scene.cache.json.get("townData").objects[layer];
+    npcData.forEach(npc => {
+        npcList.push(new NPC(scene, npc.row, npc.col, npc.name, npc.image, npc.move, npc.dir));
+    });
 }
 
 function getInverseDir(dir)

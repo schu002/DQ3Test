@@ -73,71 +73,99 @@
     "move": true,
     "dir": 3
   },
- "objects": [
-    {
-      "name": "npc1",
-      "row": 20,
-      "col": 21,
-      "image": "man.png",
-      "move": true,
-      "dir": -1
-    },
-    {
-      "name": "npc2",
-      "row": 24,
-      "col": 10,
-      "image": "woman.png",
-      "move": true,
-      "dir": -1
-    },
-    {
-      "name": "npc3",
-      "row": 21,
-      "col": 16,
-      "image": "merchant.png",
-      "move": false,
-      "dir": 0
-    },
-    {
-      "name": "npc4",
-      "row": 29,
-      "col": 17,
-      "image": "merchant.png",
-      "move": false,
-      "dir": 3
-    },
-    {
-      "name": "npc5",
-      "row": 30,
-      "col": 26,
-      "image": "merchant.png",
-      "move": false,
-      "dir": 0
-    },
-    {
-      "name": "npc6",
-      "row": 32,
-      "col": 35,
-      "image": "oldman.png",
-      "move": false,
-      "dir": 2
-    },
-    {
-      "name": "npc7",
-      "row": 34,
-      "col": 27,
-      "image": "fencer.png",
-      "move": false,
-      "dir": 2
-    },
-    {
-      "name": "npc8",
-      "row": 5,
-      "col": 33,
-      "image": "father.png",
-      "move": false,
-      "dir": 0
-    }
- ],
+ "objects": {
+    "town": [
+      {
+        "name": "npc1",
+        "row": 20,
+        "col": 21,
+        "image": "man.png",
+        "move": true,
+        "dir": -1
+      },
+      {
+        "name": "npc2",
+        "row": 24,
+        "col": 10,
+        "image": "woman.png",
+        "move": true,
+        "dir": -1
+      },
+      {
+        "name": "npc3",
+        "row": 21,
+        "col": 16,
+        "image": "merchant.png",
+        "move": false,
+        "dir": 0
+      },
+      {
+        "name": "npc4",
+        "row": 29,
+        "col": 17,
+        "image": "merchant.png",
+        "move": false,
+        "dir": 3
+      },
+      {
+        "name": "npc5",
+        "row": 30,
+        "col": 26,
+        "image": "merchant.png",
+        "move": false,
+        "dir": 0
+      },
+      {
+        "name": "npc6",
+        "row": 32,
+        "col": 35,
+        "image": "oldman.png",
+        "move": false,
+        "dir": 2
+      },
+      {
+        "name": "npc7",
+        "row": 34,
+        "col": 27,
+        "image": "fencer.png",
+        "move": false,
+        "dir": 2
+      },
+      {
+        "name": "npc8",
+        "row": 5,
+        "col": 33,
+        "image": "father.png",
+        "move": false,
+        "dir": 0
+      }
+    ],
+    "luida": [
+      {
+        "name": "luida_npc1",
+        "row": 13,
+        "col": 11,
+        "image": "merchant.png",
+        "move": false,
+        "dir": 2
+      },
+      {
+        "name": "luida_npc2",
+        "row": 4,
+        "col": 8,
+        "image": "woman.png",
+        "move": false,
+        "dir": 0
+      },
+      {
+        "name": "luida_npc3",
+        "row": 8,
+        "col": 10,
+        "image": "fencer.png",
+        "move": false,
+        "dir": 2
+      }
+    ]
+ },
  "version":1
 }
