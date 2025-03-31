@@ -1,7 +1,3 @@
-// 画面サイズ（2倍に拡大）
-const SCREEN_WIDTH = 960;
-const SCREEN_HEIGHT = 720;
-
 // 移動間隔
 const MOVE_DELAY = 280;
 const TILE_OBS = 15;
@@ -21,6 +17,7 @@ var DIR = {
 };
 
 import Player from "./player.js";
+import FieldScene from "./field.js";
 
 class TownScene extends Phaser.Scene {
     constructor() {
@@ -141,19 +138,6 @@ class NPC {
 
 let player, cursors, camera, bgm;
 let npcList = [];	// 町人リスト
-
-const config = {
-    type: Phaser.AUTO,
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
-    scene: [TownScene],
-    physics: {
-        default: 'arcade',
-        arcade: { debug: false }
-    }
-};
-
-const game = new Phaser.Game(config);
 
 function preload() {
     this.load.tilemapTiledJSON("map", "data/ariahan.json"); // マップデータ
@@ -348,3 +332,5 @@ function exitTown(scene) {
     console.log("exitTown");
     scene.scene.start("FieldScene", { playerX: 10, playerY: 20 }); 
 }
+
+export default TownScene;

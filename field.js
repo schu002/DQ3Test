@@ -7,13 +7,30 @@ class FieldScene extends Phaser.Scene {
     }
 
     preload() {
-        preload.call(this);
 	    console.log("FieldScene preload");
+
+	    this.load.tilemapTiledJSON("map", "data/field.json"); // マップデータ
+	    this.load.image("tiles", "data/field.png"); // タイルセット画像
+	    this.load.json("fieldData", "data/field.json");
+	    this.load.audio("bgm", "data/field.mp3");
     }
 
     create(data) {
 	    console.log("FieldScene create");
-        create.call(this);
+
+	    const fieldData = this.cache.json.get("fieldData");
+	    if (!fieldData) {
+	    	console.error("Error: field data not found in JSON.");
+		    return;
+	    }
+
+	    // マップを読み込む
+	    const map = this.make.tilemap({ key: "map" });
+	    const tileset = map.addTilesetImage("tiles");
+
+	    this.fieldLayer = map.createLayer("Field", tileset, 0, 0);
+	    this.fieldLayer.setScale(1);
+	    this.fieldLayer.setVisible(false);
 
         // const fieldData = this.cache.json.get("fieldData");
 
@@ -27,29 +44,4 @@ class FieldScene extends Phaser.Scene {
     }
 }
 
-function preload() {
-    this.load.tilemapTiledJSON("map", "data/field.json"); // マップデータ
-    this.load.image("tiles", "data/field.png"); // タイルセット画像
-    this.load.json("fieldData", "data/field.json");
-    this.load.audio("fieldBGM", "data/field.mp3");
-}
-
-function create() {
-    const fieldData = this.cache.json.get("fieldData");
-    if (!fieldData) {
-    	console.error("Error: field data not found in JSON.");
-	    return;
-    }
-
-    this.load.once("complete", () => {
-	    // マップを読み込む
-	    const map = this.make.tilemap({ key: "map" });
-	    const tileset = map.addTilesetImage("tiles");
-
-	    this.fieldLayer = map.createLayer("Field", tileset, 0, 0);
-	    this.fieldLayer.setScale(1);
-	    this.fieldLayer.setVisible(false);
-
-    }, this);
-    this.load.start();
-}
+export default FieldScene;
