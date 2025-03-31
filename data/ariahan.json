@@ -30,6 +30,8 @@
 
     },
  "renderorder":"right-down",
+ "width":44,
+ "height":45,
  "tilewidth":32,
  "tileheight":32,
  "tilesets":[

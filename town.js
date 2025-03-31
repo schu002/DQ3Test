@@ -1,23 +1,14 @@
 // 移動間隔
-const MOVE_DELAY = 280;
 const TILE_OBS = 15;
 const TILE_DESK = 20;
 const IMG_MERCHANT = "data/merchant.png";
 
-window.TILE_SIZE = 32;
-window.CARA_OFFSET = 8;
 let MAP_WIDTH = 0;
 let MAP_HEIGHT = 0;
 
-var DIR = {
-	DOWN	: 0,
-	UP		: 1,
-	LEFT	: 2,
-	RIGHT	: 3
-};
-
 import Player from "./player.js";
 import FieldScene from "./field.js";
+import { updatePosition, getInverseDir } from "./util.js";
 
 class TownScene extends Phaser.Scene {
     constructor() {
@@ -257,16 +248,6 @@ function update(time) {
     }
 }
 
-function updatePosition(position, dir)
-{
-    if		(dir == DIR.DOWN)  position[0] += 1;
-    else if (dir == DIR.UP)	   position[0] -= 1;
-    else if (dir == DIR.LEFT)  position[1] -= 1;
-    else if (dir == DIR.RIGHT) position[1] += 1;
-    else return false;
-    return true;
-}
-
 function canMove(scene, position, isPlayer) {
 	let row = position[0], col = position[1];
 	let idx = getTileIndex(scene, row, col);
@@ -309,15 +290,6 @@ function swapNPCs(scene, layer) {
     });
 }
 
-function getInverseDir(dir)
-{
-	if		(dir == DIR.DOWN)  return DIR.UP;
-	else if (dir == DIR.UP)	   return DIR.DOWN;
-	else if (dir == DIR.LEFT)  return DIR.RIGHT;
-	else if (dir == DIR.RIGHT) return DIR.LEFT;
-	else return dir;
-}
-
 function getTileIndex(scene, row, col) {
     let tile;
     if (scene.townLayer.visible) {
@@ -330,7 +302,7 @@ function getTileIndex(scene, row, col) {
 
 function exitTown(scene) {
     bgm.stop();
-    scene.scene.start("FieldScene", { playerX: 10, playerY: 20 }); 
+    scene.scene.start("FieldScene", { row: 213, col: 172 }); 
 }
 
 export default TownScene;
