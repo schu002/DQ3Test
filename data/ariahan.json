@@ -69,7 +69,7 @@
     "name": "player1",
     "row": 25,
     "col": 6,
-    "image": "soldier.png",
+    "image": "data/soldier.png",
     "move": true,
     "dir": 3
   },
@@ -79,7 +79,7 @@
         "name": "npc1",
         "row": 20,
         "col": 21,
-        "image": "man.png",
+        "image": "data/man.png",
         "move": true,
         "dir": -1
       },
@@ -87,7 +87,7 @@
         "name": "npc2",
         "row": 24,
         "col": 10,
-        "image": "woman.png",
+        "image": "data/woman.png",
         "move": true,
         "dir": -1
       },
@@ -95,7 +95,7 @@
         "name": "npc3",
         "row": 21,
         "col": 16,
-        "image": "merchant.png",
+        "image": "data/merchant.png",
         "move": false,
         "dir": 0
       },
@@ -103,7 +103,7 @@
         "name": "npc4",
         "row": 29,
         "col": 17,
-        "image": "merchant.png",
+        "image": "data/merchant.png",
         "move": false,
         "dir": 3
       },
@@ -111,7 +111,7 @@
         "name": "npc5",
         "row": 30,
         "col": 26,
-        "image": "merchant.png",
+        "image": "data/merchant.png",
         "move": false,
         "dir": 0
       },
@@ -119,7 +119,7 @@
         "name": "npc6",
         "row": 32,
         "col": 35,
-        "image": "oldman.png",
+        "image": "data/oldman.png",
         "move": false,
         "dir": 2
       },
@@ -127,7 +127,7 @@
         "name": "npc7",
         "row": 34,
         "col": 27,
-        "image": "fencer.png",
+        "image": "data/fencer.png",
         "move": false,
         "dir": 2
       },
@@ -135,7 +135,7 @@
         "name": "npc8",
         "row": 5,
         "col": 33,
-        "image": "father.png",
+        "image": "data/father.png",
         "move": false,
         "dir": 0
       }
@@ -145,7 +145,7 @@
         "name": "luida_npc1",
         "row": 13,
         "col": 11,
-        "image": "merchant.png",
+        "image": "data/merchant.png",
         "move": false,
         "dir": 2
       },
@@ -153,7 +153,7 @@
         "name": "luida_npc2",
         "row": 4,
         "col": 8,
-        "image": "woman.png",
+        "image": "data/woman.png",
         "move": false,
         "dir": 0
       },
@@ -161,7 +161,7 @@
         "name": "luida_npc3",
         "row": 8,
         "col": 10,
-        "image": "fencer.png",
+        "image": "data/fencer.png",
         "move": false,
         "dir": 2
       }

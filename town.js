@@ -6,7 +6,7 @@ const SCREEN_HEIGHT = 720;
 const MOVE_DELAY = 280;
 const TILE_OBS = 15;
 const TILE_DESK = 20;
-const IMG_MERCHANT = "merchant.png";
+const IMG_MERCHANT = "data/merchant.png";
 
 window.TILE_SIZE = 32;
 window.CARA_OFFSET = 8;
@@ -156,10 +156,10 @@ const config = {
 const game = new Phaser.Game(config);
 
 function preload() {
-    this.load.tilemapTiledJSON("map", "ariahan.json"); // マップデータ
-    this.load.image("tiles", "town.png"); // タイルセット画像
-    this.load.json("townData", "ariahan.json");
-    this.load.audio("bgm", "town.mp3");
+    this.load.tilemapTiledJSON("map", "data/ariahan.json"); // マップデータ
+    this.load.image("tiles", "data/town.png"); // タイルセット画像
+    this.load.json("townData", "data/ariahan.json");
+    this.load.audio("bgm", "data/town.mp3");
 }
 
 function create() {
@@ -187,7 +187,7 @@ function create() {
     this.load.once("complete", () => {
 	    // マップを読み込む
 	    const map = this.make.tilemap({ key: "map" });
-	    const tileset = map.addTilesetImage('tiles');
+	    const tileset = map.addTilesetImage("tiles");
 
 	    // 地面レイヤーを作成
 	    this.townLayer = map.createLayer("Town", tileset, 0, 0);
@@ -215,7 +215,7 @@ function create() {
     cursors = this.input.keyboard.createCursorKeys();
 
     // BGM
-    bgm = this.sound.add('bgm', { loop: true, volume: 0.3 });
+    bgm = this.sound.add("bgm", { loop: true, volume: 0.3 });
     bgm.play();
 
     // 歩行アニメーション
@@ -267,6 +267,10 @@ function update(time) {
             player.col = pos[1];
         }
     });
+
+    if (pos[1] < 6) {
+	    exitTown(player.scene);
+    }
 }
 
 function updatePosition(position, dir)
@@ -338,4 +342,9 @@ function getTileIndex(scene, row, col) {
 	    tile = scene.luidaLayer.getTileAt(col, row);
     }
     return tile ? tile.index : -1;
+}
+
+function exitTown(scene) {
+    console.log("exitTown");
+    scene.scene.start("FieldScene", { playerX: 10, playerY: 20 }); 
 }
