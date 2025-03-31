@@ -39,7 +39,7 @@
          "imagewidth":256,
          "imageheight":256,
          "margin":0,
-         "name":"tiles",
+         "name":"townTiles",
          "properties":
             {
 

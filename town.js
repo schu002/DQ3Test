@@ -140,10 +140,10 @@ let player, cursors, camera, bgm;
 let npcList = [];	// 町人リスト
 
 function preload() {
-    this.load.tilemapTiledJSON("map", "data/ariahan.json"); // マップデータ
-    this.load.image("tiles", "data/town.png"); // タイルセット画像
+    this.load.tilemapTiledJSON("townMap", "data/ariahan.json"); // マップデータ
+    this.load.image("townTiles", "data/town.png"); // タイルセット画像
     this.load.json("townData", "data/ariahan.json");
-    this.load.audio("bgm", "data/town.mp3");
+    this.load.audio("townBGM", "data/town.mp3");
 }
 
 function create() {
@@ -170,8 +170,8 @@ function create() {
     // 追加のロードを開始
     this.load.once("complete", () => {
 	    // マップを読み込む
-	    const map = this.make.tilemap({ key: "map" });
-	    const tileset = map.addTilesetImage("tiles");
+	    const map = this.make.tilemap({ key: "townMap" });
+	    const tileset = map.addTilesetImage("townTiles");
 
 	    // 地面レイヤーを作成
 	    this.townLayer = map.createLayer("Town", tileset, 0, 0);
@@ -199,7 +199,7 @@ function create() {
     cursors = this.input.keyboard.createCursorKeys();
 
     // BGM
-    bgm = this.sound.add("bgm", { loop: true, volume: 0.3 });
+    bgm = this.sound.add("townBGM", { loop: true, volume: 0.3 });
     bgm.play();
 
     // 歩行アニメーション
@@ -329,7 +329,7 @@ function getTileIndex(scene, row, col) {
 }
 
 function exitTown(scene) {
-    console.log("exitTown");
+    bgm.stop();
     scene.scene.start("FieldScene", { playerX: 10, playerY: 20 }); 
 }
 
