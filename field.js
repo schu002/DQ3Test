@@ -14,7 +14,7 @@ class FieldScene extends Phaser.Scene {
 	    this.load.tilemapTiledJSON("fieldMap", "data/field.json"); // マップデータ
 	    this.load.image("fieldTiles", "data/field.png"); // タイルセット画像
 	    this.load.json("fieldData", "data/field.json");
-	    this.load.audio("fieldBGM", "data/field.mp3");
+	    this.load.audio("fieldBGM", "data/field1.mp3");
     }
 
     create(data) {
