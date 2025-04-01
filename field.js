@@ -88,7 +88,7 @@ class FieldScene extends Phaser.Scene {
 	    this.player.scene.tweens.add({
 	        targets: this.player.sprite,
 	        x: pos[1] * TILE_SIZE,
-	        y: pos[0] * TILE_SIZE - CARA_OFFSET,
+	        y: pos[0] * TILE_SIZE,
 	        duration: MOVE_DELAY,
 	        onComplete: () => {
 	            this.player.isMoving = false;

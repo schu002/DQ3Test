@@ -172,7 +172,7 @@ function create() {
 	    this.luidaLayer.setVisible(false);
 
 	    // プレイヤーと町人を追加
-	    player = new Player(this, playerData.row, playerData.col, playerData.name, playerData.dir);
+	    player = new Player(this, playerData.row, playerData.col, playerData.name, playerData.dir, CARA_OFFSET);
         npcData.forEach(npc => {
             npcList.push(new NPC(this, npc.row, npc.col, npc.name, npc.image, npc.move, npc.dir));
         });
