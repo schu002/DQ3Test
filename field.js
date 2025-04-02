@@ -1,4 +1,5 @@
 import Player from "./player.js";
+import BattleScene from "./battle.js";
 import { updatePosition, getInverseDir } from "./util.js";
 
 const TILE_OBS = 22;
@@ -96,7 +97,17 @@ class FieldScene extends Phaser.Scene {
 	            this.player.col = pos[1];
 	        }
 	    });
+
+	    if (Math.random() < 0.1) { // 低確率で戦闘開始
+	        this.startBattle();
+	    }
     }
+
+	startBattle = () => {
+	    bgm.stop();
+	    this.scene.pause(); // フィールドを一時停止
+	    this.scene.launch("BattleScene", { player: this.player }); // 戦闘シーンを起動
+	}
 }
 
 function canMove(scene, position, isPlayer) {
@@ -111,9 +122,6 @@ function canMove(scene, position, isPlayer) {
     // if (row == player.row && col == player.col) return false;
     // if (npcList.some(npc => row == npc.row && col == npc.col)) return false;
 	return true;
-}
-
-function getTileIndex(scene, row, col) {
 }
 
 export default FieldScene;
