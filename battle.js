@@ -14,9 +14,9 @@ class BattleScene extends Phaser.Scene {
         this.cameras.main.setBackgroundColor("#000000");
 
         // 四角形（外形：白、塗りつぶし：黒、角丸）
-        const rectX = 100, rectY = 400, rectWidth = 600, rectHeight = 150, cornerRadius = 20;
+        const rectX = 130, rectY = 445, rectWidth = 700, rectHeight = 245, cornerRadius = 5;
         const graphics = this.add.graphics();
-        graphics.lineStyle(8, 0xffffff); // 外形線を白
+        graphics.lineStyle(14, 0xffffff); // 外形線を白
         graphics.fillStyle(0x000000); // 塗りつぶしを黒
         graphics.strokeRoundedRect(rectX, rectY, rectWidth, rectHeight, cornerRadius);
         graphics.fillRoundedRect(rectX, rectY, rectWidth, rectHeight, cornerRadius);
@@ -26,14 +26,14 @@ class BattleScene extends Phaser.Scene {
 	    this.bgm.play();
 
         // 四角形の中に白いテキスト
-        this.add.text(120, 420, "スライムが現れた！", {
-            fontSize: "30px",
+        this.add.text(150, 480, "スライムが　あらわれた！", {
+            fontSize: "32px",
             color: "#ffffff",
             fontFamily: "Arial",
         });
 
         // モンスター画像を表示
-        this.add.image(400, 250, "Slime").setScale(2); // 画像の大きさ調整
+        this.add.image(480, 380, "Slime").setScale(2); // 画像の大きさ調整
     }
 }
 

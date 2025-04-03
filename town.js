@@ -301,8 +301,11 @@ function getTileIndex(scene, row, col) {
 }
 
 function exitTown(scene) {
-    bgm.stop();
-    scene.scene.start("FieldScene", { row: 213, col: 172 }); 
+    camera.fadeOut(200, 0, 0, 0);
+    camera.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+	    bgm.stop();
+	    scene.scene.start("FieldScene", { row: 213, col: 172 }); 
+    });
 }
 
 export default TownScene;

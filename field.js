@@ -1,4 +1,5 @@
 import Player from "./player.js";
+import TownScene from "./town.js";
 import BattleScene from "./battle.js";
 import { updatePosition, getInverseDir } from "./util.js";
 
@@ -98,7 +99,13 @@ class FieldScene extends Phaser.Scene {
 	        }
 	    });
 
-	    if (Math.random() < 0.1) { // 低確率で戦闘開始
+	    if (pos[0] == 213 && (pos[1] == 172 || pos[1] == 173)) {
+		    this.cameras.main.fadeOut(500, 0, 0, 0);
+		    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+			    bgm.stop();
+			    this.scene.start("TownScene");
+		    });
+	    } else if (Math.random() < 0.1) { // 低確率で戦闘開始
 	        this.startBattle();
 	    }
     }
