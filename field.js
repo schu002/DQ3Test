@@ -103,6 +103,7 @@ class FieldScene extends Phaser.Scene {
 
 	postMove(pos) {
 	    if (pos[0] == 213 && (pos[1] == 172 || pos[1] == 173)) {
+		    this.player.isMoving = true;
 		    this.cameras.main.fadeOut(500, 0, 0, 0);
 		    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
 			    bgm.stop();
