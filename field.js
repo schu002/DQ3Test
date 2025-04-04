@@ -96,9 +96,12 @@ class FieldScene extends Phaser.Scene {
 	            this.player.isMoving = false;
 	            this.player.row = pos[0];
 	            this.player.col = pos[1];
+	            this.postMove(pos);
 	        }
 	    });
+    }
 
+	postMove(pos) {
 	    if (pos[0] == 213 && (pos[1] == 172 || pos[1] == 173)) {
 		    this.cameras.main.fadeOut(500, 0, 0, 0);
 		    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
@@ -106,14 +109,10 @@ class FieldScene extends Phaser.Scene {
 			    this.scene.start("TownScene");
 		    });
 	    } else if (Math.random() < 0.1) { // 低確率で戦闘開始
-	        this.startBattle();
+		    bgm.stop();
+		    this.scene.pause(); // フィールドを一時停止
+		    this.scene.launch("BattleScene", { player: this.player }); // 戦闘シーンを起動
 	    }
-    }
-
-	startBattle = () => {
-	    bgm.stop();
-	    this.scene.pause(); // フィールドを一時停止
-	    this.scene.launch("BattleScene", { player: this.player }); // 戦闘シーンを起動
 	}
 }
 

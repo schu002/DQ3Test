@@ -9,6 +9,12 @@ class BattleScene extends Phaser.Scene {
     }
 
     create(player) {
+        this.time.delayedCall(500, () => {
+	        this.input.keyboard.once("keydown", () => {
+	            this.exitBattle();
+	        });
+	    });
+
         this.player = player;
         // 背景を黒に設定
         this.cameras.main.setBackgroundColor("#000000");
@@ -27,13 +33,22 @@ class BattleScene extends Phaser.Scene {
 
         // 四角形の中に白いテキスト
         this.add.text(150, 480, "スライムが　あらわれた！", {
+            fontFamily: "MisakiGothic",
             fontSize: "32px",
             color: "#ffffff",
-            fontFamily: "Arial",
         });
 
         // モンスター画像を表示
         this.add.image(480, 380, "Slime").setScale(2); // 画像の大きさ調整
+    }
+
+    exitBattle() {
+        this.cameras.main.fadeOut(500, 0, 0, 0);
+        this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+	        this.bgm.stop();
+	        this.scene.stop();
+	        this.scene.resume("FieldScene");
+        });
     }
 }
 

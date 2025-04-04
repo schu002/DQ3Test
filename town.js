@@ -36,6 +36,7 @@ class TownScene extends Phaser.Scene {
 
         // 会話テキスト
         this.dialogText = this.add.text(300, 410, "こんにちは", {
+            fontFamily: "MisakiGothic",
             fontSize: "24px",
             fill: "#ffffff",
             fontFamily: "MS UI Gothic"
@@ -135,6 +136,15 @@ function preload() {
     this.load.image("townTiles", "data/town.png"); // タイルセット画像
     this.load.json("townData", "data/ariahan.json");
     this.load.audio("townBGM", "data/town.mp3");
+    WebFont.load({
+        custom: {
+            families: ['MisakiGothic'],
+            urls: ['data/fonts/misaki_gothic.css']
+        },
+        active: () => {
+            this.fontReady = true;
+        }
+    });
 }
 
 function create() {
