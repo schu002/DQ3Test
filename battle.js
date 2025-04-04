@@ -33,7 +33,7 @@ class BattleScene extends Phaser.Scene {
 
         // 四角形の中に白いテキスト
         this.add.text(150, 480, "スライムが　あらわれた！", {
-            fontFamily: "MisakiGothic",
+            fontFamily: "PixelMplus10-Regular",
             fontSize: "32px",
             color: "#ffffff",
         });
