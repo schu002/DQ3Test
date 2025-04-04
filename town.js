@@ -190,8 +190,8 @@ function create() {
 	    this.physics.world.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
 	    camera = this.cameras.main;
 	    camera.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
-	    camera.startFollow(player.sprite, true, 0.1, 0.1);
 	    camera.setZoom(2);
+	    camera.startFollow(player.sprite, true, 0.1, 0.1);
     }, this);
     this.load.start();
 
