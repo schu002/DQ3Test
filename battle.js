@@ -76,7 +76,7 @@ class BattleScene extends Phaser.Scene {
 
         this.setAction(act);
 
-        this.time.delayedCall(300, () => {
+        this.time.delayedCall(250, () => {
 	        this.isListen = true;
         });
     }
@@ -114,7 +114,7 @@ class BattleScene extends Phaser.Scene {
 		    this.cursor.destroy();
             this.selectMonster(0);
         }
-        this.time.delayedCall(300, () => {
+        this.time.delayedCall(250, () => {
 	        this.isListen = true;
         });
     }
@@ -127,17 +127,19 @@ class BattleScene extends Phaser.Scene {
         }
 
         this.action = act;
-	    let y = 484 + (this.action-ACTION.ATTACK) * 55;
+	    let y = 483 + (this.action-ACTION.ATTACK) * 55;
 	    this.drawCursor(155, y);
     }
 
     drawCursor(x, y) {
-        const w = 16, h = 25;
+        const w = 14, h = 26;
         this.cursor = this.add.graphics();
         this.cursor.fillStyle(0xffffff, 1); // 白色、不透明
         this.cursor.beginPath();
         this.cursor.moveTo(x, y);
-        this.cursor.lineTo(x+w, y+h/2);
+        this.cursor.lineTo(x+4, y);
+        this.cursor.lineTo(x+w+4, y+h/2);
+        this.cursor.lineTo(x+4, y+h);
         this.cursor.lineTo(x, y+h);
         this.cursor.closePath();
         this.cursor.fillPath();

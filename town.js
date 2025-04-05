@@ -138,7 +138,7 @@ function preload() {
     WebFont.load({
         custom: {
             families: ['PixelMplus10-Regular'],
-            urls: ['data/fonts/PixelMplus10-Regular.css']
+            urls: ['fonts/PixelMplus10-Regular.css']
         },
         active: () => {
             this.fontReady = true;
