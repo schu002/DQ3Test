@@ -12,8 +12,9 @@ class BattleScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image("Slime", "data/3_001.png"); // モンスター画像をロード
-        this.load.audio("battleBGM", "data/battle2.mp3");
+        this.load.image("Slime", "image/3_001.png"); // モンスター画像をロード
+        this.load.audio("battleBGM", "sound/battle2.mp3");
+        this.load.audio("button", "sound/button.mp3");
     }
 
     create(player) {
@@ -35,6 +36,7 @@ class BattleScene extends Phaser.Scene {
         // BGM
 	    this.bgm = this.sound.add("battleBGM", { loop: true, volume: 0.3 });
 	    this.bgm.play();
+	    this.buttonSound = this.sound.add("button", { loop: false, volume: 0.3 });
 
         // 四角形（外形：白、塗りつぶし：黒、角丸）
         this.rect1 = this.drawRect(130, 445, 700, 245);
@@ -108,6 +110,7 @@ class BattleScene extends Phaser.Scene {
         console.log("action");
         this.isListen = false;
         if (this.action == ACTION.ATTACK) {
+		    this.buttonSound.play();
 		    this.cursor.destroy();
             this.selectMonster(0);
         }

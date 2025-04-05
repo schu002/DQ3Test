@@ -1,7 +1,7 @@
 // 移動間隔
 const TILE_OBS = 15;
 const TILE_DESK = 20;
-const IMG_MERCHANT = "data/merchant.png";
+const IMG_MERCHANT = "image/merchant.png";
 
 let MAP_WIDTH = 0;
 let MAP_HEIGHT = 0;
@@ -132,9 +132,9 @@ let npcList = [];	// 町人リスト
 
 function preload() {
     this.load.tilemapTiledJSON("townMap", "data/ariahan.json"); // マップデータ
-    this.load.image("townTiles", "data/town.png"); // タイルセット画像
+    this.load.image("townTiles", "image/town.png"); // タイルセット画像
     this.load.json("townData", "data/ariahan.json");
-    this.load.audio("townBGM", "data/town.mp3");
+    this.load.audio("townBGM", "sound/town.mp3");
     WebFont.load({
         custom: {
             families: ['PixelMplus10-Regular'],
