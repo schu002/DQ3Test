@@ -8,6 +8,7 @@ let MAP_HEIGHT = 0;
 
 import Player from "./player.js";
 import FieldScene from "./field.js";
+import MonsterData from "./MonsterData.js";
 import { updatePosition, getInverseDir } from "./util.js";
 
 class TownScene extends Phaser.Scene {
@@ -131,20 +132,6 @@ let player, keys, camera, bgm;
 let npcList = [];	// 町人リスト
 
 function preload() {
-    this.load.tilemapTiledJSON("townMap", "data/ariahan.json"); // マップデータ
-    this.load.image("townTiles", "image/town.png"); // タイルセット画像
-    this.load.json("townData", "data/ariahan.json");
-    this.load.audio("townBGM", "sound/town.mp3");
-    this.load.json("monstersData", "data/monsters.json");
-    WebFont.load({
-        custom: {
-            families: ['PixelMplus10-Regular'],
-            urls: ['fonts/PixelMplus10-Regular.css']
-        },
-        active: () => {
-            this.fontReady = true;
-        }
-    });
 }
 
 function create() {
@@ -159,42 +146,32 @@ function create() {
     MAP_HEIGHT = townData.height * TILE_SIZE;
 
     const playerData = townData.player;
-    this.load.spritesheet(playerData.name, playerData.image, { frameWidth: 32, frameHeight: 32 });
-
-    // 町人画像をロード
     npcList = [];
     const npcData = townData.objects.town;
+
+    // マップを読み込む
+    const map = this.make.tilemap({ key: "townMap" });
+    const tileset = map.addTilesetImage("townTiles");
+
+    // 地面レイヤーを作成
+    this.townLayer = map.createLayer("Town", tileset, 0, 0);
+    this.townLayer.setScale(1);
+    this.luidaLayer = map.createLayer("Luida", tileset, 0, 0);
+    this.luidaLayer.setScale(1);
+    this.luidaLayer.setVisible(false);
+
+    // プレイヤーと町人を追加
+    player = new Player(this, playerData.row, playerData.col, playerData.name, playerData.dir, CARA_OFFSET);
     npcData.forEach(npc => {
-        this.load.spritesheet(npc.image, npc.image, { frameWidth: 32, frameHeight: 32 });
+        npcList.push(new NPC(this, npc.row, npc.col, npc.name, npc.image, npc.move, npc.dir));
     });
 
-    // 追加のロードを開始
-    this.load.once("complete", () => {
-	    // マップを読み込む
-	    const map = this.make.tilemap({ key: "townMap" });
-	    const tileset = map.addTilesetImage("townTiles");
-
-	    // 地面レイヤーを作成
-	    this.townLayer = map.createLayer("Town", tileset, 0, 0);
-	    this.townLayer.setScale(1);
-	    this.luidaLayer = map.createLayer("Luida", tileset, 0, 0);
-	    this.luidaLayer.setScale(1);
-	    this.luidaLayer.setVisible(false);
-
-	    // プレイヤーと町人を追加
-	    player = new Player(this, playerData.row, playerData.col, playerData.name, playerData.dir, CARA_OFFSET);
-        npcData.forEach(npc => {
-            npcList.push(new NPC(this, npc.row, npc.col, npc.name, npc.image, npc.move, npc.dir));
-        });
-
-	    // カメラ設定
-	    this.physics.world.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
-	    camera = this.cameras.main;
-	    camera.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
-	    camera.setZoom(2);
-	    camera.startFollow(player.sprite, true, 0.1, 0.1);
-    }, this);
-    this.load.start();
+    // カメラ設定
+    this.physics.world.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
+    camera = this.cameras.main;
+    camera.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
+    camera.setZoom(2);
+    camera.startFollow(player.sprite, true, 0.1, 0.1);
 
     // キーボード入力
     keys = this.input.keyboard.createCursorKeys();

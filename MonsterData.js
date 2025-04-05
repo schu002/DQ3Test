@@ -1,36 +1,51 @@
 class MonsterData {
-    constructor(scene) {
-        this.scene = scene;
-        this.monsters = [];
+    static monsters = [];
 
-        // JSON “Ç‚Ýž‚Ý
-        const data = this.scene.cache.json.get("monstersData");
+    static loadData(scene, callback) {
+        console.log("load data/monsters.json");
+        scene.load.json("monstersData", "data/monsters.json");
+        scene.load.once("complete", () => {
+            const data = scene.cache.json.get("monstersData");
+            if (data && data.monsters) {
+                MonsterData.monsters = data.monsters;
 
-        if (data && data.monsters) {
-            this.monsters = data.monsters;
-        } else {
-            console.error("Monster data not found or invalid.");
-        }
+                // å„ãƒ¢ãƒ³ã‚¹ã‚¿ãƒ¼ç”»åƒã‚’ãƒ­ãƒ¼ãƒ‰
+                MonsterData.monsters.forEach(monster => {
+                    scene.load.image(monster.name, "image/" + monster.image);
+                });
+
+                // ç”»åƒãƒ­ãƒ¼ãƒ‰ã® complete ã‚¤ãƒ™ãƒ³ãƒˆã‚’å¾…ã¤
+                scene.load.once("complete", () => {
+                    if (callback) callback();
+                });
+
+                // ç”»åƒã®ãƒ­ãƒ¼ãƒ‰ã‚’é–‹å§‹
+                scene.load.start();
+            } else {
+                console.warn("No monster data found in JSON.");
+                if (callback) callback();
+            }
+        });
+        scene.load.start();
     }
 
-    // ƒ‚ƒ“ƒXƒ^[ˆê——‚ðŽæ“¾
-    getAllMonsters() {
-        return this.monsters;
+    // ãƒ¢ãƒ³ã‚¹ã‚¿ãƒ¼ä¸€è¦§ã‚’å–å¾—
+    static getAllMonsters() {
+        return monsters;
     }
 
-    // –¼‘O‚Åƒ‚ƒ“ƒXƒ^[‚ðŽæ“¾
-    getMonsterByName(name) {
-        return this.monsters.find(monster => monster.name === name);
+    // åå‰ã§ãƒ¢ãƒ³ã‚¹ã‚¿ãƒ¼ã‚’å–å¾—
+    static getMonsterByName(name) {
+        return monsters.find(monster => monster.name === name);
     }
 
-    // ƒ‰ƒ“ƒ_ƒ€‚Åƒ‚ƒ“ƒXƒ^[‚ðŽæ“¾
-    getRandomMonster() {
-        if (this.monsters.length === 0) {
-            console.warn("No monsters available.");
-            return null;
-        }
-        const index = Math.floor(Math.random() * this.monsters.length);
-        return this.monsters[index];
+    // ãƒ©ãƒ³ãƒ€ãƒ ã§ãƒ¢ãƒ³ã‚¹ã‚¿ãƒ¼ã‚’å–å¾—
+    static getRandomMonster(lv) {
+        const lvList = MonsterData.monsters.filter(monster => monster.level === lv);
+        console.log("lvList", lvList);
+        if (lvList.length === 0) return null;
+        const idx = Math.floor(Math.random() * lvList.length);
+        return lvList[idx];
     }
 }
 

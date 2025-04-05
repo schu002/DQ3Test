@@ -1,3 +1,5 @@
+import MonsterData from "./MonsterData.js";
+
 const ACTION = {
 	NONE	: 0,
 	ATTACK	: 1,
@@ -12,15 +14,15 @@ class BattleScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image("Slime", "image/3_001.png"); // モンスター画像をロード
         this.load.audio("battleBGM", "sound/battle2.mp3");
-        this.load.audio("button", "sound/button.mp3");
     }
 
     create(player) {
         this.player = player;
         this.action = ACTION.NONE;
         this.isListen = false;
+        this.monsterData = new MonsterData(this);
+
         // 背景を黒に設定
         this.cameras.main.setBackgroundColor("#000000");
 
@@ -32,16 +34,23 @@ class BattleScene extends Phaser.Scene {
 	    this.bgm.play();
 	    this.buttonSound = this.sound.add("button", { loop: false, volume: 0.3 });
 
+        const monster = MonsterData.getRandomMonster(1);
+        console.log("random", monster);
+
         // 四角形（外形：白、塗りつぶし：黒、角丸）
         this.rect1 = this.drawRect(130, 445, 700, 245);
 
         // 四角形の中に白いテキスト
-        this.text1 = this.drawText(130, 445, "スライムが　あらわれた！");
+        this.text1 = this.drawText(130, 445, monster.name + "が　あらわれた！");
+
+        const texture = this.textures.get(monster.name);
+        const frame = texture.getSourceImage();
+        let y = 410 - frame.height;
 
         // モンスター画像を表示
-        this.add.image(480, 380, "Slime").setScale(2); // 画像の大きさ調整
+        this.add.image(480, y, monster.name).setScale(2); // 画像の大きさ調整
 
-        this.time.delayedCall(1000, () => {
+        this.time.delayedCall(1200, () => {
             this.rect1.destroy();
             this.text1.destroy();
 	        this.drawRect(130, 445, 220, 245, "しゅう");
@@ -50,7 +59,8 @@ class BattleScene extends Phaser.Scene {
 	        this.drawText(160, 505, "にげる");
 	        this.drawText(160, 560, "ぼうぎょ");
 	        this.drawText(160, 615, "どうぐ");
-	        this.drawText(400, 450, "スライム　　　　— １ひき");
+	        this.drawText(400, 450, monster.name);
+	        this.drawText(650, 450, "— １ひき");
 		    this.setAction(ACTION.ATTACK);
 	        this.isListen = true;
         });

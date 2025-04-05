@@ -5,7 +5,7 @@ import { updatePosition, getInverseDir } from "./util.js";
 
 const TILE_OBS = 22;
 
-let bgm;
+let bgm, battleBGM;
 
 class FieldScene extends Phaser.Scene {
     constructor() {
@@ -13,10 +13,7 @@ class FieldScene extends Phaser.Scene {
     }
 
     preload() {
-	    this.load.tilemapTiledJSON("fieldMap", "data/field.json"); // マップデータ
-	    this.load.image("fieldTiles", "image/field.png"); // タイルセット画像
-	    this.load.json("fieldData", "data/field.json");
-	    this.load.audio("fieldBGM", "sound/field1.mp3");
+        this.load.audio("battleBGM1", "sound/battle1.mp3");
     }
 
     create(data) {
@@ -36,31 +33,28 @@ class FieldScene extends Phaser.Scene {
 	    this.cursors = this.input.keyboard.createCursorKeys();
 
         // BGM
+	    battleBGM = this.sound.add("battleBGM1", { loop: false, volume: 0.3 });
 	    bgm = this.sound.add("fieldBGM", { loop: true, volume: 0.3 });
 	    bgm.play();
 
         this.events.on("resume", this.onResume, this);
 
-        // 追加のロードを開始
-	    this.load.once("complete", () => {
-		    // マップを読み込む
-		    const map = this.make.tilemap({ key: "fieldMap" });
-		    const tileset = map.addTilesetImage("fieldTiles");
+	    // マップを読み込む
+	    const map = this.make.tilemap({ key: "fieldMap" });
+	    const tileset = map.addTilesetImage("fieldTiles");
 
-		    this.fieldLayer = map.createLayer("Field", tileset, 0, 0);
-		    this.fieldLayer.setScale(1);
-		    this.fieldLayer.setVisible(true);
+	    this.fieldLayer = map.createLayer("Field", tileset, 0, 0);
+	    this.fieldLayer.setScale(1);
+	    this.fieldLayer.setVisible(true);
 
-		    // プレイヤーをフィールドの開始位置に追加
-	        this.player = new Player(this, data.row, data.col, "player1", 0);
-	        this.add.existing(this.player);
+	    // プレイヤーをフィールドの開始位置に追加
+        this.player = new Player(this, data.row, data.col, "player1", 0);
+        this.add.existing(this.player);
 
-	        // カメラ設定
-	        this.cameras.main.startFollow(this.player.sprite);
-	        this.cameras.main.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
-	        this.cameras.main.setZoom(2);
-        }, this);
-		this.load.start();
+        // カメラ設定
+        this.cameras.main.startFollow(this.player.sprite);
+        this.cameras.main.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
+        this.cameras.main.setZoom(2);
 
         this.time.addEvent({
 	        delay: 250,
@@ -114,13 +108,17 @@ class FieldScene extends Phaser.Scene {
 	    } else if (Math.random() < 0.1) { // 低確率で戦闘開始
 		    this.player.isMoving = true;
 		    bgm.stop();
-		    this.scene.pause(); // フィールドを一時停止
-		    this.scene.launch("BattleScene", { player: this.player }); // 戦闘シーンを起動
+		    battleBGM.play();
+		    this.time.delayedCall(500, () => {
+			    this.scene.pause(); // フィールドを一時停止
+			    this.scene.launch("BattleScene", { player: this.player }); // 戦闘シーンを起動
+		    });
 	    }
 	}
 
 	onResume() {
 	    this.player.isMoving = false;
+	    bgm.play();
     }
 }
 

@@ -2,6 +2,7 @@
 const SCREEN_WIDTH = 960;
 const SCREEN_HEIGHT = 720;
 
+import TitleScene from "./TitleScene.js";
 import FieldScene from "./field.js";
 import TownScene from "./town.js";
 import BattleScene from "./battle.js";
@@ -10,7 +11,7 @@ const config = {
     type: Phaser.AUTO,
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT,
-    scene: [TownScene, FieldScene, BattleScene],
+    scene: [TitleScene, TownScene, FieldScene, BattleScene],
     physics: {
         default: 'arcade',
         arcade: { debug: false }
