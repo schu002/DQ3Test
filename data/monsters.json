@@ -1,0 +1,22 @@
+{
+  "monsters": [
+    {
+      "name": "スライム",
+      "image": "slime.png",
+      "hp": 8,
+      "mp": 0,
+      "attack": 9,
+      "defense": 5,
+      "speed": 4
+    },
+    {
+      "name": "いっかくうさぎ",
+      "image": "ikakuusagi.png",
+      "hp": 10,
+      "mp": 0,
+      "attack": 12,
+      "defense": 8,
+      "speed": 5
+    }
+  ]
+}

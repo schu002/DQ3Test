@@ -1,8 +1,8 @@
 const ACTION = {
 	NONE	: 0,
 	ATTACK	: 1,
-	DEFENSE	: 2,
-	ESCAPE	: 3,
+	ESCAPE	: 2,
+	DEFENSE	: 3,
 	TOOL	: 4
 };
 
@@ -18,12 +18,6 @@ class BattleScene extends Phaser.Scene {
     }
 
     create(player) {
-        /* this.time.delayedCall(500, () => {
-	        this.input.keyboard.once("keydown", () => {
-	            this.exitBattle();
-	        });
-	    }); */
-
         this.player = player;
         this.action = ACTION.NONE;
         this.isListen = false;
@@ -31,7 +25,7 @@ class BattleScene extends Phaser.Scene {
         this.cameras.main.setBackgroundColor("#000000");
 
         this.keys = this.input.keyboard.createCursorKeys();
-        this.input.keyboard.on("keydown-A", this.onAction, this);
+        this.input.keyboard.on("keydown-A", this.doAction, this);
 
         // BGM
 	    this.bgm = this.sound.add("battleBGM", { loop: true, volume: 0.3 });
@@ -103,17 +97,20 @@ class BattleScene extends Phaser.Scene {
         return txt;
     }
 
-    onAction() {
+    doAction() {
         if (!this.isListen) return;
         if (this.action == ACTION.NONE) return;
 
-        console.log("action");
         this.isListen = false;
+	    this.buttonSound.play();
         if (this.action == ACTION.ATTACK) {
-		    this.buttonSound.play();
 		    this.cursor.destroy();
             this.selectMonster(0);
+        } else if (this.action == ACTION.ESCAPE) {
+	        console.log("exitBattle");
+            this.exitBattle();
         }
+
         this.time.delayedCall(250, () => {
 	        this.isListen = true;
         });

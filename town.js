@@ -135,6 +135,7 @@ function preload() {
     this.load.image("townTiles", "image/town.png"); // タイルセット画像
     this.load.json("townData", "data/ariahan.json");
     this.load.audio("townBGM", "sound/town.mp3");
+    this.load.json("monstersData", "data/monsters.json");
     WebFont.load({
         custom: {
             families: ['PixelMplus10-Regular'],

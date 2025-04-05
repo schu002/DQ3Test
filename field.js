@@ -39,6 +39,8 @@ class FieldScene extends Phaser.Scene {
 	    bgm = this.sound.add("fieldBGM", { loop: true, volume: 0.3 });
 	    bgm.play();
 
+        this.events.on("resume", this.onResume, this);
+
         // 追加のロードを開始
 	    this.load.once("complete", () => {
 		    // マップを読み込む
@@ -110,11 +112,16 @@ class FieldScene extends Phaser.Scene {
 			    this.scene.start("TownScene");
 		    });
 	    } else if (Math.random() < 0.1) { // 低確率で戦闘開始
+		    this.player.isMoving = true;
 		    bgm.stop();
 		    this.scene.pause(); // フィールドを一時停止
 		    this.scene.launch("BattleScene", { player: this.player }); // 戦闘シーンを起動
 	    }
 	}
+
+	onResume() {
+	    this.player.isMoving = false;
+    }
 }
 
 function canMove(scene, position, isPlayer) {
