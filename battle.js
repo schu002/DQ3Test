@@ -1,3 +1,11 @@
+const ACTION = {
+	NONE	: 0,
+	ATTACK	: 1,
+	DEFENSE	: 2,
+	ESCAPE	: 3,
+	TOOL	: 4
+};
+
 class BattleScene extends Phaser.Scene {
     constructor() {
         super({ key: "BattleScene" });
@@ -9,15 +17,20 @@ class BattleScene extends Phaser.Scene {
     }
 
     create(player) {
-        this.time.delayedCall(500, () => {
+        /* this.time.delayedCall(500, () => {
 	        this.input.keyboard.once("keydown", () => {
 	            this.exitBattle();
 	        });
-	    });
+	    }); */
 
         this.player = player;
+        this.action = ACTION.NONE;
+        this.isListen = false;
         // 背景を黒に設定
         this.cameras.main.setBackgroundColor("#000000");
+
+        this.keys = this.input.keyboard.createCursorKeys();
+        this.input.keyboard.on("keydown-A", this.onAction, this);
 
         // BGM
 	    this.bgm = this.sound.add("battleBGM", { loop: true, volume: 0.3 });
@@ -42,7 +55,27 @@ class BattleScene extends Phaser.Scene {
 	        this.drawText(160, 560, "ぼうぎょ");
 	        this.drawText(160, 615, "どうぐ");
 	        this.drawText(400, 450, "スライム　　　　— １ひき");
-		    this.drawCursor(140, 450);
+		    this.setAction(ACTION.ATTACK);
+	        this.isListen = true;
+        });
+    }
+
+    update() {
+        if (!this.isListen) return;
+
+        let act = this.action;
+        if		(this.keys.up.isDown)	act--;
+        else if (this.keys.down.isDown) act++;
+        else return;
+
+        this.isListen = false;
+        if (act < ACTION.ATTACK) act = ACTION.TOOL;
+        else if (act > ACTION.TOOL) act = ACTION.ATTACK;
+
+        this.setAction(act);
+
+        this.time.delayedCall(300, () => {
+	        this.isListen = true;
         });
     }
 
@@ -68,27 +101,54 @@ class BattleScene extends Phaser.Scene {
         return txt;
     }
 
-    drawCursor(x, y) {
-        const cursor = this.add.graphics();
-        cursor.fillStyle(0xffffff, 1); // 白色、不透明
+    onAction() {
+        if (!this.isListen) return;
+        if (this.action == ACTION.NONE) return;
 
+        console.log("action");
+        this.isListen = false;
+        if (this.action == ACTION.ATTACK) {
+		    this.cursor.destroy();
+            this.selectMonster(0);
+        }
+        this.time.delayedCall(300, () => {
+	        this.isListen = true;
+        });
+    }
+
+    setAction(act) {
+        if (this.action == act) return;
+
+        if (this.action != ACTION.NONE) {
+		    this.cursor.destroy();
+        }
+
+        this.action = act;
+	    let y = 484 + (this.action-ACTION.ATTACK) * 55;
+	    this.drawCursor(155, y);
+    }
+
+    drawCursor(x, y) {
         const w = 16, h = 25;
-        x += 15;
-        y += 34;
-        cursor.beginPath();
-        cursor.moveTo(x, y);
-        cursor.lineTo(x+w, y+h/2);
-        cursor.lineTo(x, y+h);
-        cursor.closePath();
-        cursor.fillPath();
+        this.cursor = this.add.graphics();
+        this.cursor.fillStyle(0xffffff, 1); // 白色、不透明
+        this.cursor.beginPath();
+        this.cursor.moveTo(x, y);
+        this.cursor.lineTo(x+w, y+h/2);
+        this.cursor.lineTo(x, y+h);
+        this.cursor.closePath();
+        this.cursor.fillPath();
         this.tweens.add({
-            targets: cursor,
+            targets: this.cursor,
             alpha: { from: 1, to: 0 },
             ease: 'Linear',
-            duration: 200,
+            duration: 250,
             yoyo: true,
             repeat: -1
         });
+    }
+
+    selectMonster(idx) {
     }
 
     exitBattle() {

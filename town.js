@@ -127,7 +127,7 @@ class NPC {
     }
 }
 
-let player, cursors, camera, bgm;
+let player, keys, camera, bgm;
 let npcList = [];	// 町人リスト
 
 function preload() {
@@ -196,7 +196,7 @@ function create() {
     this.load.start();
 
     // キーボード入力
-    cursors = this.input.keyboard.createCursorKeys();
+    keys = this.input.keyboard.createCursorKeys();
 
     // BGM
     bgm = this.sound.add("townBGM", { loop: true, volume: 0.3 });
@@ -223,11 +223,11 @@ function create() {
 }
 
 function update(time) {
-    let dir = 0;
-	if (cursors.left.isDown) dir = DIR.LEFT;
-    else if (cursors.right.isDown) dir = DIR.RIGHT;
-    else if (cursors.up.isDown) dir = DIR.UP;
-    else if (cursors.down.isDown) dir = DIR.DOWN;
+    let dir = -1;
+	if		(keys.left.isDown)	dir = DIR.LEFT;
+    else if (keys.right.isDown) dir = DIR.RIGHT;
+    else if (keys.up.isDown)	dir = DIR.UP;
+    else if (keys.down.isDown)	dir = DIR.DOWN;
     else return;
 
     if (player.isMoving) return;
