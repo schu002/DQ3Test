@@ -25,7 +25,7 @@ class TownScene extends Phaser.Scene {
         create.call(this);
 
         // Aキーの入力設定
-        this.input.keyboard.on("keydown-A", this.toggleConversation, this);
+        this.input.keyboard.on("keydown-Z", this.toggleConversation, this);
 
         // 会話ウィンドウ（黒い背景の四角）を作成
         this.dialogBox = this.add.graphics();
@@ -128,7 +128,7 @@ class NPC {
     }
 }
 
-let player, keys, camera, bgm;
+let player, camera, bgm;
 let npcList = [];	// 町人リスト
 
 function preload() {
@@ -174,7 +174,13 @@ function create() {
     camera.startFollow(player.sprite, true, 0.1, 0.1);
 
     // キーボード入力
-    keys = this.input.keyboard.createCursorKeys();
+    this.keys = this.input.keyboard.createCursorKeys();
+    this.wasd = this.input.keyboard.addKeys({
+	    up: Phaser.Input.Keyboard.KeyCodes.W,
+	    down: Phaser.Input.Keyboard.KeyCodes.S,
+	    left: Phaser.Input.Keyboard.KeyCodes.A,
+	    right: Phaser.Input.Keyboard.KeyCodes.D
+	});
 
     // BGM
     bgm = this.sound.add("townBGM", { loop: true, volume: 0.3 });
@@ -202,10 +208,10 @@ function create() {
 
 function update(time) {
     let dir = -1;
-	if		(keys.left.isDown)	dir = DIR.LEFT;
-    else if (keys.right.isDown) dir = DIR.RIGHT;
-    else if (keys.up.isDown)	dir = DIR.UP;
-    else if (keys.down.isDown)	dir = DIR.DOWN;
+	if		(this.keys.left.isDown	|| this.wasd.left.isDown)  dir = DIR.LEFT;
+    else if (this.keys.right.isDown || this.wasd.right.isDown) dir = DIR.RIGHT;
+    else if (this.keys.up.isDown	|| this.wasd.up.isDown)	   dir = DIR.UP;
+    else if (this.keys.down.isDown	|| this.wasd.down.isDown)  dir = DIR.DOWN;
     else return;
 
     if (player.isMoving) return;

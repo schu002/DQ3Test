@@ -27,7 +27,13 @@ class BattleScene extends Phaser.Scene {
         this.cameras.main.setBackgroundColor("#000000");
 
         this.keys = this.input.keyboard.createCursorKeys();
-        this.input.keyboard.on("keydown-A", this.doAction, this);
+        this.wasd = this.input.keyboard.addKeys({
+		    up: Phaser.Input.Keyboard.KeyCodes.W,
+		    down: Phaser.Input.Keyboard.KeyCodes.S,
+		    left: Phaser.Input.Keyboard.KeyCodes.A,
+		    right: Phaser.Input.Keyboard.KeyCodes.D
+		});
+        this.input.keyboard.on("keydown-Z", this.doAction, this);
 
         // BGM
 	    this.bgm = this.sound.add("battleBGM", { loop: true, volume: 0.3 });
@@ -70,8 +76,8 @@ class BattleScene extends Phaser.Scene {
         if (!this.isListen) return;
 
         let act = this.action;
-        if		(this.keys.up.isDown)	act--;
-        else if (this.keys.down.isDown) act++;
+        if		(this.keys.up.isDown   || this.wasd.up.isDown)   act--;
+        else if (this.keys.down.isDown || this.wasd.down.isDown) act++;
         else return;
 
         this.isListen = false;
@@ -117,7 +123,6 @@ class BattleScene extends Phaser.Scene {
 		    this.cursor.destroy();
             this.selectMonster(0);
         } else if (this.action == ACTION.ESCAPE) {
-	        console.log("exitBattle");
             this.exitBattle();
         }
 
@@ -161,6 +166,7 @@ class BattleScene extends Phaser.Scene {
     }
 
     selectMonster(idx) {
+	    this.drawCursor(395, 483);
     }
 
     exitBattle() {

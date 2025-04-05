@@ -30,7 +30,13 @@ class FieldScene extends Phaser.Scene {
 	    this.load.spritesheet(playerData.name, playerData.image, { frameWidth: 32, frameHeight: 32 });
 
         // キーボード入力
-	    this.cursors = this.input.keyboard.createCursorKeys();
+	    this.keys = this.input.keyboard.createCursorKeys();
+	    this.wasd = this.input.keyboard.addKeys({
+		    up: Phaser.Input.Keyboard.KeyCodes.W,
+		    down: Phaser.Input.Keyboard.KeyCodes.S,
+		    left: Phaser.Input.Keyboard.KeyCodes.A,
+		    right: Phaser.Input.Keyboard.KeyCodes.D
+		});
 
         // BGM
 	    battleBGM = this.sound.add("battleBGM1", { loop: false, volume: 0.3 });
@@ -66,11 +72,11 @@ class FieldScene extends Phaser.Scene {
     }
 
     update() {
-	    let dir = 0;
-		if		(this.cursors.left.isDown)	dir = DIR.LEFT;
-	    else if (this.cursors.right.isDown) dir = DIR.RIGHT;
-	    else if (this.cursors.up.isDown)	dir = DIR.UP;
-	    else if (this.cursors.down.isDown)	dir = DIR.DOWN;
+	    let dir = -1;
+	    if		(this.keys.left.isDown	|| this.wasd.left.isDown)  dir = DIR.LEFT;
+	    else if (this.keys.right.isDown || this.wasd.right.isDown) dir = DIR.RIGHT;
+	    else if (this.keys.up.isDown	|| this.wasd.up.isDown)	   dir = DIR.UP;
+	    else if (this.keys.down.isDown	|| this.wasd.down.isDown)  dir = DIR.DOWN;
 	    else return;
 
 	    if (this.player.isMoving) return;
