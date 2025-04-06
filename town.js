@@ -1,3 +1,9 @@
+import Player from "./player.js";
+import FieldScene from "./field.js";
+import MonsterData from "./MonsterData.js";
+import OccupationData from "./OccupationData.js";
+import { updatePosition, getInverseDir } from "./util.js";
+
 // 移動間隔
 const TILE_OBS = 15;
 const TILE_DESK = 20;
@@ -5,11 +11,6 @@ const IMG_MERCHANT = "image/merchant.png";
 
 let MAP_WIDTH = 0;
 let MAP_HEIGHT = 0;
-
-import Player from "./player.js";
-import FieldScene from "./field.js";
-import MonsterData from "./MonsterData.js";
-import { updatePosition, getInverseDir } from "./util.js";
 
 class TownScene extends Phaser.Scene {
     constructor() {
@@ -237,7 +238,7 @@ function update(time) {
     });
 
     if (pos[1] < 6) {
-	    exitTown(player.scene);
+	    exitTown(player);
     }
 }
 
@@ -293,11 +294,11 @@ function getTileIndex(scene, row, col) {
     return tile ? tile.index : -1;
 }
 
-function exitTown(scene) {
+function exitTown(player) {
     camera.fadeOut(200, 0, 0, 0);
     camera.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
 	    bgm.stop();
-	    scene.scene.start("FieldScene", { row: 213, col: 172 }); 
+	    player.scene.scene.start("FieldScene", { row: 213, col: 172, name: player.name }); 
     });
 }
 

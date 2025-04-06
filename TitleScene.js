@@ -1,5 +1,6 @@
 import TownScene from "./town.js";
 import MonsterData from "./MonsterData.js";
+import OccupationData from "./OccupationData.js";
 
 class TitleScene extends Phaser.Scene {
     constructor() {
@@ -23,6 +24,7 @@ class TitleScene extends Phaser.Scene {
 	    this.load.audio("fieldBGM", "sound/field1.mp3");
 	    // モンスター
         this.load.json("monstersData", "data/monsters.json");
+        this.load.json("occData", "data/occupation.json");
 
         WebFont.load({
 	        custom: {
@@ -44,7 +46,7 @@ class TitleScene extends Phaser.Scene {
 	    }
 
         const playerData = townData.player;
-	    this.load.spritesheet(playerData.name, playerData.image, { frameWidth: 32, frameHeight: 32 });
+	    this.load.spritesheet("soldier", playerData.image, { frameWidth: 32, frameHeight: 32 });
 
 	    // 町人画像をロード
 	    const npcData = townData.objects.town;
@@ -53,26 +55,27 @@ class TitleScene extends Phaser.Scene {
 	    });
 
         this.load.once("complete", () => {
-            console.log("load complete");
-        }, this);
-	    this.load.start();
+            OccupationData.loadData(this);
+            MonsterData.loadData(this);
 
-        // preload() でロードした JSON を MonsterData に渡す
-        MonsterData.loadData(this, () => {
-            console.log("MonsterData loaded");
-            this.cameras.main.fadeIn(1000, 0, 0, 0);
-            // タイトルテキストを表示
-            this.add.text(200, 300, "DRAGON QUEST3", {
-                fontSize: "36px",
-                color: "#ffffff",
-                fontFamily: "Arial",
-            }).setOrigin(0.5).setPosition(this.cameras.main.width / 2, this.cameras.main.height / 2);
+	        // preload() でロードした JSON を MonsterData に渡す
+            this.load.once("complete", () => {
+	            this.cameras.main.fadeIn(1000, 0, 0, 0);
+	            // タイトルテキストを表示
+	            this.add.text(200, 300, "DQ3 TEST", {
+	                fontSize: "36px",
+	                color: "#ffffff",
+	                fontFamily: "Arial",
+	            }).setOrigin(0.5).setPosition(this.cameras.main.width/2, this.cameras.main.height/2);
 
-            // 入力待ち
-            this.input.keyboard.once("keydown", () => {
-                this.scene.start("TownScene"); // 町のシーンへ移動
-            });
+	            // 入力待ち
+	            this.input.keyboard.once("keydown", () => {
+	                this.scene.start("TownScene"); // 町のシーンへ移動
+	            });
+	        });
+	        this.load.start();
         });
+        this.load.start();
     }
 }
 

@@ -1,6 +1,7 @@
 import Player from "./player.js";
 import TownScene from "./town.js";
 import BattleScene from "./battle.js";
+import OccupationData from "./OccupationData.js";
 import { updatePosition, getInverseDir } from "./util.js";
 
 const TILE_OBS = 22;
@@ -27,7 +28,6 @@ class FieldScene extends Phaser.Scene {
 	    const MAP_HEIGHT = fieldData.height * TILE_SIZE;
 
 	    const playerData = fieldData.player;
-	    this.load.spritesheet(playerData.name, playerData.image, { frameWidth: 32, frameHeight: 32 });
 
         // キーボード入力
 	    this.keys = this.input.keyboard.createCursorKeys();
@@ -54,7 +54,7 @@ class FieldScene extends Phaser.Scene {
 	    this.fieldLayer.setVisible(true);
 
 	    // プレイヤーをフィールドの開始位置に追加
-        this.player = new Player(this, data.row, data.col, "player1", 0);
+        this.player = new Player(this, data.row, data.col, data.name, 0);
         this.add.existing(this.player);
 
         // カメラ設定

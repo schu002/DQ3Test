@@ -3,7 +3,7 @@ class Player {
         this.scene = scene;
         this.row = row;
         this.col = col;
-    	this.sprite = scene.physics.add.sprite(col * TILE_SIZE, row * TILE_SIZE-offset, name, 0);
+    	this.sprite = scene.physics.add.sprite(col * TILE_SIZE, row * TILE_SIZE-offset, "soldier", 0);
         this.sprite.setOrigin(0, 0);
         this.direction = dir;
         this.isMoving = false;

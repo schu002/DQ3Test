@@ -1,4 +1,5 @@
 import MonsterData from "./MonsterData.js";
+import OccupationData from "./OccupationData.js";
 
 const ACTION = {
 	NONE	: 0,
@@ -21,7 +22,6 @@ class BattleScene extends Phaser.Scene {
         this.player = player;
         this.action = ACTION.NONE;
         this.isListen = false;
-        this.monsterData = new MonsterData(this);
 
         // 背景を黒に設定
         this.cameras.main.setBackgroundColor("#000000");

@@ -68,9 +68,10 @@
             }
         }],
  "player": {
-    "name": "player1",
+    "name": "ƒXƒ^ƒƒ“",
     "row": 25,
     "col": 6,
+    "occupation": "soldier",
     "image": "image/soldier.png",
     "move": true,
     "dir": 3
