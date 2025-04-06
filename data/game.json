@@ -1,6 +1,14 @@
 {
- "player": {
-    "name": "ÉXÉ^ÉçÉì",
-    "occupation": "soldier",
-  }
+ "members": [
+   {
+     "name": "„Çπ„Çø„É≠„É≥",
+     "occupation": "soldier",
+     "level": 1
+   },
+   {
+     "name": "„Åó„ÇÖ„ÅÜ",
+     "occupation": "hero",
+     "level": 1
+   }
+ ]
 }

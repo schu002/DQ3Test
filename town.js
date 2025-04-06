@@ -130,14 +130,16 @@ class NPC {
 }
 
 let player, camera, bgm;
+let members = [];	// パーティメンバ
 let npcList = [];	// 町人リスト
 
 function preload() {
 }
 
 function create() {
+    const gameData = this.cache.json.get("gameData");
     const townData = this.cache.json.get("townData");
-    if (!townData || !townData.start || !townData.objects) {
+    if (!gameData || !townData || !townData.start || !townData.objects) {
     	console.error("Error: town data not found in JSON.");
 	    return;
     }
@@ -145,10 +147,6 @@ function create() {
     TILE_SIZE = townData.tilewidth;
     MAP_WIDTH = townData.width * TILE_SIZE;
     MAP_HEIGHT = townData.height * TILE_SIZE;
-
-    const startData = townData.start;
-    npcList = [];
-    const npcData = townData.objects.town;
 
     // マップを読み込む
     const map = this.make.tilemap({ key: "townMap" });
@@ -161,8 +159,17 @@ function create() {
     this.luidaLayer.setScale(1);
     this.luidaLayer.setVisible(false);
 
-    // プレイヤーと町人を追加
-    player = new Player(this, startData.row, startData.col, "Schu", startData.dir, CARA_OFFSET);
+    // プレイヤーを追加
+    const startData = townData.start;
+    members = [];
+    gameData.members.forEach(member => {
+        members.push(new Player(this, member.name, member.occupation, startData.row, startData.col, startData.dir, CARA_OFFSET));
+    });
+    player = members[0];
+
+    // 町人を追加
+    const npcData = townData.objects.NPC;
+    npcList = [];
     npcData.forEach(npc => {
         npcList.push(new NPC(this, npc.row, npc.col, npc.name, npc.image, npc.move, npc.dir));
     });
@@ -192,7 +199,7 @@ function create() {
         delay: 250,
         loop: true,
         callback: () => {
-            player.updateFrame();
+            members.forEach(member => member.updateFrame());
             npcList.forEach(npc => npc.updateFrame());
         }
     });
@@ -215,30 +222,32 @@ function update(time) {
     else if (this.keys.down.isDown	|| this.wasd.down.isDown)  dir = DIR.DOWN;
     else return;
 
-    if (player.isMoving) return;
-	player.direction = dir;
+    if (this.isMoving) return;
 
-    let pos = [player.row, player.col];
+    const pre = Object.assign({}, members[0]);
+	members[0].direction = dir;
+
+    let pos = [members[0].row, members[0].col];
     if (!updatePosition(pos, dir)) return;
 
     // 壁などにぶつからないようにチェック
-    player.isMoving = canMove(player.scene, pos, true);
-    if (!player.isMoving) return;
+    this.isMoving = canMove(player.scene, pos, true);
+    if (!this.isMoving) return;
 
-    player.scene.tweens.add({
-        targets: player.sprite,
-        x: pos[1] * TILE_SIZE,
-        y: pos[0] * TILE_SIZE - CARA_OFFSET,
-        duration: MOVE_DELAY,
-        onComplete: () => {
-            player.isMoving = false;
-            player.row = pos[0];
-            player.col = pos[1];
-        }
+    let moveIdx = (pre.row != members[1].row || pre.col != members[1].col)? 1 : 0;
+    members[0].move(pos[0], pos[1], CARA_OFFSET, () => {
+	    if (moveIdx == 0) this.isMoving = false;
     });
 
+    if (moveIdx == 1) {
+		members[1].direction = pre.direction;
+	    members[1].move(pre.row, pre.col, CARA_OFFSET, () => {
+            this.isMoving = false;
+        });
+    }
+
     if (pos[1] < 6) {
-	    exitTown(player);
+	    exitTown(player.scene);
     }
 }
 
@@ -294,11 +303,11 @@ function getTileIndex(scene, row, col) {
     return tile ? tile.index : -1;
 }
 
-function exitTown(player) {
+function exitTown(scene) {
     camera.fadeOut(200, 0, 0, 0);
     camera.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
 	    bgm.stop();
-	    player.scene.scene.start("FieldScene", { row: 213, col: 172, name: player.name }); 
+	    scene.scene.start("FieldScene", { row: 213, col: 172 }); 
     });
 }
 

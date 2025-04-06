@@ -6,7 +6,7 @@ import { updatePosition, getInverseDir } from "./util.js";
 
 const TILE_OBS = 22;
 
-let bgm, battleBGM;
+let player, bgm, battleBGM;
 
 class FieldScene extends Phaser.Scene {
     constructor() {
@@ -18,8 +18,9 @@ class FieldScene extends Phaser.Scene {
     }
 
     create(data) {
+	    const gameData = this.cache.json.get("gameData");
 	    const fieldData = this.cache.json.get("fieldData");
-	    if (!fieldData) {
+	    if (!gameData || !fieldData) {
 	    	console.error("Error: field data not found in JSON.");
 		    return;
 	    }
@@ -52,11 +53,15 @@ class FieldScene extends Phaser.Scene {
 	    this.fieldLayer.setVisible(true);
 
 	    // プレイヤーをフィールドの開始位置に追加
-        this.player = new Player(this, data.row, data.col, data.name, 0);
-        this.add.existing(this.player);
+        this.members = [];
+	    gameData.members.forEach(member => {
+	        this.members.push(new Player(this, member.name, member.occupation, data.row, data.col, 0, CARA_OFFSET));
+	        this.add.existing(this.members[this.members.length-1]);
+	    });
+        player = this.members[0];
 
         // カメラ設定
-        this.cameras.main.startFollow(this.player.sprite);
+        this.cameras.main.startFollow(player.sprite);
         this.cameras.main.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
         this.cameras.main.setZoom(2);
 
@@ -64,7 +69,7 @@ class FieldScene extends Phaser.Scene {
 	        delay: 250,
 	        loop: true,
 	        callback: () => {
-	            this.player.updateFrame();
+	            this.members.forEach(member => member.updateFrame());
 	        }
 	    });
     }
@@ -77,51 +82,51 @@ class FieldScene extends Phaser.Scene {
 	    else if (this.keys.down.isDown	|| this.wasd.down.isDown)  dir = DIR.DOWN;
 	    else return;
 
-	    if (this.player.isMoving) return;
-		this.player.direction = dir;
+	    if (this.isMoving) return;
 
-		let pos = [this.player.row, this.player.col];
+		const pre = Object.assign({}, this.members[0]);
+		this.members[0].direction = dir;
+
+		let pos = [this.members[0].row, this.members[0].col];
 	    if (!updatePosition(pos, dir)) return;
 
 	    // 壁などにぶつからないようにチェック
-	    this.player.isMoving = canMove(this.player.scene, pos, true);
-	    if (!this.player.isMoving) return;
+	    this.isMoving = canMove(player.scene, pos, true);
+	    if (!this.isMoving) return;
 
-	    this.player.scene.tweens.add({
-	        targets: this.player.sprite,
-	        x: pos[1] * TILE_SIZE,
-	        y: pos[0] * TILE_SIZE,
-	        duration: MOVE_DELAY,
-	        onComplete: () => {
-	            this.player.isMoving = false;
-	            this.player.row = pos[0];
-	            this.player.col = pos[1];
-	            this.postMove(pos);
-	        }
+	    let moveIdx = (pre.row != this.members[1].row || pre.col != this.members[1].col)? 1 : 0;
+	    this.members[0].move(pos[0], pos[1], CARA_OFFSET, () => {
+		    if (moveIdx == 0) this.postMove(pos);
 	    });
+
+	    if (moveIdx == 1) {
+			this.members[1].direction = pre.direction;
+		    this.members[1].move(pre.row, pre.col, CARA_OFFSET, () => {
+	            this.postMove(pos);
+	        });
+	    }
     }
 
 	postMove(pos) {
 	    if (pos[0] == 213 && (pos[1] == 172 || pos[1] == 173)) {
-		    this.player.isMoving = true;
 		    this.cameras.main.fadeOut(500, 0, 0, 0);
 		    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
 			    bgm.stop();
 			    this.scene.start("TownScene");
 		    });
 	    } else if (Math.random() < 0.1) { // 低確率で戦闘開始
-		    this.player.isMoving = true;
 		    bgm.stop();
 		    battleBGM.play();
 		    this.time.delayedCall(500, () => {
 			    this.scene.pause(); // フィールドを一時停止
-			    this.scene.launch("BattleScene", { player: this.player }); // 戦闘シーンを起動
+			    this.scene.launch("BattleScene", { player: player }); // 戦闘シーンを起動
 		    });
 	    }
+        this.isMoving = false;
 	}
 
 	onResume() {
-	    this.player.isMoving = false;
+	    this.isMoving = false;
 	    bgm.play();
     }
 }

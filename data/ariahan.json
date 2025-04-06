@@ -74,7 +74,7 @@
     "dir": 3
   },
  "objects": {
-    "town": [
+    "NPC": [
       {
         "name": "npc1",
         "row": 20,

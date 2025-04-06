@@ -14,6 +14,7 @@ class TitleScene extends Phaser.Scene {
         // 町
         this.load.image("townTiles", "image/town.png"); // タイルセット画像
         this.load.tilemapTiledJSON("townMap", "data/ariahan.json");
+        this.load.json("gameData", "data/game.json");
         this.load.json("townData", "data/ariahan.json");
         this.load.audio("townBGM", "sound/town.mp3");
         this.load.audio("button", "sound/button.mp3");
@@ -38,15 +39,16 @@ class TitleScene extends Phaser.Scene {
     }
 
     create() {
+        const gameData = this.cache.json.get("gameData");
         const townData = this.cache.json.get("townData");
 	    const fieldData = this.cache.json.get("fieldData");
-	    if (!townData || !townData.start || !townData.objects || !fieldData) {
+	    if (!gameData || !townData || !townData.start || !townData.objects || !fieldData) {
 	    	console.error("Error: data not found in JSON.");
 		    return;
 	    }
 
 	    // 町人画像をロード
-	    const npcData = townData.objects.town;
+	    const npcData = townData.objects.NPC;
 	    npcData.forEach(npc => {
 	        this.load.spritesheet(npc.image, npc.image, { frameWidth: 32, frameHeight: 32 });
 	    });
