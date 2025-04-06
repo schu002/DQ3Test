@@ -27,8 +27,6 @@ class FieldScene extends Phaser.Scene {
 	    const MAP_WIDTH = fieldData.width * TILE_SIZE;
 	    const MAP_HEIGHT = fieldData.height * TILE_SIZE;
 
-	    const playerData = fieldData.player;
-
         // キーボード入力
 	    this.keys = this.input.keyboard.createCursorKeys();
 	    this.wasd = this.input.keyboard.addKeys({

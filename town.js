@@ -137,8 +137,8 @@ function preload() {
 
 function create() {
     const townData = this.cache.json.get("townData");
-    if (!townData || !townData.player || !townData.objects) {
-    	console.error("Error: player data not found in JSON.");
+    if (!townData || !townData.start || !townData.objects) {
+    	console.error("Error: town data not found in JSON.");
 	    return;
     }
 
@@ -146,7 +146,7 @@ function create() {
     MAP_WIDTH = townData.width * TILE_SIZE;
     MAP_HEIGHT = townData.height * TILE_SIZE;
 
-    const playerData = townData.player;
+    const startData = townData.start;
     npcList = [];
     const npcData = townData.objects.town;
 
@@ -162,7 +162,7 @@ function create() {
     this.luidaLayer.setVisible(false);
 
     // プレイヤーと町人を追加
-    player = new Player(this, playerData.row, playerData.col, playerData.name, playerData.dir, CARA_OFFSET);
+    player = new Player(this, startData.row, startData.col, "Schu", startData.dir, CARA_OFFSET);
     npcData.forEach(npc => {
         npcList.push(new NPC(this, npc.row, npc.col, npc.name, npc.image, npc.move, npc.dir));
     });

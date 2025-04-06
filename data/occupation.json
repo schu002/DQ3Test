@@ -2,6 +2,7 @@
   "classes": [
     {
       "name": "soldier",
+      "image": "soldier.png",
       "levels": [
         {
           "level": 1,

@@ -56,14 +56,6 @@
                 }
             }
         }],
- "player": {
-    "name": "player1",
-    "row": 25,
-    "col": 6,
-    "image": "image/soldier.png",
-    "move": true,
-    "dir": 3
-  },
  "objects": {
     "field": [
       {

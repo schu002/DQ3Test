@@ -40,13 +40,10 @@ class TitleScene extends Phaser.Scene {
     create() {
         const townData = this.cache.json.get("townData");
 	    const fieldData = this.cache.json.get("fieldData");
-	    if (!townData || !townData.player || !townData.objects || !fieldData) {
+	    if (!townData || !townData.start || !townData.objects || !fieldData) {
 	    	console.error("Error: data not found in JSON.");
 		    return;
 	    }
-
-        const playerData = townData.player;
-	    this.load.spritesheet("soldier", playerData.image, { frameWidth: 32, frameHeight: 32 });
 
 	    // 町人画像をロード
 	    const npcData = townData.objects.town;
@@ -54,26 +51,23 @@ class TitleScene extends Phaser.Scene {
 	        this.load.spritesheet(npc.image, npc.image, { frameWidth: 32, frameHeight: 32 });
 	    });
 
+        OccupationData.loadData(this);
+        MonsterData.loadData(this);
+
+        // preload() でロードした JSON を MonsterData に渡す
         this.load.once("complete", () => {
-            OccupationData.loadData(this);
-            MonsterData.loadData(this);
+            this.cameras.main.fadeIn(1000, 0, 0, 0);
+            // タイトルテキストを表示
+            this.add.text(200, 300, "DQ3 TEST", {
+                fontSize: "36px",
+                color: "#ffffff",
+                fontFamily: "Arial",
+            }).setOrigin(0.5).setPosition(this.cameras.main.width/2, this.cameras.main.height/2);
 
-	        // preload() でロードした JSON を MonsterData に渡す
-            this.load.once("complete", () => {
-	            this.cameras.main.fadeIn(1000, 0, 0, 0);
-	            // タイトルテキストを表示
-	            this.add.text(200, 300, "DQ3 TEST", {
-	                fontSize: "36px",
-	                color: "#ffffff",
-	                fontFamily: "Arial",
-	            }).setOrigin(0.5).setPosition(this.cameras.main.width/2, this.cameras.main.height/2);
-
-	            // 入力待ち
-	            this.input.keyboard.once("keydown", () => {
-	                this.scene.start("TownScene"); // 町のシーンへ移動
-	            });
-	        });
-	        this.load.start();
+            // 入力待ち
+            this.input.keyboard.once("keydown", () => {
+                this.scene.start("TownScene"); // 町のシーンへ移動
+            });
         });
         this.load.start();
     }
