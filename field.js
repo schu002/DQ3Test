@@ -75,14 +75,13 @@ class FieldScene extends Phaser.Scene {
     }
 
     update() {
+	    if (this.isMoving) return;
 	    let dir = -1;
 	    if		(this.keys.left.isDown	|| this.wasd.left.isDown)  dir = DIR.LEFT;
 	    else if (this.keys.right.isDown || this.wasd.right.isDown) dir = DIR.RIGHT;
 	    else if (this.keys.up.isDown	|| this.wasd.up.isDown)	   dir = DIR.UP;
 	    else if (this.keys.down.isDown	|| this.wasd.down.isDown)  dir = DIR.DOWN;
 	    else return;
-
-	    if (this.isMoving) return;
 
 		const pre = Object.assign({}, this.members[0]);
 		this.members[0].direction = dir;
@@ -119,7 +118,8 @@ class FieldScene extends Phaser.Scene {
 		    battleBGM.play();
 		    this.time.delayedCall(500, () => {
 			    this.scene.pause(); // フィールドを一時停止
-			    this.scene.launch("BattleScene", { player: player }); // 戦闘シーンを起動
+			    console.log("aaa", this.members[0]);
+			    this.scene.launch("BattleScene", { members: this.members }); // 戦闘シーンを起動
 		    });
 	    }
         this.isMoving = false;

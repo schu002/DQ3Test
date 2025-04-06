@@ -215,14 +215,13 @@ function create() {
 }
 
 function update(time) {
+    if (this.isMoving) return;
     let dir = -1;
 	if		(this.keys.left.isDown	|| this.wasd.left.isDown)  dir = DIR.LEFT;
     else if (this.keys.right.isDown || this.wasd.right.isDown) dir = DIR.RIGHT;
     else if (this.keys.up.isDown	|| this.wasd.up.isDown)	   dir = DIR.UP;
     else if (this.keys.down.isDown	|| this.wasd.down.isDown)  dir = DIR.DOWN;
     else return;
-
-    if (this.isMoving) return;
 
     const pre = Object.assign({}, members[0]);
 	members[0].direction = dir;

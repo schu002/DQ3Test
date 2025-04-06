@@ -18,8 +18,8 @@ class BattleScene extends Phaser.Scene {
         this.load.audio("battleBGM", "sound/battle2.mp3");
     }
 
-    create(player) {
-        this.player = player;
+    create() {
+        this.members = this.sys.settings.data.members;
         this.action = ACTION.NONE;
         this.isListen = false;
 
@@ -59,7 +59,7 @@ class BattleScene extends Phaser.Scene {
         this.time.delayedCall(1200, () => {
             this.rect1.destroy();
             this.text1.destroy();
-	        this.drawRect(130, 445, 220, 245, "しゅう");
+	        this.drawRect(130, 445, 220, 245, this.members[0].name);
 	        this.drawRect(370, 445, 460, 90);
 	        this.drawText(160, 450, "たたかう");
 	        this.drawText(160, 505, "にげる");
