@@ -91,17 +91,17 @@ class FieldScene extends Phaser.Scene {
 	    if (!updatePosition(pos, dir)) return;
 
 	    // 壁などにぶつからないようにチェック
-	    this.isMoving = canMove(player.scene, pos, true);
+	    this.isMoving = canMove(this, pos, true);
 	    if (!this.isMoving) return;
 
 	    let moveIdx = (pre.row != this.members[1].row || pre.col != this.members[1].col)? 1 : 0;
-	    this.members[0].move(pos[0], pos[1], CARA_OFFSET, () => {
+	    this.members[0].move(this, pos[0], pos[1], CARA_OFFSET, () => {
 		    if (moveIdx == 0) this.postMove(pos);
 	    });
 
 	    if (moveIdx == 1) {
 			this.members[1].direction = pre.direction;
-		    this.members[1].move(pre.row, pre.col, CARA_OFFSET, () => {
+		    this.members[1].move(this, pre.row, pre.col, CARA_OFFSET, () => {
 	            this.postMove(pos);
 	        });
 	    }

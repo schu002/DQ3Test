@@ -231,23 +231,23 @@ function update(time) {
     if (!updatePosition(pos, dir)) return;
 
     // 壁などにぶつからないようにチェック
-    this.isMoving = canMove(player.scene, pos, true);
+    this.isMoving = canMove(this, pos, true);
     if (!this.isMoving) return;
 
     let moveIdx = (pre.row != members[1].row || pre.col != members[1].col)? 1 : 0;
-    members[0].move(pos[0], pos[1], CARA_OFFSET, () => {
+    members[0].move(this, pos[0], pos[1], CARA_OFFSET, () => {
 	    if (moveIdx == 0) this.isMoving = false;
     });
 
     if (moveIdx == 1) {
 		members[1].direction = pre.direction;
-	    members[1].move(pre.row, pre.col, CARA_OFFSET, () => {
+	    members[1].move(this, pre.row, pre.col, CARA_OFFSET, () => {
             this.isMoving = false;
         });
     }
 
     if (pos[1] < 6) {
-	    exitTown(player.scene);
+	    exitTown(this);
     }
 }
 
