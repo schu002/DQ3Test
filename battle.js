@@ -41,13 +41,23 @@ class BattleScene extends Phaser.Scene {
 	    this.buttonSound = this.sound.add("button", { loop: false, volume: 0.3 });
 
         const monster = MonsterData.getRandomMonster(1);
-        console.log("random", monster);
 
-        // 四角形（外形：白、塗りつぶし：黒、角丸）
-        this.rect1 = this.drawRect(130, 445, 700, 245);
+        // ステータス
+        this.drawRect(130, 30, this.members.length*170+30, 180);
+        for (let idx = 0; idx < this.members.length; idx++) {
+	        this.drawFill(150+idx*170, 16, 130, 20);
+	        this.drawText(130+idx*170, 5, this.members[idx].name);
+	        this.drawText(130+idx*170, 55, "Ｈ");
+	        this.drawText(160+idx*170, 55, getNumberStr(this.members[idx].hp));
+	        this.drawText(130+idx*170, 105, "Ｍ");
+	        this.drawText(160+idx*170, 105, getNumberStr(this.members[idx].mp));
+	        this.drawText(130+idx*170, 155, headName(this.members[idx].occupation));
+	        this.drawText(160+idx*170, 155, getNumberStr(this.members[idx].level));
+        }
 
-        // 四角形の中に白いテキスト
-        this.text1 = this.drawText(130, 445, monster.name + "が　あらわれた！");
+        // コマンド
+        this.rect2 = this.drawRect(130, 445, 700, 245);
+        this.text2 = this.drawText(130, 465, monster.name + "が　あらわれた！");
 
         const texture = this.textures.get(monster.name);
         const frame = texture.getSourceImage();
@@ -57,16 +67,16 @@ class BattleScene extends Phaser.Scene {
         this.add.image(480, y, monster.name).setScale(2); // 画像の大きさ調整
 
         this.time.delayedCall(1200, () => {
-            this.rect1.destroy();
-            this.text1.destroy();
+            this.rect2.destroy();
+            this.text2.destroy();
 	        this.drawRect(130, 445, 220, 245, this.members[0].name);
 	        this.drawRect(370, 445, 460, 90);
-	        this.drawText(160, 450, "たたかう");
-	        this.drawText(160, 505, "にげる");
-	        this.drawText(160, 560, "ぼうぎょ");
-	        this.drawText(160, 615, "どうぐ");
-	        this.drawText(400, 450, monster.name);
-	        this.drawText(650, 450, "— １ひき");
+	        this.drawText(160, 470, "たたかう");
+	        this.drawText(160, 525, "にげる");
+	        this.drawText(160, 580, "ぼうぎょ");
+	        this.drawText(160, 635, "どうぐ");
+	        this.drawText(400, 470, monster.name);
+	        this.drawText(650, 470, "— １ひき");
 		    this.setAction(ACTION.ATTACK);
 	        this.isListen = true;
         });
@@ -99,13 +109,19 @@ class BattleScene extends Phaser.Scene {
         rect.fillRoundedRect(x, y, w, h, 5);
         if (title) {
 	        rect.fillRect(x+45, y-15, w-90, 15);
-            this.drawText(x+30, y-45, title);
+            this.drawText(x+30, y-25, title);
         }
         return rect;
     }
 
+    drawFill(x, y, w, h) {
+        let rect = this.add.graphics();
+        rect.fillStyle(0x000000); // 塗りつぶしを黒
+        rect.fillRect(x, y, w, h);
+    }
+
     drawText(x, y, msg) {
-        let txt = this.add.text(x+20, y+30, msg, {
+        let txt = this.add.text(x+20, y+10, msg, {
             fontFamily: "PixelMplus10-Regular",
             fontSize: "32px",
             color: "#ffffff",
@@ -177,6 +193,36 @@ class BattleScene extends Phaser.Scene {
 	        this.scene.resume("FieldScene");
         });
     }
+}
+
+function headName(occ) {
+    if (occ == "soldier") return "せ：";
+    if (occ == "hero") return "ゆ：";
+    return "";
+}
+
+function getNumberStr(num) {
+    let str = "";
+    let mod = num;
+    let nums = ["０", "１", "２", "３", "４", "５", "６", "７", "８", "９"];
+    if (num >= 100) {
+        let idx = Math.floor(mod/100);
+        str = nums[idx];
+        mod -= idx * 100;
+	    console.log("mod1:", mod);
+    } else {
+        str = (num >= 10)? "　" : "　　";
+    }
+    if (num >= 10) {
+        let idx = Math.floor(mod/10);
+        str += nums[idx];
+        mod -= idx * 10;
+	    console.log("mod2:", mod, idx);
+    }
+    if (num >= 0) {
+        str += nums[mod];
+    }
+    return str;
 }
 
 export default BattleScene;

@@ -15,12 +15,12 @@ class MonsterData {
 
     // モンスター一覧を取得
     static getAllMonsters() {
-        return monsters;
+        return MonsterData.monsters;
     }
 
     // 名前でモンスターを取得
     static getMonsterByName(name) {
-        return monsters.find(monster => monster.name === name);
+        return MonsterData.monsters.find(monster => monster.name === name);
     }
 
     // ランダムでモンスターを取得

@@ -163,7 +163,7 @@ function create() {
     const startData = townData.start;
     members = [];
     gameData.members.forEach(member => {
-        members.push(new Player(this, member.name, member.occupation, startData.row, startData.col, startData.dir, CARA_OFFSET));
+        members.push(new Player(this, member.name, member.occupation, member.level, startData.row, startData.col, startData.dir, CARA_OFFSET));
     });
     player = members[0];
 
@@ -193,6 +193,7 @@ function create() {
     // BGM
     bgm = this.sound.add("townBGM", { loop: true, volume: 0.3 });
     bgm.play();
+    this.isMoving = false;
 
     // 歩行アニメーション
     this.time.addEvent({

@@ -14,12 +14,12 @@ class OccupationData {
 
     // 職業名でデータを取得
     static getData(name) {
-        return datas.find(occ => occ.name === name);
+        return OccupationData.datas.find(occ => occ.name === name);
     }
 
     // 職業とレベルでパラメータを取得
     static getParams(name, level) {
-        const occ = datas(name);
+        const occ = OccupationData.getData(name);
         if (!occ) return null;
 
         const levelData = occ.levels.find(lv => lv.level === level);

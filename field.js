@@ -55,7 +55,7 @@ class FieldScene extends Phaser.Scene {
 	    // プレイヤーをフィールドの開始位置に追加
         this.members = [];
 	    gameData.members.forEach(member => {
-	        this.members.push(new Player(this, member.name, member.occupation, data.row, data.col, 0, CARA_OFFSET));
+	        this.members.push(new Player(this, member.name, member.occupation, member.level, data.row, data.col, 0, 0));
 	        this.add.existing(this.members[this.members.length-1]);
 	    });
         player = this.members[0];
@@ -94,13 +94,13 @@ class FieldScene extends Phaser.Scene {
 	    if (!this.isMoving) return;
 
 	    let moveIdx = (pre.row != this.members[1].row || pre.col != this.members[1].col)? 1 : 0;
-	    this.members[0].move(this, pos[0], pos[1], CARA_OFFSET, () => {
+	    this.members[0].move(this, pos[0], pos[1], 0, () => {
 		    if (moveIdx == 0) this.postMove(pos);
 	    });
 
 	    if (moveIdx == 1) {
 			this.members[1].direction = pre.direction;
-		    this.members[1].move(this, pre.row, pre.col, CARA_OFFSET, () => {
+		    this.members[1].move(this, pre.row, pre.col, 0, () => {
 	            this.postMove(pos);
 	        });
 	    }
@@ -118,11 +118,11 @@ class FieldScene extends Phaser.Scene {
 		    battleBGM.play();
 		    this.time.delayedCall(500, () => {
 			    this.scene.pause(); // フィールドを一時停止
-			    console.log("aaa", this.members[0]);
 			    this.scene.launch("BattleScene", { members: this.members }); // 戦闘シーンを起動
 		    });
-	    }
-        this.isMoving = false;
+	    } else {
+	        this.isMoving = false;
+        }
 	}
 
 	onResume() {
