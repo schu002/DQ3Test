@@ -10,6 +10,7 @@ class Player {
     	this.sprite = scene.physics.add.sprite(col * TILE_SIZE, row * TILE_SIZE-offset, occupation, 0);
         this.sprite.setOrigin(0, 0);
         this.direction = dir;
+        this.action = ACTION.NONE;
         this.stepCount = 0;
 
         let prms = OccupationData.getParams(occupation, lv);

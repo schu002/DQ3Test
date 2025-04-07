@@ -9,6 +9,15 @@ window.DIR = {
 	RIGHT	: 3
 };
 
+window.ACTION = {
+    NONE	: 0,
+    ATTACK	: 1,
+    SPELL	: 2,
+    DEFENSE	: 3,
+    TOOL	: 4,
+    ESCAPE	: 5
+};
+
 export function updatePosition(position, dir)
 {
     if		(dir == DIR.DOWN)  position[0] += 1;

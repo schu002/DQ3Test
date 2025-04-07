@@ -1,15 +1,6 @@
 import MonsterData from "./MonsterData.js";
 import OccupationData from "./OccupationData.js";
 
-const ACTION = {
-	NONE	: 0,
-	ATTACK	: 1,
-	SPELL	: 2,
-	DEFENSE	: 3,
-	TOOL	: 4,
-	ESCAPE	: 5
-};
-
 class BattleScene extends Phaser.Scene {
     constructor() {
         super({ key: "BattleScene" });
@@ -21,7 +12,11 @@ class BattleScene extends Phaser.Scene {
 
     create() {
         this.members = this.sys.settings.data.members;
-        this.action = ACTION.NONE;
+        this.memberIdx = 0;
+        this.monsters = [];
+        this.monsterIdx = -1;
+        this.actList = [];
+        this.actIdx = -1;
         this.isListen = false;
 
         // 背景を黒に設定
@@ -29,68 +24,92 @@ class BattleScene extends Phaser.Scene {
 
         this.keys = this.input.keyboard.createCursorKeys();
         this.wasd = this.input.keyboard.addKeys({
-		    up: Phaser.Input.Keyboard.KeyCodes.W,
-		    down: Phaser.Input.Keyboard.KeyCodes.S,
-		    left: Phaser.Input.Keyboard.KeyCodes.A,
-		    right: Phaser.Input.Keyboard.KeyCodes.D
-		});
-        this.input.keyboard.on("keydown-Z", this.doAction, this);
+    	    up: Phaser.Input.Keyboard.KeyCodes.W,
+    	    down: Phaser.Input.Keyboard.KeyCodes.S,
+    	    left: Phaser.Input.Keyboard.KeyCodes.A,
+    	    right: Phaser.Input.Keyboard.KeyCodes.D
+    	});
+        this.input.keyboard.on("keydown-Z", this.onButtonA, this);
+        this.input.keyboard.on("keydown-X", this.onButtonB, this);
 
         // BGM
-	    this.bgm = this.sound.add("battleBGM", { loop: true, volume: 0.3 });
-	    this.bgm.play();
-	    this.buttonSound = this.sound.add("button", { loop: false, volume: 0.3 });
+        this.bgm = this.sound.add("battleBGM", { loop: true, volume: 0.3 });
+        this.bgm.play();
+        this.buttonSound = this.sound.add("button", { loop: false, volume: 0.3 });
 
-        const monster = MonsterData.getRandomMonster(1);
+        this.monsters.push(MonsterData.getRandomMonster(1));
+        this.monsters.push(MonsterData.getRandomMonster(1));
 
         // ステータス
         this.drawRect(130, 30, this.members.length*170+30, 180);
         for (let idx = 0; idx < this.members.length; idx++) {
-	        this.drawFill(150+idx*170, 16, 130, 20);
-	        this.drawText(130+idx*170, 5, this.members[idx].name);
-	        this.drawText(130+idx*170, 55, "Ｈ");
-	        this.drawText(160+idx*170, 55, getNumberStr(this.members[idx].hp));
-	        this.drawText(130+idx*170, 105, "Ｍ");
-	        this.drawText(160+idx*170, 105, getNumberStr(this.members[idx].mp));
-	        this.drawText(130+idx*170, 155, headName(this.members[idx].occupation));
-	        this.drawText(160+idx*170, 155, getNumberStr(this.members[idx].level));
+            this.members[idx].action = ACTION.NONE;
+            this.drawFill(150+idx*170, 16, 130, 20);
+            this.drawText(130+idx*170, 5, this.members[idx].name);
+            this.drawText(130+idx*170, 55, "Ｈ");
+            this.drawText(160+idx*170, 55, getNumberStr(this.members[idx].hp));
+            this.drawText(130+idx*170, 105, "Ｍ");
+            this.drawText(160+idx*170, 105, getNumberStr(this.members[idx].mp));
+            this.drawText(130+idx*170, 155, headName(this.members[idx].occupation));
+            this.drawText(160+idx*170, 155, getNumberStr(this.members[idx].level));
         }
 
         let rect1 = this.drawRect(130, 445, 700, 245);
-        let text1 = this.drawText(130, 465, monster.name + "が　あらわれた！");
+        let textList = [];
+        for (let i = 0; i < this.monsters.length; i++) {
+            textList.push(this.drawText(130, 465+i*50, this.monsters[i].name + "が　あらわれた！"));
+        }
 
-        const texture = this.textures.get(monster.name);
-        const frame = texture.getSourceImage();
-        let y = 410 - frame.height;
-
-        // モンスター画像を表示
-        this.add.image(480, y, monster.name).setScale(2); // 画像の大きさ調整
+        this.drawMonsterImage();
 
         // コマンド
         this.time.delayedCall(1200, () => {
             rect1.destroy();
-            text1.destroy();
-            this.drawCommand(0);
-	        this.drawText(400, 470, monster.name);
-	        this.drawText(650, 470, "— １ひき");
-		    this.setAction(ACTION.ATTACK);
-	        this.isListen = true;
+            textList.forEach(text => { text.destroy(); });
+            this.drawAction(0);
+            this.drawMonster();
+            this.isListen = true;
         });
     }
 
     update() {
         if (!this.isListen) return;
 
-        let act = this.action;
-        if		(this.keys.up.isDown   || this.wasd.up.isDown)   act--;
-        else if (this.keys.down.isDown || this.wasd.down.isDown) act++;
-        else return;
+        let member = this.members[this.memberIdx];
+        let idx = (member.action != ACTION.NONE)? this.monsterIdx : this.actIdx;
+        let len = (member.action != ACTION.NONE)? this.monsters.length : this.actList.length;
+        if (idx >= 0) {
+	        if (len < 2) return;
+	        if		(this.keys.up.isDown   || this.wasd.up.isDown)   idx--;
+	        else if (this.keys.down.isDown || this.wasd.down.isDown) idx++;
+	        else return;
+	        if (idx < 0) idx = len-1;
+	        else if (idx >= len) idx = 0;
+            this.cursor.destroy();
+        } else {
+            idx = 0;
+        }
+
+        this.setCursor(idx);
+    }
+
+    setCursor(idx, blink=true) {
+        if (!this.isListen) return;
+
+        let x, y;
+        let member = this.members[this.memberIdx];
+        if (member.action != ACTION.NONE) {
+            this.monsterIdx = idx;
+            x = 395;
+    	    y = 483 + idx * 55;
+        } else {
+            this.actIdx = idx;
+            x = 155;
+    	    y = 483 + idx * 55;
+        }
 
         this.isListen = false;
-        if (act < ACTION.ATTACK) act = ACTION.TOOL;
-        else if (act > ACTION.TOOL) act = ACTION.ATTACK;
-
-        this.setAction(act);
+	    this.drawCursor(x, y, blink);
 
         this.time.delayedCall(250, () => {
 	        this.isListen = true;
@@ -104,15 +123,15 @@ class BattleScene extends Phaser.Scene {
         rect.strokeRoundedRect(x, y, w, h, 5);
         rect.fillRoundedRect(x, y, w, h, 5);
         if (title) {
-	        rect.fillRect(x+45, y-15, w-90, 15);
+            rect.fillRect(x+45, y-15, w-90, 15);
             this.drawText(x+30, y-25, title);
         }
         return rect;
     }
 
-    drawFill(x, y, w, h) {
+    drawFill(x, y, w, h, col=0x000000) {
         let rect = this.add.graphics();
-        rect.fillStyle(0x000000); // 塗りつぶしを黒
+        rect.fillStyle(col); // 塗りつぶしを黒
         rect.fillRect(x, y, w, h);
     }
 
@@ -125,66 +144,105 @@ class BattleScene extends Phaser.Scene {
         return txt;
     }
 
-    drawCommand(idx) {
+    drawAction(idx) {
         this.drawRect(130, 445, 220, 245, this.members[idx].name);
-        this.drawRect(370, 445, 460, 90);
-        let actList = this.getActionList(idx);
-        for (let idx = 0; idx < actList.length; idx++) {
-	        this.drawText(160, 470+idx*55, getActionStr(actList[idx]));
+        this.setActionList(idx);
+        for (let i = 0; i < this.actList.length; i++) {
+            this.drawText(160, 470+i*55, getActionStr(this.actList[i]));
         }
     }
 
-    getActionList(idx) {
-        let actList = [];
-        actList.push(ACTION.ATTACK);
+    drawMonster() {
+        this.drawRect(370, 445, 460, 40+this.monsters.length*50);
+        for (let i = 0; i < this.monsters.length; i++) {
+            let y = 470 + i*55;
+            this.drawText(400, y, this.monsters[i].name);
+            this.drawText(650, y, "— １ひき");
+        }
+    }
+
+    drawMonsterImage() {
+        let allwidth = 0;
+        for (let idx = 0; idx < this.monsters.length; idx++) {
+            let monster = this.monsters[idx];
+            const texture = this.textures.get(monster.name);
+            const frame = texture.getSourceImage();
+            allwidth += frame.width*2;
+            if (idx > 0) allwidth += 50;
+        }
+
+        let x = 550 - allwidth/2;
+        for (let idx = 0; idx < this.monsters.length; idx++) {
+            let monster = this.monsters[idx];
+            const texture = this.textures.get(monster.name);
+            const frame = texture.getSourceImage();
+            let y = 410 - frame.height;
+            this.add.image(x, y, monster.name).setScale(2); // 画像の大きさ調整
+            x += frame.width*2 + 50;
+        }
+    }
+
+    setActionList(idx) {
+        this.actList = [];
+        this.actList.push(ACTION.ATTACK);
         let isSoldier = (this.members[idx].occupation == "soldier")? true : false;
         if (idx == 0) {
-	        if (isSoldier) {
-		        actList.push(ACTION.ESCAPE);
-		        actList.push(ACTION.DEFENSE);
-	        } else {
-		        actList.push(ACTION.SPELL);
-		        actList.push(ACTION.ESCAPE);
-	        }
+            if (isSoldier) {
+    	        this.actList.push(ACTION.ESCAPE);
+    	        this.actList.push(ACTION.DEFENSE);
+            } else {
+    	        this.actList.push(ACTION.SPELL);
+    	        this.actList.push(ACTION.ESCAPE);
+            }
         } else {
-	        if (!isSoldier) actList.push(ACTION.SPELL);
-	        actList.push(ACTION.DEFENSE);
+            if (!isSoldier) this.actList.push(ACTION.SPELL);
+            this.actList.push(ACTION.DEFENSE);
         }
-        actList.push(ACTION.TOOL);
-        return actList;
+        this.actList.push(ACTION.TOOL);
     }
 
-    doAction() {
+    onButtonA() {
         if (!this.isListen) return;
-        if (this.action == ACTION.NONE) return;
+        if (this.actIdx < 0) return;
 
-        this.isListen = false;
-	    this.buttonSound.play();
-        if (this.action == ACTION.ATTACK) {
-		    this.cursor.destroy();
-            this.selectMonster(0);
-        } else if (this.action == ACTION.ESCAPE) {
-            this.exitBattle();
+        let member = this.members[this.memberIdx];
+        if (member.action == ACTION.NONE) {
+	        this.setCursor(this.actIdx, false);
+	        member.action = this.actList[this.actIdx];
+	        this.isListen = false;
+	        this.buttonSound.play();
+	        if (member.action == ACTION.ATTACK) {
+	    	    // this.cursor.destroy();
+	    	    this.monsterIdx = -1;
+	        } else if (member.action == ACTION.ESCAPE) {
+	            this.exitBattle();
+	        }
+        } else {
+            if (this.memberIdx >= this.members.length-1) return;
+            this.memberIdx++;
         }
 
         this.time.delayedCall(250, () => {
-	        this.isListen = true;
+            this.isListen = true;
         });
     }
 
-    setAction(act) {
-        if (this.action == act) return;
+    onButtonB() {
+        if (!this.isListen) return;
 
-        if (this.action != ACTION.NONE) {
-		    this.cursor.destroy();
+        let member = this.members[this.memberIdx];
+        if (member.action != ACTION.NONE) {
+	        this.buttonSound.play();
+    	    this.cursor.destroy();
+    	    this.drawFill(147, 480, 30, 200);
+    	    this.monsterIdx = -1;
+    	    member.action = ACTION.NONE;
+	        this.setCursor(0);
+        } else {
         }
-
-        this.action = act;
-	    let y = 483 + (this.action-ACTION.ATTACK) * 55;
-	    this.drawCursor(155, y);
     }
 
-    drawCursor(x, y) {
+    drawCursor(x, y, blink=true) {
         const w = 14, h = 26;
         this.cursor = this.add.graphics();
         this.cursor.fillStyle(0xffffff, 1); // 白色、不透明
@@ -196,26 +254,24 @@ class BattleScene extends Phaser.Scene {
         this.cursor.lineTo(x, y+h);
         this.cursor.closePath();
         this.cursor.fillPath();
-        this.tweens.add({
-            targets: this.cursor,
-            alpha: { from: 1, to: 0 },
-            ease: 'Linear',
-            duration: 250,
-            yoyo: true,
-            repeat: -1
-        });
-    }
-
-    selectMonster(idx) {
-	    this.drawCursor(395, 483);
+        if (blink) {
+	        this.tweens.add({
+	            targets: this.cursor,
+	            alpha: { from: 1, to: 0 },
+	            ease: 'Linear',
+	            duration: 250,
+	            yoyo: true,
+	            repeat: -1
+	        });
+        }
     }
 
     exitBattle() {
         this.cameras.main.fadeOut(500, 0, 0, 0);
         this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-	        this.bgm.stop();
-	        this.scene.stop();
-	        this.scene.resume("FieldScene");
+            this.bgm.stop();
+            this.scene.stop();
+            this.scene.resume("FieldScene");
         });
     }
 }
