@@ -4,9 +4,10 @@ import OccupationData from "./OccupationData.js";
 const ACTION = {
 	NONE	: 0,
 	ATTACK	: 1,
-	ESCAPE	: 2,
+	SPELL	: 2,
 	DEFENSE	: 3,
-	TOOL	: 4
+	TOOL	: 4,
+	ESCAPE	: 5
 };
 
 class BattleScene extends Phaser.Scene {
@@ -55,9 +56,8 @@ class BattleScene extends Phaser.Scene {
 	        this.drawText(160+idx*170, 155, getNumberStr(this.members[idx].level));
         }
 
-        // コマンド
-        this.rect2 = this.drawRect(130, 445, 700, 245);
-        this.text2 = this.drawText(130, 465, monster.name + "が　あらわれた！");
+        let rect1 = this.drawRect(130, 445, 700, 245);
+        let text1 = this.drawText(130, 465, monster.name + "が　あらわれた！");
 
         const texture = this.textures.get(monster.name);
         const frame = texture.getSourceImage();
@@ -66,15 +66,11 @@ class BattleScene extends Phaser.Scene {
         // モンスター画像を表示
         this.add.image(480, y, monster.name).setScale(2); // 画像の大きさ調整
 
+        // コマンド
         this.time.delayedCall(1200, () => {
-            this.rect2.destroy();
-            this.text2.destroy();
-	        this.drawRect(130, 445, 220, 245, this.members[0].name);
-	        this.drawRect(370, 445, 460, 90);
-	        this.drawText(160, 470, "たたかう");
-	        this.drawText(160, 525, "にげる");
-	        this.drawText(160, 580, "ぼうぎょ");
-	        this.drawText(160, 635, "どうぐ");
+            rect1.destroy();
+            text1.destroy();
+            this.drawCommand(0);
 	        this.drawText(400, 470, monster.name);
 	        this.drawText(650, 470, "— １ひき");
 		    this.setAction(ACTION.ATTACK);
@@ -127,6 +123,35 @@ class BattleScene extends Phaser.Scene {
             color: "#ffffff",
         });
         return txt;
+    }
+
+    drawCommand(idx) {
+        this.drawRect(130, 445, 220, 245, this.members[idx].name);
+        this.drawRect(370, 445, 460, 90);
+        let actList = this.getActionList(idx);
+        for (let idx = 0; idx < actList.length; idx++) {
+	        this.drawText(160, 470+idx*55, getActionStr(actList[idx]));
+        }
+    }
+
+    getActionList(idx) {
+        let actList = [];
+        actList.push(ACTION.ATTACK);
+        let isSoldier = (this.members[idx].occupation == "soldier")? true : false;
+        if (idx == 0) {
+	        if (isSoldier) {
+		        actList.push(ACTION.ESCAPE);
+		        actList.push(ACTION.DEFENSE);
+	        } else {
+		        actList.push(ACTION.SPELL);
+		        actList.push(ACTION.ESCAPE);
+	        }
+        } else {
+	        if (!isSoldier) actList.push(ACTION.SPELL);
+	        actList.push(ACTION.DEFENSE);
+        }
+        actList.push(ACTION.TOOL);
+        return actList;
     }
 
     doAction() {
@@ -209,7 +234,6 @@ function getNumberStr(num) {
         let idx = Math.floor(mod/100);
         str = nums[idx];
         mod -= idx * 100;
-	    console.log("mod1:", mod);
     } else {
         str = (num >= 10)? "　" : "　　";
     }
@@ -217,12 +241,16 @@ function getNumberStr(num) {
         let idx = Math.floor(mod/10);
         str += nums[idx];
         mod -= idx * 10;
-	    console.log("mod2:", mod, idx);
     }
     if (num >= 0) {
         str += nums[mod];
     }
     return str;
+}
+
+function getActionStr(act) {
+    let actions = ["", "こうげき", "じゅもん", "ぼうぎょ", "どうぐ", "にげる"];
+    return actions[act];
 }
 
 export default BattleScene;
