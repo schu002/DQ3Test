@@ -66,7 +66,7 @@ class BattleScene extends Phaser.Scene {
         this.time.delayedCall(1200, () => {
             rect1.destroy();
             textList.forEach(text => { text.destroy(); });
-            this.drawAction(0);
+            this.drawAction();
             this.drawMonster();
             this.isListen = true;
         });
@@ -90,12 +90,15 @@ class BattleScene extends Phaser.Scene {
             idx = 0;
         }
 
+        this.isListen = false;
         this.setCursor(idx);
+
+        this.time.delayedCall(250, () => {
+	        this.isListen = true;
+        });
     }
 
     setCursor(idx, blink=true) {
-        if (!this.isListen) return;
-
         let x, y;
         let member = this.members[this.memberIdx];
         if (member.action != ACTION.NONE) {
@@ -108,12 +111,31 @@ class BattleScene extends Phaser.Scene {
     	    y = 483 + idx * 55;
         }
 
-        this.isListen = false;
 	    this.drawCursor(x, y, blink);
+    }
 
-        this.time.delayedCall(250, () => {
-	        this.isListen = true;
-        });
+    drawCursor(x, y, blink=true) {
+        const w = 14, h = 26;
+        this.cursor = this.add.graphics();
+        this.cursor.fillStyle(0xffffff, 1); // 白色、不透明
+        this.cursor.beginPath();
+        this.cursor.moveTo(x, y);
+        this.cursor.lineTo(x+4, y);
+        this.cursor.lineTo(x+w+4, y+h/2);
+        this.cursor.lineTo(x+4, y+h);
+        this.cursor.lineTo(x, y+h);
+        this.cursor.closePath();
+        this.cursor.fillPath();
+        if (blink) {
+	        this.tweens.add({
+	            targets: this.cursor,
+	            alpha: { from: 1, to: 0 },
+	            ease: 'Linear',
+	            duration: 250,
+	            yoyo: true,
+	            repeat: -1
+	        });
+        }
     }
 
     drawRect(x, y, w, h, title="") {
@@ -144,7 +166,10 @@ class BattleScene extends Phaser.Scene {
         return txt;
     }
 
-    drawAction(idx) {
+    drawAction() {
+        let idx = this.memberIdx;
+        if (idx < 0 || idx >= this.members.length) return;
+
         this.drawRect(130, 445, 220, 245, this.members[idx].name);
         this.setActionList(idx);
         for (let i = 0; i < this.actList.length; i++) {
@@ -205,12 +230,12 @@ class BattleScene extends Phaser.Scene {
         if (!this.isListen) return;
         if (this.actIdx < 0) return;
 
+        this.isListen = false;
+        this.buttonSound.play();
         let member = this.members[this.memberIdx];
         if (member.action == ACTION.NONE) {
 	        this.setCursor(this.actIdx, false);
 	        member.action = this.actList[this.actIdx];
-	        this.isListen = false;
-	        this.buttonSound.play();
 	        if (member.action == ACTION.ATTACK) {
 	    	    // this.cursor.destroy();
 	    	    this.monsterIdx = -1;
@@ -218,8 +243,14 @@ class BattleScene extends Phaser.Scene {
 	            this.exitBattle();
 	        }
         } else {
-            if (this.memberIdx >= this.members.length-1) return;
-            this.memberIdx++;
+            if (this.memberIdx >= this.members.length-1) {
+            	// Battle start
+            } else {
+	    	    this.cursor.destroy();
+	            this.memberIdx++;
+	            this.actIdx = -1;
+	            this.drawAction();
+            }
         }
 
         this.time.delayedCall(250, () => {
@@ -230,6 +261,7 @@ class BattleScene extends Phaser.Scene {
     onButtonB() {
         if (!this.isListen) return;
 
+        this.isListen = false;
         let member = this.members[this.memberIdx];
         if (member.action != ACTION.NONE) {
 	        this.buttonSound.play();
@@ -240,30 +272,10 @@ class BattleScene extends Phaser.Scene {
 	        this.setCursor(0);
         } else {
         }
-    }
 
-    drawCursor(x, y, blink=true) {
-        const w = 14, h = 26;
-        this.cursor = this.add.graphics();
-        this.cursor.fillStyle(0xffffff, 1); // 白色、不透明
-        this.cursor.beginPath();
-        this.cursor.moveTo(x, y);
-        this.cursor.lineTo(x+4, y);
-        this.cursor.lineTo(x+w+4, y+h/2);
-        this.cursor.lineTo(x+4, y+h);
-        this.cursor.lineTo(x, y+h);
-        this.cursor.closePath();
-        this.cursor.fillPath();
-        if (blink) {
-	        this.tweens.add({
-	            targets: this.cursor,
-	            alpha: { from: 1, to: 0 },
-	            ease: 'Linear',
-	            duration: 250,
-	            yoyo: true,
-	            repeat: -1
-	        });
-        }
+        this.time.delayedCall(250, () => {
+            this.isListen = true;
+        });
     }
 
     exitBattle() {
