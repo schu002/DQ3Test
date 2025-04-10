@@ -262,15 +262,20 @@ class BattleScene extends Phaser.Scene {
         if (!this.isListen) return;
 
         this.isListen = false;
+        this.buttonSound.play();
         let member = this.members[this.memberIdx];
         if (member.action != ACTION.NONE) {
-	        this.buttonSound.play();
     	    this.cursor.destroy();
     	    this.drawFill(147, 480, 30, 200);
     	    this.monsterIdx = -1;
     	    member.action = ACTION.NONE;
 	        this.setCursor(0);
-        } else {
+        } else if (this.memberIdx > 0) {
+    	    this.cursor.destroy();
+    	    this.drawFill(147, 480, 30, 200);
+    	    this.monsterIdx = this.actIdx = -1;
+	        this.members[--this.memberIdx].action = ACTION.NONE;
+	        this.drawAction();
         }
 
         this.time.delayedCall(250, () => {

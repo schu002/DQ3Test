@@ -9,6 +9,16 @@
      "name": "しゅう",
      "occupation": "hero",
      "level": 1
+   },
+   {
+     "name": "スミス",
+     "occupation": "monk",
+     "level": 1
+   },
+   {
+     "name": "マーリン",
+     "occupation": "wizard",
+     "level": 1
    }
  ]
 }

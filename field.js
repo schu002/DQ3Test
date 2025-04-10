@@ -76,34 +76,38 @@ class FieldScene extends Phaser.Scene {
 
     update() {
 	    if (this.isMoving) return;
-	    let dir = -1;
-	    if		(this.keys.left.isDown	|| this.wasd.left.isDown)  dir = DIR.LEFT;
-	    else if (this.keys.right.isDown || this.wasd.right.isDown) dir = DIR.RIGHT;
-	    else if (this.keys.up.isDown	|| this.wasd.up.isDown)	   dir = DIR.UP;
-	    else if (this.keys.down.isDown	|| this.wasd.down.isDown)  dir = DIR.DOWN;
+	    let newDir = -1;
+	    if		(this.keys.left.isDown	|| this.wasd.left.isDown)  newDir = DIR.LEFT;
+	    else if (this.keys.right.isDown || this.wasd.right.isDown) newDir = DIR.RIGHT;
+	    else if (this.keys.up.isDown	|| this.wasd.up.isDown)	   newDir = DIR.UP;
+	    else if (this.keys.down.isDown	|| this.wasd.down.isDown)  newDir = DIR.DOWN;
 	    else return;
 
-		const pre = Object.assign({}, this.members[0]);
-		this.members[0].direction = dir;
+		let dir = this.members[0].direction;
+		this.members[0].direction = newDir;
 
 		let pos = [this.members[0].row, this.members[0].col];
-	    if (!updatePosition(pos, dir)) return;
+	    if (!updatePosition(pos, newDir)) return;
 
 	    // 壁などにぶつからないようにチェック
 	    this.isMoving = canMove(this, pos, true);
 	    if (!this.isMoving) return;
 
-	    let moveIdx = (pre.row != this.members[1].row || pre.col != this.members[1].col)? 1 : 0;
-	    this.members[0].move(this, pos[0], pos[1], 0, () => {
-		    if (moveIdx == 0) this.postMove(pos);
-	    });
-
-	    if (moveIdx == 1) {
-			this.members[1].direction = pre.direction;
-		    this.members[1].move(this, pre.row, pre.col, 0, () => {
-	            this.postMove(pos);
+	    let row = pos[0], col = pos[1], lastIdx = 0;
+        for (let idx = 0; idx < this.members.length; idx++) {
+            let member = this.members[idx];
+            let preRow = member.row, preCol = member.col;
+            let preDir = (idx == 0)? dir : member.direction;
+            if (idx > 0) {
+                if (row == preRow && col == preCol) break;
+	            lastIdx = idx;
+                member.direction = dir;
+            }
+	        member.move(this, row, col, 0, () => {
+		        if (idx == lastIdx) this.postMove(pos);
 	        });
-	    }
+	        row = preRow, col = preCol, dir = preDir;
+        }
     }
 
 	postMove(pos) {

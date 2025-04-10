@@ -217,33 +217,37 @@ function create() {
 
 function update(time) {
     if (this.isMoving) return;
-    let dir = -1;
-	if		(this.keys.left.isDown	|| this.wasd.left.isDown)  dir = DIR.LEFT;
-    else if (this.keys.right.isDown || this.wasd.right.isDown) dir = DIR.RIGHT;
-    else if (this.keys.up.isDown	|| this.wasd.up.isDown)	   dir = DIR.UP;
-    else if (this.keys.down.isDown	|| this.wasd.down.isDown)  dir = DIR.DOWN;
+    let newDir = -1;
+	if		(this.keys.left.isDown	|| this.wasd.left.isDown)  newDir = DIR.LEFT;
+    else if (this.keys.right.isDown || this.wasd.right.isDown) newDir = DIR.RIGHT;
+    else if (this.keys.up.isDown	|| this.wasd.up.isDown)	   newDir = DIR.UP;
+    else if (this.keys.down.isDown	|| this.wasd.down.isDown)  newDir = DIR.DOWN;
     else return;
 
-    const pre = Object.assign({}, members[0]);
-	members[0].direction = dir;
+    // const pre = Object.assign({}, members[0]);
+    let dir = members[0].direction;
+	members[0].direction = newDir;
 
     let pos = [members[0].row, members[0].col];
-    if (!updatePosition(pos, dir)) return;
+    if (!updatePosition(pos, newDir)) return;
 
     // 壁などにぶつからないようにチェック
     this.isMoving = canMove(this, pos, true);
     if (!this.isMoving) return;
 
-    let moveIdx = (pre.row != members[1].row || pre.col != members[1].col)? 1 : 0;
-    members[0].move(this, pos[0], pos[1], CARA_OFFSET, () => {
-	    if (moveIdx == 0) this.isMoving = false;
-    });
-
-    if (moveIdx == 1) {
-		members[1].direction = pre.direction;
-	    members[1].move(this, pre.row, pre.col, CARA_OFFSET, () => {
-            this.isMoving = false;
-        });
+    let row = pos[0], col = pos[1], lastIdx = 0;
+    for (let idx = 0; idx < members.length; idx++) {
+        let preRow = members[idx].row, preCol = members[idx].col;
+        let preDir = (idx == 0)? dir : members[idx].direction;
+        if (idx > 0) {
+            if (row == preRow && col == preCol) break;
+	        lastIdx = idx;
+            members[idx].direction = dir;
+        }
+	    members[idx].move(this, row, col, CARA_OFFSET, () => {
+		    if (idx == lastIdx) this.isMoving = false;
+	    });
+	    row = preRow, col = preCol, dir = preDir;
     }
 
     if (pos[1] < 6) {
