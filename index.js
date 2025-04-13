@@ -1,6 +1,6 @@
 // 画面サイズ（2倍に拡大）
-const SCREEN_WIDTH = 960;
-const SCREEN_HEIGHT = 720;
+const SCREEN_WIDTH = 992;
+const SCREEN_HEIGHT = 890;
 
 import TitleScene from "./TitleScene.js";
 import FieldScene from "./field.js";

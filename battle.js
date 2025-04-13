@@ -1,6 +1,8 @@
 import MonsterData from "./MonsterData.js";
 import OccupationData from "./OccupationData.js";
 
+const ACTWIN_Y = 560;
+
 class BattleScene extends Phaser.Scene {
     constructor() {
         super({ key: "BattleScene" });
@@ -41,23 +43,24 @@ class BattleScene extends Phaser.Scene {
         this.monsters.push(MonsterData.getRandomMonster(1));
 
         // ステータス
-        this.drawRect(130, 30, this.members.length*170+30, 180);
+        let w = 158;
+        this.drawRect(132, 42, this.members.length*w+32, 232);
         for (let idx = 0; idx < this.members.length; idx++) {
             this.members[idx].action = ACTION.NONE;
-            this.drawFill(150+idx*170, 16, 130, 20);
-            this.drawText(130+idx*170, 5, this.members[idx].name);
-            this.drawText(130+idx*170, 55, "Ｈ");
-            this.drawText(160+idx*170, 55, getNumberStr(this.members[idx].hp));
-            this.drawText(130+idx*170, 105, "Ｍ");
-            this.drawText(160+idx*170, 105, getNumberStr(this.members[idx].mp));
-            this.drawText(130+idx*170, 155, headName(this.members[idx].occupation));
-            this.drawText(160+idx*170, 155, getNumberStr(this.members[idx].level));
+            this.drawFill(152+idx*w, 32, 130, 10);
+            this.drawText(152+idx*w, 26, this.members[idx].name);
+            this.drawText(152+idx*w, 90, "Ｈ");
+            this.drawText(180+idx*w, 90, getNumberStr(this.members[idx].hp));
+            this.drawText(152+idx*w, 153, "Ｍ");
+            this.drawText(180+idx*w, 153, getNumberStr(this.members[idx].mp));
+            this.drawText(152+idx*w, 216, headName(this.members[idx].occupation));
+            this.drawText(180+idx*w, 216, getNumberStr(this.members[idx].level));
         }
 
-        let rect1 = this.drawRect(130, 445, 700, 245);
+        let rect1 = this.drawRect(130, ACTWIN_Y, 700, 245);
         let textList = [];
         for (let i = 0; i < this.monsters.length; i++) {
-            textList.push(this.drawText(130, 465+i*50, this.monsters[i].name + "が　あらわれた！"));
+            this.drawText(148, ACTWIN_Y+30+i*60, this.monsters[i].name + "が　あらわれた！", textList);
         }
 
         this.drawMonsterImage();
@@ -99,16 +102,14 @@ class BattleScene extends Phaser.Scene {
     }
 
     setCursor(idx, blink=true) {
-        let x, y;
+        let x, y = ACTWIN_Y + 48 + idx * 64;
         let member = this.members[this.memberIdx];
         if (member.action != ACTION.NONE) {
             this.monsterIdx = idx;
-            x = 395;
-    	    y = 483 + idx * 55;
+            x = 405;
         } else {
             this.actIdx = idx;
-            x = 155;
-    	    y = 483 + idx * 55;
+            x = 160;
         }
 
 	    this.drawCursor(x, y, blink);
@@ -140,49 +141,57 @@ class BattleScene extends Phaser.Scene {
 
     drawRect(x, y, w, h, title="") {
         let rect = this.add.graphics();
-        rect.lineStyle(14, 0xffffff); // 外形線を白
-        rect.fillStyle(0x000000); // 塗りつぶしを黒
+        rect.lineStyle(14, 0xffffff);
+        rect.fillStyle(0x000000);
         rect.strokeRoundedRect(x, y, w, h, 5);
         rect.fillRoundedRect(x, y, w, h, 5);
         if (title) {
-            rect.fillRect(x+45, y-15, w-90, 15);
-            this.drawText(x+30, y-25, title);
+            rect.fillRect(x+47, y-10, w-96, 10);
+            this.drawText(x+50, y-18, title);
         }
         return rect;
     }
 
     drawFill(x, y, w, h, col=0x000000) {
         let rect = this.add.graphics();
-        rect.fillStyle(col); // 塗りつぶしを黒
+        rect.fillStyle(col);
         rect.fillRect(x, y, w, h);
     }
 
-    drawText(x, y, msg) {
-        let txt = this.add.text(x+20, y+10, msg, {
-            fontFamily: "PixelMplus10-Regular",
-            fontSize: "32px",
-            color: "#ffffff",
-        });
-        return txt;
+    drawText(x, y, msg, textList=null) {
+        let chList = [];
+        for (const ch of msg) {
+	        let text = this.add.text(x, y, ch, {
+	            fontFamily: "PixelMplus10-Regular",
+	            fontSize: '38px',
+	            color: '#ffffff'
+            });
+	        text.setScale(0.9, 1.0);
+	        x += 30;
+	        if (textList) textList.push(text);
+	    }
     }
 
     drawAction() {
         let idx = this.memberIdx;
         if (idx < 0 || idx >= this.members.length) return;
 
-        this.drawRect(130, 445, 220, 245, this.members[idx].name);
+        let y = ACTWIN_Y;
+        this.drawRect(132, y, 230, 290, this.members[idx].name);
+        y += 40;
         this.setActionList(idx);
         for (let i = 0; i < this.actList.length; i++) {
-            this.drawText(160, 470+i*55, getActionStr(this.actList[i]));
+            this.drawText(182, y+i*64, getActionStr(this.actList[i]));
         }
     }
 
     drawMonster() {
-        this.drawRect(370, 445, 460, 40+this.monsters.length*50);
+        let y = ACTWIN_Y;
+        this.drawRect(382, y, 478, 60+this.monsters.length*50);
+        y += 40;
         for (let i = 0; i < this.monsters.length; i++) {
-            let y = 470 + i*55;
-            this.drawText(400, y, this.monsters[i].name);
-            this.drawText(650, y, "— １ひき");
+            this.drawText(430, y+i*64, this.monsters[i].name);
+            this.drawText(680, y+i*64, "— １ひき");
         }
     }
 
@@ -193,7 +202,7 @@ class BattleScene extends Phaser.Scene {
             const texture = this.textures.get(monster.name);
             const frame = texture.getSourceImage();
             allwidth += frame.width*2;
-            if (idx > 0) allwidth += 50;
+            if (idx > 0) allwidth += 60;
         }
 
         let x = 550 - allwidth/2;
@@ -201,8 +210,8 @@ class BattleScene extends Phaser.Scene {
             let monster = this.monsters[idx];
             const texture = this.textures.get(monster.name);
             const frame = texture.getSourceImage();
-            let y = 410 - frame.height;
-            this.add.image(x, y, monster.name).setScale(2); // 画像の大きさ調整
+            let y = ACTWIN_Y - 60 - frame.height * 0.6;
+            this.add.image(x, y, monster.name).setScale(2.2); // 画像の大きさ調整
             x += frame.width*2 + 50;
         }
     }
@@ -266,13 +275,13 @@ class BattleScene extends Phaser.Scene {
         let member = this.members[this.memberIdx];
         if (member.action != ACTION.NONE) {
     	    this.cursor.destroy();
-    	    this.drawFill(147, 480, 30, 200);
+    	    this.drawFill(147, ACTWIN_Y+10, 30, 200);
     	    this.monsterIdx = -1;
     	    member.action = ACTION.NONE;
 	        this.setCursor(0);
         } else if (this.memberIdx > 0) {
     	    this.cursor.destroy();
-    	    this.drawFill(147, 480, 30, 200);
+    	    this.drawFill(147, ACTWIN_Y+10, 30, 200);
     	    this.monsterIdx = this.actIdx = -1;
 	        this.members[--this.memberIdx].action = ACTION.NONE;
 	        this.drawAction();
@@ -296,6 +305,8 @@ class BattleScene extends Phaser.Scene {
 function headName(occ) {
     if (occ == "soldier") return "せ：";
     if (occ == "hero") return "ゆ：";
+    if (occ == "monk") return "そ：";
+    if (occ == "wizard") return "ま：";
     return "";
 }
 

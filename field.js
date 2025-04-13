@@ -59,6 +59,7 @@ class FieldScene extends Phaser.Scene {
 	        this.add.existing(this.members[this.members.length-1]);
 	    });
         player = this.members[0];
+        this.isMoving = false;
 
         // カメラ設定
         this.cameras.main.startFollow(player.sprite);

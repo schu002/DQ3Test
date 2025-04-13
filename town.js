@@ -15,7 +15,9 @@ let MAP_HEIGHT = 0;
 class TownScene extends Phaser.Scene {
     constructor() {
         super({ key: "TownScene" });
-        this.isTalking = false;  // 会話中かどうかのフラグ
+        this.npc = null; // 会話中の町人
+        this.cursor = null;
+        this.talkList = [];
     }
 
     preload() {
@@ -26,57 +28,87 @@ class TownScene extends Phaser.Scene {
         create.call(this);
 
         // Aキーの入力設定
-        this.input.keyboard.on("keydown-Z", this.toggleConversation, this);
+        this.input.keyboard.on("keydown-Z", this.onButtonA, this);
+        this.input.keyboard.on("keydown-X", this.onButtonB, this);
 
         // 会話ウィンドウ（黒い背景の四角）を作成
-        this.dialogBox = this.add.graphics();
-        this.dialogBox.fillStyle(0x000000, 0.9);
-        this.dialogBox.fillRect(280, 400, 400, 130);
-        this.dialogBox.setScrollFactor(0);
-        this.dialogBox.setDepth(10);
-        this.dialogBox.setVisible(false);
-
-        // 会話テキスト
-        this.dialogText = this.add.text(300, 410, "こんにちは", {
-            fontFamily: "PixelMplus10-Regular",
-            fontSize: "24px",
-            fill: "#ffffff",
-        });
-        this.dialogText.setScrollFactor(0);
-        this.dialogText.setDepth(11);
-        this.dialogText.setVisible(false);
+        this.drawRect(332, 500, 310, 148);
     }
 
-    toggleConversation() {
-        if (this.isTalking) {
-            this.dialogBox.setVisible(false);
-            this.dialogText.setVisible(false);
-	        this.isTalking = false;
-	        let npc = npcList.find(n => n.isTalking);
-	        if (npc) npc.isTalking = false;
-	        return;
-        }
-
-	    let pos = [player.row, player.col];
-	    if (!updatePosition(pos, player.direction)) return;
-
-	    let npc = npcList.find(n => n.row === pos[0] && n.col === pos[1]);
-	    if (!npc) {
-			if (getTileIndex(this, pos[0], pos[1]) != TILE_DESK) return;
+    onButtonA() {
+        if (!this.npc) {
+		    let pos = [player.row, player.col];
 		    if (!updatePosition(pos, player.direction)) return;
-		    npc = npcList.find(n => n.row === pos[0] && n.col === pos[1]);
-		    if (!npc) return;
-		    if (npc.image != IMG_MERCHANT) return;
+
+		    let npc = npcList.find(n => n.row === pos[0] && n.col === pos[1]);
+		    if (!npc) {
+				if (getTileIndex(this, pos[0], pos[1]) != TILE_DESK) return;
+			    if (!updatePosition(pos, player.direction)) return;
+			    npc = npcList.find(n => n.row === pos[0] && n.col === pos[1]);
+			    if (!npc) return;
+			    if (npc.image != IMG_MERCHANT) return;
+		    }
+
+		    // 町人をプレイヤーのいる方向に向ける
+		    npc.direction = getInverseDir(player.direction); // プレイヤーと反対向き
+		    npc.sprite.setFrame(npc.direction * 2); // 町人の向きを即座に反映
+		    npc.isTalking = true;
+
+	        this.rectList.setVisible(true);
+	        this.npc = npc;
+	        this.talkList = [...npc.talks];
 	    }
 
-	    // 町人をプレイヤーのいる方向に向ける
-	    npc.direction = getInverseDir(player.direction); // プレイヤーと反対向き
-	    npc.sprite.setFrame(npc.direction * 2); // 町人の向きを即座に反映
-	    npc.isTalking = true;
+        updateTalk.call(this);
+    }
 
-        this.dialogBox.setVisible(true);
-        this.dialogText.setVisible(true);
-        this.isTalking = true;
+    onButtonB() {
+    }
+
+    drawCursor(x, y, blink=true) {
+        const w = 18, h = 10;
+        this.cursor = this.add.graphics();
+        this.cursor.fillStyle(0xffffff, 1); // ���F�A�s����
+        this.cursor.beginPath();
+        this.cursor.moveTo(x, y);
+        this.cursor.lineTo(x+w, y);
+        this.cursor.lineTo(x+w, y+4);
+        this.cursor.lineTo(x+w/2, y+h);
+        this.cursor.lineTo(x, y+4);
+        this.cursor.closePath();
+        this.cursor.fillPath();
+        this.cursor.setDepth(11);
+        this.cursor.setScrollFactor(0);
+        this.cursor.setVisible(true);
+        this.tweens.add({
+            targets: this.cursor,
+            alpha: { from: 1, to: 0 },
+            ease: 'Linear',
+            duration: 250,
+            yoyo: true,
+            repeat: -1
+        });
+	}
+
+    drawRect(x, y, w, h) {
+	    this.rectList = this.add.container(x, y);
+	    this.rectList.setScrollFactor(0);
+	    this.rectList.setDepth(10);
+        /* let rect1 = this.add.graphics();
+        rect1.fillStyle(0x000000, 0.9);
+        rect1.fillRect(x, y, w, h);
+        rect1.setScrollFactor(0);
+        rect1.setDepth(10);
+        rect1.setVisible(false);
+	    this.rectList.add(rect1); */
+
+        let rect2 = this.add.graphics({ x: 0, y: 0 });
+        rect2.lineStyle(10, 0xffffff);
+        rect2.fillStyle(0x000000, 0.9);
+        rect2.strokeRoundedRect(0, 0, w, h, 5);
+        rect2.fillRoundedRect(0, 0, w, h, 5);
+	    this.rectList.add(rect2);
+	    this.rectList.setVisible(false);
     }
 
     update() {
@@ -85,7 +117,7 @@ class TownScene extends Phaser.Scene {
 }
 
 class NPC {
-    constructor(scene, row, col, name, image, move, dir) {
+    constructor(scene, row, col, name, image, move, dir, talks) {
         this.scene = scene;
         this.row = row;
         this.col = col;
@@ -93,7 +125,8 @@ class NPC {
         this.image = image;
         this.sprite = scene.physics.add.sprite(col * TILE_SIZE, row * TILE_SIZE-CARA_OFFSET, image, 0);
         this.sprite.setOrigin(0, 0);
-        this.direction = (dir < 0)? Phaser.Math.Between(0, 3) : dir; // ランダムな方向
+        this.direction = (dir < 0)? Phaser.Math.Between(0, 3) : dir; // 繝ゥ繝ウ繝な方向
+        this.talks = talks;
         this.movable = move;
         this.isTalking = false;
         this.stepCount = 0;
@@ -132,6 +165,7 @@ class NPC {
 let player, camera, bgm;
 let members = [];	// パーティメンバ
 let npcList = [];	// 町人リスト
+let container = null;
 
 function preload() {
 }
@@ -171,7 +205,7 @@ function create() {
     const npcData = townData.objects.NPC;
     npcList = [];
     npcData.forEach(npc => {
-        npcList.push(new NPC(this, npc.row, npc.col, npc.name, npc.image, npc.move, npc.dir));
+        npcList.push(new NPC(this, npc.row, npc.col, npc.name, npc.image, npc.move, npc.dir, npc.talks));
     });
 
     // カメラ設定
@@ -179,7 +213,7 @@ function create() {
     camera = this.cameras.main;
     camera.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
     camera.setZoom(2);
-    camera.startFollow(player.sprite, true, 0.1, 0.1);
+    camera.startFollow(player.sprite, true, 1, 1, -8, -24);
 
     // キーボード入力
     this.keys = this.input.keyboard.createCursorKeys();
@@ -193,6 +227,7 @@ function create() {
     // BGM
     bgm = this.sound.add("townBGM", { loop: true, volume: 0.3 });
     bgm.play();
+    this.buttonSound = this.sound.add("button", { loop: false, volume: 0.3 });
     this.isMoving = false;
 
     // 歩行アニメーション
@@ -217,6 +252,8 @@ function create() {
 
 function update(time) {
     if (this.isMoving) return;
+    if (this.npc) return;
+
     let newDir = -1;
 	if		(this.keys.left.isDown	|| this.wasd.left.isDown)  newDir = DIR.LEFT;
     else if (this.keys.right.isDown || this.wasd.right.isDown) newDir = DIR.RIGHT;
@@ -255,6 +292,47 @@ function update(time) {
     }
 }
 
+function updateTalk() {
+    if (!this.npc) return;
+
+    this.buttonSound.play();
+    if (container) container.destroy();
+
+    if (this.talkList.length == 0) {
+        this.rectList.setVisible(false);
+        this.npc = null;
+        let npc = npcList.find(n => n.isTalking);
+        if (npc) npc.isTalking = false;
+        return;
+    }
+
+    container = this.add.container(0, 0);
+    container.setDepth(11);
+    this.cursor = null;
+
+    let y = 524, cnt = 0;
+    while (this.talkList.length > 0) {
+        let str = this.talkList.shift();
+        if (str == "▼") {
+            this.drawCursor(488, y);
+	        container.add(this.cursor);
+            break;
+        }
+        str = ((cnt++ == 0)? "＊「" : "　　") + str;
+        // 会話テキスト
+        let text = this.add.text(340, y, str, {
+            fontFamily: "PixelMplus10-Regular",
+            fontSize: "18px",
+            color: "#ffffff",
+        });
+        text.setScrollFactor(0);
+        text.setScale(0.9, 1.0);
+        text.setDepth(11);
+        container.add(text);
+        y += 32;
+    }
+}
+
 function canMove(scene, position, isPlayer) {
 	let row = position[0], col = position[1];
 	let idx = getTileIndex(scene, row, col);
@@ -263,7 +341,9 @@ function canMove(scene, position, isPlayer) {
     	if (isPlayer) changeLayer(scene, position);
 		return false;
 	}
-    if (row == player.row && col == player.col) return false;
+	if (!isPlayer) {
+	    if (members.some(mem => row == mem.row && col == mem.col)) return false;
+    }
     if (npcList.some(npc => row == npc.row && col == npc.col)) return false;
 	return true;
 }

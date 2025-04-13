@@ -85,14 +85,41 @@
       },
       {
         "name": "npc2",
-        "row": 24,
-        "col": 10,
+        "row": 23,
+        "col": 9,
         "image": "image/woman.png",
         "move": true,
-        "dir": -1
+        "dir": -1,
+        "talks": [
+          "ここは　アリアハンの",
+          "じょうかまち。",
+          "▼",
+          "きたにいくと　レーベのむらが",
+          "ありますわ。"
+        ]
       },
       {
         "name": "npc3",
+        "row": 26,
+        "col": 13,
+        "image": "image/oldman.png",
+        "move": true,
+        "dir": 2,
+        "talks": [
+          "かつて　アリアハンは",
+          "すべてのせかいを　おさめていた",
+          "のじゃ。",
+          "▼",
+          "しかし　せんそうが　おこって",
+          "おおくの　ひとびとが　しんだ。",
+          "▼",
+          "そして　うみのむこうにつうじる",
+          "たびのとびらを",
+          "ふうじこめたのじゃ。"
+        ]
+      },
+      {
+        "name": "npc4",
         "row": 21,
         "col": 16,
         "image": "image/merchant.png",
@@ -100,7 +127,7 @@
         "dir": 0
       },
       {
-        "name": "npc4",
+        "name": "npc5",
         "row": 29,
         "col": 17,
         "image": "image/merchant.png",
@@ -108,7 +135,7 @@
         "dir": 3
       },
       {
-        "name": "npc5",
+        "name": "npc6",
         "row": 30,
         "col": 26,
         "image": "image/merchant.png",
@@ -116,7 +143,7 @@
         "dir": 0
       },
       {
-        "name": "npc6",
+        "name": "npc7",
         "row": 32,
         "col": 35,
         "image": "image/oldman.png",
@@ -124,7 +151,7 @@
         "dir": 2
       },
       {
-        "name": "npc7",
+        "name": "npc8",
         "row": 34,
         "col": 27,
         "image": "image/fencer.png",
@@ -132,7 +159,7 @@
         "dir": 2
       },
       {
-        "name": "npc8",
+        "name": "npc9",
         "row": 5,
         "col": 33,
         "image": "image/father.png",
