@@ -68,7 +68,7 @@ class TownScene extends Phaser.Scene {
     drawCursor(x, y, blink=true) {
         const w = 18, h = 10;
         this.cursor = this.add.graphics();
-        this.cursor.fillStyle(0xffffff, 1); // ���F�A�s����
+        this.cursor.fillStyle(0xffffff, 1); // FAs
         this.cursor.beginPath();
         this.cursor.moveTo(x, y);
         this.cursor.lineTo(x+w, y);
@@ -162,7 +162,7 @@ class NPC {
     }
 }
 
-let player, camera, bgm;
+let player, camera, bgm, talkBGM;
 let members = [];	// パーティメンバ
 let npcList = [];	// 町人リスト
 let container = null;
@@ -227,7 +227,8 @@ function create() {
     // BGM
     bgm = this.sound.add("townBGM", { loop: true, volume: 0.3 });
     bgm.play();
-    this.buttonSound = this.sound.add("button", { loop: false, volume: 0.3 });
+    this.buttonSound = this.sound.add("button", { loop: false, volume: 0.2 });
+    talkBGM = this.sound.add("talk", { loop: false, volume: 0.2 });
     this.isMoving = false;
 
     // 歩行アニメーション
@@ -307,30 +308,52 @@ function updateTalk() {
     }
 
     container = this.add.container(0, 0);
+    container.setScrollFactor(0);
     container.setDepth(11);
     this.cursor = null;
 
-    let y = 524, cnt = 0;
+    // 会話テキスト
+    let chList = [];
     while (this.talkList.length > 0) {
         let str = this.talkList.shift();
         if (str == "▼") {
-            this.drawCursor(488, y);
-	        container.add(this.cursor);
+            chList.push('▼');
             break;
         }
-        str = ((cnt++ == 0)? "＊「" : "　　") + str;
-        // 会話テキスト
-        let text = this.add.text(340, y, str, {
-            fontFamily: "PixelMplus10-Regular",
-            fontSize: "18px",
-            color: "#ffffff",
-        });
-        text.setScrollFactor(0);
-        text.setScale(0.9, 1.0);
-        text.setDepth(11);
-        container.add(text);
-        y += 32;
+	    str = ((chList.length == 0)? "＊「" : "　　") + str;
+        for (const ch of str) {
+            chList.push(ch);
+        }
+        chList.push('\n');
     }
+
+    let idx = 0, x = 340, y = 524;
+    this.time.addEvent({
+        delay: 10,
+        repeat: chList.length-1,
+        callback: () => {
+		    if ((idx % 6) == 0) talkBGM.play();
+            let ch = chList[idx++];
+            if (ch == '\n') {
+                x = 340;
+                y += 32;
+            } else if (ch == '▼') {
+                this.drawCursor(488, y);
+                container.add(this.cursor);
+            } else {
+	            let text = this.add.text(x, y, ch, {
+	                fontFamily: "PixelMplus10-Regular",
+	                fontSize: '18px',
+	                color: '#ffffff'
+	            });
+		        text.setScrollFactor(0);
+		        text.setScale(0.9, 1.0);
+		        text.setDepth(11);
+		        container.add(text);
+		        x += 17;
+	        }
+        }
+    });
 }
 
 function canMove(scene, position, isPlayer) {

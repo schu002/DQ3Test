@@ -18,6 +18,7 @@ class TitleScene extends Phaser.Scene {
         this.load.json("townData", "data/ariahan.json");
         this.load.audio("townBGM", "sound/town.mp3");
         this.load.audio("button", "sound/button.mp3");
+        this.load.audio("talk", "sound/talk.mp3");
         // フィールド
         this.load.tilemapTiledJSON("fieldMap", "data/field.json"); // 繝槭ャ繝励ョ繝シ繧ソ
 	    this.load.image("fieldTiles", "image/field.png"); // 繧ソ繧、繝ォ繧サ繝ヨ逕サ蜒庶
