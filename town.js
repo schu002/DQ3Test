@@ -63,6 +63,7 @@ class TownScene extends Phaser.Scene {
     }
 
     onButtonB() {
+        updateTalk.call(this);
     }
 
     drawCursor(x, y, blink=true) {
@@ -253,7 +254,6 @@ function create() {
 
 function update(time) {
     if (this.isMoving) return;
-    if (this.npc) return;
 
     let newDir = -1;
 	if		(this.keys.left.isDown	|| this.wasd.left.isDown)  newDir = DIR.LEFT;
@@ -261,6 +261,11 @@ function update(time) {
     else if (this.keys.up.isDown	|| this.wasd.up.isDown)	   newDir = DIR.UP;
     else if (this.keys.down.isDown	|| this.wasd.down.isDown)  newDir = DIR.DOWN;
     else return;
+
+    if (this.npc) {
+        updateTalk.call(this);
+        return;
+    }
 
     // const pre = Object.assign({}, members[0]);
     let dir = members[0].direction;
@@ -296,7 +301,6 @@ function update(time) {
 function updateTalk() {
     if (!this.npc) return;
 
-    this.buttonSound.play();
     if (container) container.destroy();
 
     if (this.talkList.length == 0) {
@@ -307,6 +311,7 @@ function updateTalk() {
         return;
     }
 
+    this.buttonSound.play();
     container = this.add.container(0, 0);
     container.setScrollFactor(0);
     container.setDepth(11);
