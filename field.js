@@ -25,8 +25,8 @@ class FieldScene extends Phaser.Scene {
 		    return;
 	    }
 
-	    const MAP_WIDTH = fieldData.width * TILE_SIZE;
-	    const MAP_HEIGHT = fieldData.height * TILE_SIZE;
+	    const MAP_WIDTH = fieldData.width * TILE_SIZE * SCALE;
+	    const MAP_HEIGHT = fieldData.height * TILE_SIZE * SCALE;
 
         // キーボード入力
 	    this.keys = this.input.keyboard.createCursorKeys();
@@ -49,7 +49,7 @@ class FieldScene extends Phaser.Scene {
 	    const tileset = map.addTilesetImage("fieldTiles");
 
 	    this.fieldLayer = map.createLayer("Field", tileset, 0, 0);
-	    this.fieldLayer.setScale(1);
+	    this.fieldLayer.setScale(SCALE);
 	    this.fieldLayer.setVisible(true);
 
 	    // プレイヤーをフィールドの開始位置に追加
@@ -64,7 +64,6 @@ class FieldScene extends Phaser.Scene {
         // カメラ設定
         this.cameras.main.startFollow(player.sprite);
         this.cameras.main.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
-        this.cameras.main.setZoom(2);
 
         this.time.addEvent({
 	        delay: 250,

@@ -2,6 +2,7 @@ import Player from "./player.js";
 import FieldScene from "./field.js";
 import MonsterData from "./MonsterData.js";
 import OccupationData from "./OccupationData.js";
+import DrawStatus from "./DrawStatus.js";
 import { updatePosition, getInverseDir } from "./util.js";
 
 // 移動間隔
@@ -15,6 +16,7 @@ let MAP_HEIGHT = 0;
 class TownScene extends Phaser.Scene {
     constructor() {
         super({ key: "TownScene" });
+        console.log("TownScene::constructor");
         this.npc = null; // 会話中の町人
         this.cursor = null;
         this.talkList = [];
@@ -25,6 +27,7 @@ class TownScene extends Phaser.Scene {
     }
 
     create() {
+        console.log("TownScene::create");
         create.call(this);
 
         // Aキーの入力設定
@@ -37,17 +40,17 @@ class TownScene extends Phaser.Scene {
 
     onButtonA() {
         if (!this.npc) {
-		    let pos = [player.row, player.col];
-		    if (!updatePosition(pos, player.direction)) return;
-
-		    let npc = npcList.find(n => n.row === pos[0] && n.col === pos[1]);
+		    let npc = this.findNPC(player);
 		    if (!npc) {
-				if (getTileIndex(this, pos[0], pos[1]) != TILE_DESK) return;
-			    if (!updatePosition(pos, player.direction)) return;
-			    npc = npcList.find(n => n.row === pos[0] && n.col === pos[1]);
-			    if (!npc) return;
-			    if (npc.image != IMG_MERCHANT) return;
-		    }
+		        if (this.status) {
+		            this.status.destroy();
+		            this.status = null;
+		        } else {
+		            this.status = new DrawStatus(this, members, 85, 310);
+				    this.buttonSound.play();
+		        }
+	            return;
+	        }
 
 		    // 町人をプレイヤーのいる方向に向ける
 		    npc.direction = getInverseDir(player.direction); // プレイヤーと反対向き
@@ -64,6 +67,21 @@ class TownScene extends Phaser.Scene {
 
     onButtonB() {
         updateTalk.call(this);
+    }
+
+    findNPC(player) {
+	    let pos = [player.row, player.col];
+	    if (!updatePosition(pos, player.direction)) return null;
+
+	    let npc = npcList.find(n => n.row === pos[0] && n.col === pos[1]);
+	    if (!npc) {
+			if (getTileIndex(this, pos[0], pos[1]) != TILE_DESK) return null;
+		    if (!updatePosition(pos, player.direction)) return null;
+		    npc = npcList.find(n => n.row === pos[0] && n.col === pos[1]);
+		    if (!npc) return null;
+		    if (npc.image != IMG_MERCHANT) return null;
+	    }
+	    return npc;
     }
 
     drawCursor(x, y, blink=true) {
@@ -124,7 +142,8 @@ class NPC {
         this.col = col;
         this.name = name;
         this.image = image;
-        this.sprite = scene.physics.add.sprite(col * TILE_SIZE, row * TILE_SIZE-CARA_OFFSET, image, 0);
+        this.sprite = scene.physics.add.sprite(col*TILE_SIZE*SCALE, (row*TILE_SIZE-CARA_OFFSET)*SCALE, image, 0);
+        this.sprite.setScale(SCALE);
         this.sprite.setOrigin(0, 0);
         this.direction = (dir < 0)? Phaser.Math.Between(0, 3) : dir; // 繝ゥ繝ウ繝な方向
         this.talks = talks;
@@ -147,8 +166,8 @@ class NPC {
         // 移動処理
         this.scene.tweens.add({
             targets: this.sprite,
-            x: pos[1] * TILE_SIZE,
-            y: pos[0] * TILE_SIZE - CARA_OFFSET,
+            x: pos[1] * TILE_SIZE * SCALE,
+            y: (pos[0] * TILE_SIZE - CARA_OFFSET) * SCALE,
             duration: MOVE_DELAY,
             onComplete: () => {
                 this.row = pos[0];
@@ -179,9 +198,8 @@ function create() {
 	    return;
     }
 
-    TILE_SIZE = townData.tilewidth;
-    MAP_WIDTH = townData.width * TILE_SIZE;
-    MAP_HEIGHT = townData.height * TILE_SIZE;
+    MAP_WIDTH = townData.width * TILE_SIZE * SCALE;
+    MAP_HEIGHT = townData.height * TILE_SIZE * SCALE;
 
     // マップを読み込む
     const map = this.make.tilemap({ key: "townMap" });
@@ -189,10 +207,11 @@ function create() {
 
     // 地面レイヤーを作成
     this.townLayer = map.createLayer("Town", tileset, 0, 0);
-    this.townLayer.setScale(1);
+    this.townLayer.setScale(SCALE);
     this.luidaLayer = map.createLayer("Luida", tileset, 0, 0);
-    this.luidaLayer.setScale(1);
+    this.luidaLayer.setScale(SCALE);
     this.luidaLayer.setVisible(false);
+    this.status = null;
 
     // プレイヤーを追加
     const startData = townData.start;
@@ -213,8 +232,7 @@ function create() {
     this.physics.world.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
     camera = this.cameras.main;
     camera.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
-    camera.setZoom(2);
-    camera.startFollow(player.sprite, true, 1, 1, -8, -24);
+    camera.startFollow(player.sprite, true, 1, 1, -8*SCALE, -24*SCALE);
 
     // キーボード入力
     this.keys = this.input.keyboard.createCursorKeys();

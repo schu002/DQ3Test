@@ -1,5 +1,6 @@
 import MonsterData from "./MonsterData.js";
 import OccupationData from "./OccupationData.js";
+import DrawStatus from "./DrawStatus.js";
 
 const ACTWIN_Y = 560;
 
@@ -43,19 +44,7 @@ class BattleScene extends Phaser.Scene {
         this.monsters.push(MonsterData.getRandomMonster(1));
 
         // ステータス
-        let w = 158;
-        this.drawRect(132, 42, this.members.length*w+32, 232);
-        for (let idx = 0; idx < this.members.length; idx++) {
-            this.members[idx].action = ACTION.NONE;
-            this.drawFill(152+idx*w, 32, 130, 10);
-            this.drawText(152+idx*w, 26, this.members[idx].name);
-            this.drawText(152+idx*w, 90, "Ｈ");
-            this.drawText(180+idx*w, 90, getNumberStr(this.members[idx].hp));
-            this.drawText(152+idx*w, 153, "Ｍ");
-            this.drawText(180+idx*w, 153, getNumberStr(this.members[idx].mp));
-            this.drawText(152+idx*w, 216, headName(this.members[idx].occupation));
-            this.drawText(180+idx*w, 216, getNumberStr(this.members[idx].level));
-        }
+        this.status = new DrawStatus(this, this.members, 66, 21);
 
         let rect1 = this.drawRect(130, ACTWIN_Y, 700, 245);
         let textList = [];
@@ -159,7 +148,6 @@ class BattleScene extends Phaser.Scene {
     }
 
     drawText(x, y, msg, textList=null) {
-        let chList = [];
         for (const ch of msg) {
 	        let text = this.add.text(x, y, ch, {
 	            fontFamily: "PixelMplus10-Regular",
@@ -300,36 +288,6 @@ class BattleScene extends Phaser.Scene {
             this.scene.resume("FieldScene");
         });
     }
-}
-
-function headName(occ) {
-    if (occ == "soldier") return "せ：";
-    if (occ == "hero") return "ゆ：";
-    if (occ == "monk") return "そ：";
-    if (occ == "wizard") return "ま：";
-    return "";
-}
-
-function getNumberStr(num) {
-    let str = "";
-    let mod = num;
-    let nums = ["０", "１", "２", "３", "４", "５", "６", "７", "８", "９"];
-    if (num >= 100) {
-        let idx = Math.floor(mod/100);
-        str = nums[idx];
-        mod -= idx * 100;
-    } else {
-        str = (num >= 10)? "　" : "　　";
-    }
-    if (num >= 10) {
-        let idx = Math.floor(mod/10);
-        str += nums[idx];
-        mod -= idx * 10;
-    }
-    if (num >= 0) {
-        str += nums[mod];
-    }
-    return str;
 }
 
 function getActionStr(act) {

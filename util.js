@@ -1,4 +1,5 @@
 window.TILE_SIZE = 32;
+window.SCALE = 2;
 window.CARA_OFFSET = 8;
 window.MOVE_DELAY = 280;
 

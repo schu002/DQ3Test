@@ -7,7 +7,8 @@ class Player {
         this.level = lv;
         this.row = row;
         this.col = col;
-    	this.sprite = scene.physics.add.sprite(col * TILE_SIZE, row * TILE_SIZE-offset, occupation, 0);
+    	this.sprite = scene.physics.add.sprite(col * TILE_SIZE * SCALE, (row * TILE_SIZE-offset) * SCALE, occupation, 0);
+        this.sprite.setScale(2);
         this.sprite.setOrigin(0, 0);
         this.direction = dir;
         this.action = ACTION.NONE;
@@ -37,8 +38,8 @@ class Player {
 	    } else {
 		    scene.tweens.add({
 		        targets: this.sprite,
-		        x: col * TILE_SIZE,
-		        y: row * TILE_SIZE - offset,
+		        x: col * TILE_SIZE * SCALE,
+		        y: (row * TILE_SIZE - offset) * SCALE,
 		        duration: MOVE_DELAY,
 		        onComplete: () => {
 		            this.row = row;
