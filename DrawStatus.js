@@ -8,17 +8,18 @@ class DrawStatus {
         this.scene = scene;
         this.drawList = scene.add.container(x, y);
         this.drawList.setScrollFactor(0);
-        let w = 160;
-        this.drawRect(0, 0, members.length*w+36, 232);
+        let w = 160, totalW = members.length*w+56, totalH = 252;
+        this.drawFill(0, 0, totalW, totalH);
+        this.drawRect(10, 10, totalW-20, totalH-20);
         for (let idx = 0; idx < members.length; idx++) {
-            this.drawFill(26+idx*w, -9, 130, 12);
-            this.drawText(30+idx*w, -14, members[idx].name);
-            this.drawText(30+idx*w, 44, "Ｈ");
-            this.drawText(58+idx*w, 44, getNumberStr(members[idx].hp));
-            this.drawText(30+idx*w, 107, "Ｍ");
-            this.drawText(58+idx*w, 107, getNumberStr(members[idx].mp));
-            this.drawText(30+idx*w, 170, headName(members[idx].occupation));
-            this.drawText(58+idx*w, 170, getNumberStr(members[idx].level));
+            this.drawFill(34+idx*w, -1, 130, 12);
+            this.drawText(38+idx*w, -6, members[idx].name);
+            this.drawText(38+idx*w, 52, "Ｈ");
+            this.drawText(66+idx*w, 52, getNumberStr(members[idx].hp));
+            this.drawText(38+idx*w, 115, "Ｍ");
+            this.drawText(66+idx*w, 115, getNumberStr(members[idx].mp));
+            this.drawText(38+idx*w, 178, headName(members[idx].occupation));
+            this.drawText(66+idx*w, 178, getNumberStr(members[idx].level));
         }
     }
 

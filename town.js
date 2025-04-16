@@ -2,6 +2,7 @@ import Player from "./player.js";
 import FieldScene from "./field.js";
 import MonsterData from "./MonsterData.js";
 import OccupationData from "./OccupationData.js";
+import Command from "./Command.js";
 import DrawStatus from "./DrawStatus.js";
 import { updatePosition, getInverseDir } from "./util.js";
 
@@ -40,11 +41,16 @@ class TownScene extends Phaser.Scene {
         if (!this.npc) {
 		    let npc = this.findNPC(player);
 		    if (!npc) {
-		        if (this.status) {
-		            this.status.destroy();
-		            this.status = null;
+		        if (this.command) {
+		            this.command.destroy();
+		            this.command = null;
+		            if (this.status) {
+			            this.status.destroy();
+			            this.status = null;
+			        }
 		        } else {
-		            this.status = new DrawStatus(this, members, 85, 310);
+		            this.command = new Command(this, members, 80, 16);
+		            this.status = new DrawStatus(this, members, 80, 304);
 				    this.buttonSound.play();
 		        }
 	            return;
@@ -111,13 +117,6 @@ class TownScene extends Phaser.Scene {
 	    this.rectList = this.add.container(x, y);
 	    this.rectList.setScrollFactor(0);
 	    this.rectList.setDepth(10);
-        /* let rect1 = this.add.graphics();
-        rect1.fillStyle(0x000000, 0.9);
-        rect1.fillRect(x, y, w, h);
-        rect1.setScrollFactor(0);
-        rect1.setDepth(10);
-        rect1.setVisible(false);
-	    this.rectList.add(rect1); */
 
         let rect2 = this.add.graphics({ x: 0, y: 0 });
         rect2.lineStyle(10, 0xffffff);
@@ -209,6 +208,7 @@ function create() {
     this.luidaLayer = map.createLayer("Luida", tileset, 0, 0);
     this.luidaLayer.setScale(SCALE);
     this.luidaLayer.setVisible(false);
+    this.command = null;
     this.status = null;
 
     // プレイヤーを追加

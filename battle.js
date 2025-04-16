@@ -85,7 +85,7 @@ class BattleScene extends Phaser.Scene {
         this.isListen = false;
         this.setCursor(idx);
 
-        this.time.delayedCall(250, () => {
+        this.time.delayedCall(200, () => {
 	        this.isListen = true;
         });
     }
