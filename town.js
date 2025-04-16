@@ -16,7 +16,6 @@ let MAP_HEIGHT = 0;
 class TownScene extends Phaser.Scene {
     constructor() {
         super({ key: "TownScene" });
-        console.log("TownScene::constructor");
         this.npc = null; // 会話中の町人
         this.cursor = null;
         this.talkList = [];
@@ -27,7 +26,6 @@ class TownScene extends Phaser.Scene {
     }
 
     create() {
-        console.log("TownScene::create");
         create.call(this);
 
         // Aキーの入力設定
@@ -272,6 +270,7 @@ function create() {
 
 function update(time) {
     if (this.isMoving) return;
+    if (this.status) return;
 
     let newDir = -1;
 	if		(this.keys.left.isDown	|| this.wasd.left.isDown)  newDir = DIR.LEFT;

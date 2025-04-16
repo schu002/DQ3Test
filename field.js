@@ -2,6 +2,7 @@ import Player from "./player.js";
 import TownScene from "./town.js";
 import BattleScene from "./battle.js";
 import OccupationData from "./OccupationData.js";
+import DrawStatus from "./DrawStatus.js";
 import { updatePosition, getInverseDir } from "./util.js";
 
 const TILE_OBS = 22;
@@ -28,22 +29,6 @@ class FieldScene extends Phaser.Scene {
 	    const MAP_WIDTH = fieldData.width * TILE_SIZE * SCALE;
 	    const MAP_HEIGHT = fieldData.height * TILE_SIZE * SCALE;
 
-        // キーボード入力
-	    this.keys = this.input.keyboard.createCursorKeys();
-	    this.wasd = this.input.keyboard.addKeys({
-		    up: Phaser.Input.Keyboard.KeyCodes.W,
-		    down: Phaser.Input.Keyboard.KeyCodes.S,
-		    left: Phaser.Input.Keyboard.KeyCodes.A,
-		    right: Phaser.Input.Keyboard.KeyCodes.D
-		});
-
-        // BGM
-	    battleBGM = this.sound.add("battleBGM1", { loop: false, volume: 0.3 });
-	    bgm = this.sound.add("fieldBGM", { loop: true, volume: 0.3 });
-	    bgm.play();
-
-        this.events.on("resume", this.onResume, this);
-
 	    // マップを読み込む
 	    const map = this.make.tilemap({ key: "fieldMap" });
 	    const tileset = map.addTilesetImage("fieldTiles");
@@ -60,10 +45,30 @@ class FieldScene extends Phaser.Scene {
 	    });
         player = this.members[0];
         this.isMoving = false;
+	    this.status = null;
 
         // カメラ設定
         this.cameras.main.startFollow(player.sprite);
         this.cameras.main.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
+
+        // キーボード入力
+	    this.keys = this.input.keyboard.createCursorKeys();
+	    this.wasd = this.input.keyboard.addKeys({
+		    up: Phaser.Input.Keyboard.KeyCodes.W,
+		    down: Phaser.Input.Keyboard.KeyCodes.S,
+		    left: Phaser.Input.Keyboard.KeyCodes.A,
+		    right: Phaser.Input.Keyboard.KeyCodes.D
+		});
+		this.input.keyboard.on("keydown-Z", this.onButtonA, this);
+        this.input.keyboard.on("keydown-X", this.onButtonB, this);
+
+        // BGM
+	    battleBGM = this.sound.add("battleBGM1", { loop: false, volume: 0.3 });
+	    bgm = this.sound.add("fieldBGM", { loop: true, volume: 0.3 });
+	    bgm.play();
+	    this.buttonSound = this.sound.add("button", { loop: false, volume: 0.2 });
+
+        this.events.on("resume", this.onResume, this);
 
         this.time.addEvent({
 	        delay: 250,
@@ -76,6 +81,8 @@ class FieldScene extends Phaser.Scene {
 
     update() {
 	    if (this.isMoving) return;
+	    if (this.status) return;
+
 	    let newDir = -1;
 	    if		(this.keys.left.isDown	|| this.wasd.left.isDown)  newDir = DIR.LEFT;
 	    else if (this.keys.right.isDown || this.wasd.right.isDown) newDir = DIR.RIGHT;
@@ -109,6 +116,23 @@ class FieldScene extends Phaser.Scene {
 	        row = preRow, col = preCol, dir = preDir;
         }
     }
+
+	onButtonA() {
+	    if (this.status) {
+	        this.status.destroy();
+		    this.status = null;
+	    } else {
+	        this.status = new DrawStatus(this, this.members, 85, 310);
+            this.buttonSound.play();
+	    }
+	}
+
+	onButtonB() {
+	    if (this.status) {
+	        this.status.destroy();
+		    this.status = null;
+	    }
+	}
 
 	postMove(pos) {
 	    if (pos[0] == 213 && (pos[1] == 172 || pos[1] == 173)) {
