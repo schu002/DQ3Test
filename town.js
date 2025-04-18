@@ -42,12 +42,12 @@ class TownScene extends Phaser.Scene {
 		    let npc = this.findNPC(player);
 		    if (!npc) {
 		        if (this.command) {
-		            this.command.destroy();
+		            /* this.command.destroy();
 		            this.command = null;
 		            if (this.status) {
 			            this.status.destroy();
 			            this.status = null;
-			        }
+			        } */
 		        } else {
 		            this.command = new Command(this, members, 80, 16);
 		            this.status = new DrawStatus(this, members, 80, 304);
@@ -271,6 +271,7 @@ function create() {
 function update(time) {
     if (this.isMoving) return;
     if (this.status) return;
+    if (this.command) return;
 
     let newDir = -1;
 	if		(this.keys.left.isDown	|| this.wasd.left.isDown)  newDir = DIR.LEFT;

@@ -19,6 +19,8 @@ class Command {
         this.drawText(230, 180, "しらべる");
         this.createCursor();
 
+        scene.input.keyboard.on("keydown-Z", this.onButtonA, this);
+        scene.input.keyboard.on("keydown-X", this.onButtonB, this);
         this.keys = scene.input.keyboard.createCursorKeys();
         this.wasd = scene.input.keyboard.addKeys({
 	        up: Phaser.Input.Keyboard.KeyCodes.W,
@@ -48,6 +50,15 @@ class Command {
     destroy() {
         this.drawList.destroy();
         this.timer.remove();
+    }
+
+    onButtonA() {
+        if (this.command == COMMAND.TOOL) {
+	        drawMembers.call(this, 156, 131, "どうぐ");
+        }
+    }
+
+    onButtonB() {
     }
 
     update() {
@@ -107,8 +118,11 @@ class Command {
         rect.strokeRoundedRect(x, y, w, h, 5);
         rect.fillRoundedRect(x, y, w, h, 5);
         if (title) {
-            this.drawFill(x+112, y-9, 134, 12);
-            this.drawText(x+118, y-14, title);
+            console.log("len", title.length);
+            let tw = 2 + 33*title.length;
+            let ofsx = Math.floor((w-tw)/2);
+            this.drawFill(x+ofsx, y-9, tw, 12);
+            this.drawText(x+ofsx+4, y-14, title);
         }
         return rect;
     }
@@ -131,6 +145,13 @@ class Command {
 	        text.setScale(0.9, 1.0);
 	        x += 30;
 	    }
+    }
+}
+
+function drawMembers(x, y, title=null) {
+    this.drawRect(x, y, 240, 310, "どうぐ");
+    for (let i = 0; i < this.members.length; i++) {
+        this.drawText(x+60, y+50+i*63, this.members[i].name);
     }
 }
 
