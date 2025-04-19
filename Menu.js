@@ -1,24 +1,25 @@
-import Menu from "./Menu.js";
 
-class Command {
-    constructor(scene, members, x, y) {
+class Menu {
+    constructor(scene, strList, x, y, w, h, idx=0, col=1) {
+        this.scene = scene;
+        this.strList = strList;
         x *= SCALE;
         y *= SCALE;
-        this.scene = scene;
-        this.members = members;
-        this.command = COMMAND.NONE;
+        this.x = x;
+        this.y = y;
+        this.width = w;
+        this.height = h;
+        this.idx = idx;
+        this.rowNum = (col <= 1)? strList.length : Math.floor((strList.length+1)/2);
+        this.colNum = (col <= 1)? 1 : 2;
         this.drawList = scene.add.container(x, y);
         this.drawList.setScrollFactor(0);
-        let w = 384, h = 252;
-        this.drawFill(0, 0, w, h);
-        this.drawRect(10, 10, w-20, h-20, "コマンド");
-        this.drawText(66, 54, "はなす");
-        this.drawText(230, 54, "じゅもん");
-        this.drawText(66, 117, "つよさ");
-        this.drawText(230, 117, "どうぐ");
-        this.drawText(66, 180, "そうび");
-        this.drawText(230, 180, "しらべる");
+        this.drawRect(0, 0, w, h);
+        for (let i = 0; i < strList.length; i++) {
+            this.drawText(66, 54+i*63, strList[i]);
+        }
         this.createCursor();
+        if (idx >= 0) this.setCursor(idx);
 
         scene.input.keyboard.on("keydown-Z", this.onButtonA, this);
         scene.input.keyboard.on("keydown-X", this.onButtonB, this);
@@ -43,7 +44,7 @@ class Command {
             delay: 270,
             loop: true,
             callback: () => {
-                if (this.cursor) this.cursor.setVisible(!this.cursor.visible);
+                this.cursor.setVisible(!this.cursor.visible);
             }
         });
     }
@@ -54,11 +55,6 @@ class Command {
     }
 
     onButtonA() {
-        if (this.command == COMMAND.TOOL) {
-	        drawMembers.call(this, 158, 81, "どうぐ");
-	        this.cursor.destroy();
-	        this.cursor = null;
-        }
     }
 
     onButtonB() {
@@ -66,21 +62,18 @@ class Command {
 
     update() {
         if (!this.isListen) return;
+        if (this.idx < 0) return;
 
-        let idx = this.command;
-        if (idx > 0) {
-            if (this.keys.up.isDown || this.wasd.up.isDown) {
-                idx = (idx == 1 || idx == 4)? idx+2 : idx-1;
-            } else if (this.keys.down.isDown || this.wasd.down.isDown) {
-                idx = (idx == 3 || idx == 6)? idx-2 : idx+1;
-            } else if (this.keys.left.isDown || this.wasd.left.isDown ||
-                       this.keys.right.isDown || this.wasd.right.isDown) {
-                idx += (idx <= 3)? 3 : -3;
-            } else {
-                return;
-            }
+        let idx = this.idx, rows = this.rowNum, len = this.strList.length;
+        if (this.keys.up.isDown || this.wasd.up.isDown) {
+            idx = (idx == 0 || idx == rows)? idx+rows-1 : idx-1;
+        } else if (this.keys.down.isDown || this.wasd.down.isDown) {
+            idx = (idx == rows-1 || idx == len-1)? Math.floor(idx/rows)*rows : idx+1;
+        } else if (this.keys.left.isDown || this.wasd.left.isDown ||
+                   this.keys.right.isDown || this.wasd.right.isDown) {
+            if (this.colNum > 1) idx += (idx < rows)? rows : -rows;
         } else {
-            idx = COMMAND.TALK;
+            return;
         }
 
         this.isListen = false;
@@ -89,6 +82,20 @@ class Command {
         this.scene.time.delayedCall(200, () => {
 	        this.isListen = true;
         });
+    }
+
+    setTitle(title) {
+        let tw = 2 + 33*title.length;
+        let ofsx = Math.floor((this.width-tw)/2);
+        this.drawFill(ofsx, -13, tw, 40);
+        this.drawText(ofsx+4, -14, title);
+    }
+
+    setCursor(idx) {
+        if (idx < 0) return;
+        this.cursor.x = 42+Math.floor(idx/this.rowNum)*167;
+        this.cursor.y = 62+idx%this.rowNum*63;
+        this.idx = idx;
     }
 
     createCursor() {
@@ -107,27 +114,14 @@ class Command {
         this.setCursor(1);
     }
 
-    setCursor(idx) {
-        if (!this.cursor) return;
-        this.cursor.x = 42+Math.floor((idx-1)/3)*167;
-        this.cursor.y = 62+(idx-1)%3*63;
-        this.command = idx;
-    }
-
     drawRect(x, y, w, h, title=null) {
+        this.drawFill(x, y, w, h);
         let rect = this.scene.add.graphics();
         this.drawList.add(rect);
         rect.lineStyle(14, 0xffffff);
         rect.fillStyle(0x000000);
-        rect.strokeRoundedRect(x, y, w, h, 5);
-        rect.fillRoundedRect(x, y, w, h, 5);
-        if (title) {
-            console.log("len", title.length);
-            let tw = 2 + 33*title.length;
-            let ofsx = Math.floor((w-tw)/2);
-            this.drawFill(x+ofsx, y-9, tw, 12);
-            this.drawText(x+ofsx+4, y-14, title);
-        }
+        rect.strokeRoundedRect(x+10, y+10, w-20, h-20, 5);
+        rect.fillRoundedRect(x+10, y+10, w-20, h-20, 5);
         return rect;
     }
 
@@ -138,12 +132,12 @@ class Command {
         rect.fillRect(x, y, w, h);
     }
 
-    drawText(x, y, msg) {
+    drawText(x, y, msg, col='#ffffff') {
         for (const ch of msg) {
 	        let text = this.scene.add.text(x, y, ch, {
 	            fontFamily: "PixelMplus10-Regular",
 	            fontSize: '38px',
-	            color: '#ffffff'
+	            color: col
             });
 	        this.drawList.add(text);
 	        text.setScale(0.9, 1.0);
@@ -152,11 +146,4 @@ class Command {
     }
 }
 
-function drawMembers(x, y, title=null) {
-    let nameList = [];
-    this.members.forEach(member => nameList.push(member.name));
-    this.toolMenu = new Menu(this.scene, nameList, x, y, 240, 310);
-    this.toolMenu.setTitle("どうぐ");
-}
-
-export default Command;
+export default Menu;
