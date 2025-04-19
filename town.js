@@ -38,6 +38,7 @@ class TownScene extends Phaser.Scene {
     }
 
     onButtonA() {
+        if (this.command) return;
         if (!this.npc) {
 		    let npc = this.findNPC(player);
 		    if (!npc) {
@@ -51,7 +52,6 @@ class TownScene extends Phaser.Scene {
 		        } else {
 		            this.command = new Command(this, members, 80, 16);
 		            this.status = new DrawStatus(this, members, 80, 304);
-				    this.buttonSound.play();
 		        }
 	            return;
 	        }

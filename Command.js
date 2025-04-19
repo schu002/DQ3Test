@@ -1,5 +1,17 @@
 import Menu from "./Menu.js";
 
+const COMMAND = {
+    NONE	: -1,
+    TALK	: 0,
+    ABILITY	: 1,
+    EQUIP	: 2,
+    SPELL	: 3,
+    TOOL	: 4,
+    CHECK	: 5
+};
+
+const cmdList = ["はなす", "つよさ", "そうび", "じゅもん", "どうぐ", "しらべる"];
+
 class Command {
     constructor(scene, members, x, y) {
         x *= SCALE;
@@ -9,43 +21,15 @@ class Command {
         this.command = COMMAND.NONE;
         this.drawList = scene.add.container(x, y);
         this.drawList.setScrollFactor(0);
-        let w = 384, h = 252;
-        this.drawFill(0, 0, w, h);
-        this.drawRect(10, 10, w-20, h-20, "コマンド");
-        this.drawText(66, 54, "はなす");
-        this.drawText(230, 54, "じゅもん");
-        this.drawText(66, 117, "つよさ");
-        this.drawText(230, 117, "どうぐ");
-        this.drawText(66, 180, "そうび");
-        this.drawText(230, 180, "しらべる");
-        this.createCursor();
+        this.menuList = [];
+        let menu = new Menu(scene, cmdList, x, y, 384, 252, 2);
+        menu.setTitle("コマンド", true);
+        this.menuList.push(menu);
+        this.buttonSound = scene.sound.add("button", { loop: false, volume: 0.2 });
+        this.buttonSound.play();
 
         scene.input.keyboard.on("keydown-Z", this.onButtonA, this);
         scene.input.keyboard.on("keydown-X", this.onButtonB, this);
-        this.keys = scene.input.keyboard.createCursorKeys();
-        this.wasd = scene.input.keyboard.addKeys({
-	        up: Phaser.Input.Keyboard.KeyCodes.W,
-	        down: Phaser.Input.Keyboard.KeyCodes.S,
-	        left: Phaser.Input.Keyboard.KeyCodes.A,
-	        right: Phaser.Input.Keyboard.KeyCodes.D
-	    });
-        this.isListen = true;
-
-        this.timer = scene.time.addEvent({
-            delay: 10,
-            loop: true,
-            callback: () => {
-                this.update();
-            }
-        });
-
-        this.timer = scene.time.addEvent({
-            delay: 270,
-            loop: true,
-            callback: () => {
-                if (this.cursor) this.cursor.setVisible(!this.cursor.visible);
-            }
-        });
     }
 
     destroy() {
@@ -54,14 +38,24 @@ class Command {
     }
 
     onButtonA() {
-        if (this.command == COMMAND.TOOL) {
-	        drawMembers.call(this, 158, 81, "どうぐ");
-	        this.cursor.destroy();
-	        this.cursor = null;
+        let menu = this.menuList[this.menuList.length-1];
+        if (this.menuList.length == 1) {
+	        if (menu.idx == COMMAND.EQUIP) {
+		        drawMembers.call(this, 238, 60);
+	        } else if (menu.idx == COMMAND.SPELL) {
+		        drawMembers.call(this, 246, 63);
+	        } else if (menu.idx == COMMAND.TOOL) {
+		        drawMembers.call(this, 238, 95);
+	        }
         }
     }
 
     onButtonB() {
+        let menu = this.menuList.pop();
+        menu.destroy();
+        if (this.menuList.length < 1) return;
+        menu = this.menuList[this.menuList.length-1];
+        menu.fixCursor(false);
     }
 
     update() {
@@ -122,7 +116,6 @@ class Command {
         rect.strokeRoundedRect(x, y, w, h, 5);
         rect.fillRoundedRect(x, y, w, h, 5);
         if (title) {
-            console.log("len", title.length);
             let tw = 2 + 33*title.length;
             let ofsx = Math.floor((w-tw)/2);
             this.drawFill(x+ofsx, y-9, tw, 12);
@@ -152,11 +145,16 @@ class Command {
     }
 }
 
-function drawMembers(x, y, title=null) {
+function drawMembers(x, y) {
+    this.buttonSound.play();
+    let menu = this.menuList[this.menuList.length-1];
+    let idx = menu.idx;
+    menu.fixCursor(true);
     let nameList = [];
     this.members.forEach(member => nameList.push(member.name));
-    this.toolMenu = new Menu(this.scene, nameList, x, y, 240, 310);
-    this.toolMenu.setTitle("どうぐ");
+    menu = new Menu(this.scene, nameList, x, y, 240, 310);
+    menu.setTitle(cmdList[idx]);
+    this.menuList.push(menu);
 }
 
 export default Command;

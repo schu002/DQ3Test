@@ -1,6 +1,6 @@
 
 class Menu {
-    constructor(scene, strList, x, y, w, h, idx=0, col=1) {
+    constructor(scene, strList, x, y, w, h, col=1, idx=0) {
         this.scene = scene;
         this.strList = strList;
         x *= SCALE;
@@ -16,13 +16,13 @@ class Menu {
         this.drawList.setScrollFactor(0);
         this.drawRect(0, 0, w, h);
         for (let i = 0; i < strList.length; i++) {
-            this.drawText(66, 54+i*63, strList[i]);
+            let ix = 66 + Math.floor(i/this.rowNum)*164;
+            let iy = 54 + (i%this.rowNum)*64;
+            this.drawText(ix, iy, strList[i]);
         }
         this.createCursor();
         if (idx >= 0) this.setCursor(idx);
 
-        scene.input.keyboard.on("keydown-Z", this.onButtonA, this);
-        scene.input.keyboard.on("keydown-X", this.onButtonB, this);
         this.keys = scene.input.keyboard.createCursorKeys();
         this.wasd = scene.input.keyboard.addKeys({
 	        up: Phaser.Input.Keyboard.KeyCodes.W,
@@ -44,7 +44,7 @@ class Menu {
             delay: 270,
             loop: true,
             callback: () => {
-                this.cursor.setVisible(!this.cursor.visible);
+                if (!this.fix) this.cursor.setVisible(!this.cursor.visible);
             }
         });
     }
@@ -54,14 +54,9 @@ class Menu {
         this.timer.remove();
     }
 
-    onButtonA() {
-    }
-
-    onButtonB() {
-    }
-
     update() {
         if (!this.isListen) return;
+        if (this.fix) return;
         if (this.idx < 0) return;
 
         let idx = this.idx, rows = this.rowNum, len = this.strList.length;
@@ -84,11 +79,13 @@ class Menu {
         });
     }
 
-    setTitle(title) {
+    setTitle(title, top=false) {
         let tw = 2 + 33*title.length;
         let ofsx = Math.floor((this.width-tw)/2);
-        this.drawFill(ofsx, -13, tw, 40);
-        this.drawText(ofsx+4, -14, title);
+        let ofsy = (top)? 0 : -13;
+        this.drawFill(ofsx, ofsy, tw, 40);
+        ofsy += (top)? -2 : 4;
+        this.drawText(ofsx+4, ofsy, title);
     }
 
     setCursor(idx) {
@@ -96,6 +93,12 @@ class Menu {
         this.cursor.x = 42+Math.floor(idx/this.rowNum)*167;
         this.cursor.y = 62+idx%this.rowNum*63;
         this.idx = idx;
+    }
+
+    fixCursor(onoff) {
+        if (this.idx < 0) return;
+        this.fix = onoff;
+        if (onoff) this.cursor.setVisible(true);
     }
 
     createCursor() {
@@ -111,7 +114,8 @@ class Menu {
         this.cursor.lineTo(0, h);
         this.cursor.closePath();
         this.cursor.fillPath();
-        this.setCursor(1);
+        this.cursor.setVisible(false);
+        this.fix = false;
     }
 
     drawRect(x, y, w, h, title=null) {
