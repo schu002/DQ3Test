@@ -50,7 +50,7 @@ class TownScene extends Phaser.Scene {
 			            this.status = null;
 			        } */
 		        } else {
-		            this.command = new Command(this, members, 80, 16);
+		            this.command = new Command(this, members, 40, 16);
 		            this.status = new DrawStatus(this, members, 80, 304);
 		        }
 	            return;
@@ -215,7 +215,7 @@ function create() {
     const startData = townData.start;
     members = [];
     gameData.members.forEach(member => {
-        members.push(new Player(this, member.name, member.occupation, member.level, startData.row, startData.col, startData.dir, CARA_OFFSET));
+        members.push(new Player(this, member, startData.row, startData.col, startData.dir, CARA_OFFSET));
     });
     player = members[0];
 

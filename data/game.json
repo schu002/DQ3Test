@@ -3,22 +3,26 @@
    {
      "name": "スタロン",
      "occupation": "soldier",
-     "level": 1
+     "level": 1,
+     "items": ["E:こんぼう", "E:たびびとのふく"]
    },
    {
      "name": "しゅう",
      "occupation": "hero",
-     "level": 1
+     "level": 1,
+     "items": ["E:どうのつるぎ", "E:たびびとのふく"]
    },
    {
      "name": "スミス",
      "occupation": "monk",
-     "level": 1
+     "level": 1,
+     "items": ["E:こんぼう", "E:ぬののふく", "やくそう"]
    },
    {
      "name": "マーリン",
      "occupation": "wizard",
-     "level": 1
+     "level": 1,
+     "items": ["E:ひのきのぼう", "E:ぬののふく", "どくけしそう"]
    }
  ]
 }

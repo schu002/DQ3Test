@@ -1,8 +1,9 @@
 
 class Menu {
-    constructor(scene, strList, x, y, w, h, col=1, idx=0) {
+    constructor(parent, scene, strList, x, y, w, h, row=0, idx=0) {
+        this.parent = parent;
+        this.nest = (parent)? parent.nest+1 : 0;
         this.scene = scene;
-        this.strList = strList;
         x *= SCALE;
         y *= SCALE;
         this.x = x;
@@ -10,73 +11,43 @@ class Menu {
         this.width = w;
         this.height = h;
         this.idx = idx;
-        this.rowNum = (col <= 1)? strList.length : Math.floor((strList.length+1)/2);
-        this.colNum = (col <= 1)? 1 : 2;
+        this.rowNum = row;
+        this.colNum = (row > 0 && row < strList.length)? 2 : 1;
         this.drawList = scene.add.container(x, y);
         this.drawList.setScrollFactor(0);
+        this.textList = scene.add.container(x, y);
+        this.textList.setScrollFactor(0);
         this.drawRect(0, 0, w, h);
-        for (let i = 0; i < strList.length; i++) {
-            let ix = 66 + Math.floor(i/this.rowNum)*164;
-            let iy = 54 + (i%this.rowNum)*64;
-            this.drawText(ix, iy, strList[i]);
-        }
+        this.setStrList(strList);
         this.createCursor();
         if (idx >= 0) this.setCursor(idx);
-
-        this.keys = scene.input.keyboard.createCursorKeys();
-        this.wasd = scene.input.keyboard.addKeys({
-	        up: Phaser.Input.Keyboard.KeyCodes.W,
-	        down: Phaser.Input.Keyboard.KeyCodes.S,
-	        left: Phaser.Input.Keyboard.KeyCodes.A,
-	        right: Phaser.Input.Keyboard.KeyCodes.D
-	    });
-        this.isListen = true;
-
-        this.timer = scene.time.addEvent({
-            delay: 10,
-            loop: true,
-            callback: () => {
-                this.update();
-            }
-        });
 
         this.timer = scene.time.addEvent({
             delay: 270,
             loop: true,
             callback: () => {
-                if (!this.fix) this.cursor.setVisible(!this.cursor.visible);
+                if (!this.fix && this.idx >= 0)
+                    this.cursor.setVisible(!this.cursor.visible);
             }
         });
     }
 
     destroy() {
         this.drawList.destroy();
+        this.textList.destroy();
         this.timer.remove();
     }
 
-    update() {
-        if (!this.isListen) return;
-        if (this.fix) return;
-        if (this.idx < 0) return;
-
-        let idx = this.idx, rows = this.rowNum, len = this.strList.length;
-        if (this.keys.up.isDown || this.wasd.up.isDown) {
-            idx = (idx == 0 || idx == rows)? idx+rows-1 : idx-1;
-        } else if (this.keys.down.isDown || this.wasd.down.isDown) {
-            idx = (idx == rows-1 || idx == len-1)? Math.floor(idx/rows)*rows : idx+1;
-        } else if (this.keys.left.isDown || this.wasd.left.isDown ||
-                   this.keys.right.isDown || this.wasd.right.isDown) {
-            if (this.colNum > 1) idx += (idx < rows)? rows : -rows;
-        } else {
-            return;
+    setStrList(strList) {
+        this.textList.removeAll(true);
+        this.strList = strList;
+        for (let i = 0; i < strList.length; i++) {
+            let row = (this.rowNum > 0)? i%this.rowNum : i;
+            let col = (this.rowNum > 0)? Math.floor(i/this.rowNum) : 0;
+            let x = 66 + col*164;
+            let y = 54 + row*64;
+            this.drawText(x, y, strList[i]);
         }
-
-        this.isListen = false;
-        this.setCursor(idx);
-
-        this.scene.time.delayedCall(200, () => {
-	        this.isListen = true;
-        });
     }
 
     setTitle(title, top=false) {
@@ -88,10 +59,32 @@ class Menu {
         this.drawText(ofsx+4, ofsy, title);
     }
 
+    moveCursor(dir) {
+        if (this.fix) return false;
+        if (this.idx < 0) return false;
+
+        let idx = this.idx, len = this.strList.length;
+        let rows = (this.rowNum > 0)? this.rowNum : len;
+        if (dir == DIR.UP) {
+            idx = (idx == 0 || idx == rows)? idx+rows-1 : idx-1;
+        } else if (dir == DIR.DOWN) {
+            idx = (idx == rows-1 || idx == len-1)? Math.floor(idx/rows)*rows : idx+1;
+        } else if (dir == DIR.LEFT || dir == DIR.RIGHT) {
+            if (this.colNum > 1) idx += (idx < rows)? rows : -rows;
+        } else {
+            return false;
+        }
+
+        this.setCursor(idx);
+        return true;
+    }
+
     setCursor(idx) {
         if (idx < 0) return;
-        this.cursor.x = 42+Math.floor(idx/this.rowNum)*167;
-        this.cursor.y = 62+idx%this.rowNum*63;
+        let row = (this.rowNum > 0)? idx%this.rowNum : idx;
+        let col = (this.rowNum > 0)? Math.floor(idx/this.rowNum) : 0;
+        this.cursor.x = 42+col*167;
+        this.cursor.y = 62+row*63;
         this.idx = idx;
     }
 
@@ -137,13 +130,23 @@ class Menu {
     }
 
     drawText(x, y, msg, col='#ffffff') {
+        if (msg.length > 2 && msg[0] == 'E' && msg[1] == ':') {
+            msg = msg.substr(2, msg.length-2);
+	        let text = this.scene.add.text(x-48, y+6, 'E', {
+	            fontFamily: "PixelMplus10-Regular",
+	            fontSize: '32px',
+	            color: col
+            });
+            this.textList.add(text);
+        }
+
         for (const ch of msg) {
 	        let text = this.scene.add.text(x, y, ch, {
 	            fontFamily: "PixelMplus10-Regular",
 	            fontSize: '38px',
 	            color: col
             });
-	        this.drawList.add(text);
+            this.textList.add(text);
 	        text.setScale(0.9, 1.0);
 	        x += 30;
 	    }

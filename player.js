@@ -1,20 +1,21 @@
 import OccupationData from "./OccupationData.js";
 
 class Player {
-    constructor(scene, name, occupation, lv, row, col, dir, offset = 0) {
-        this.name = name;
-        this.occupation = occupation;
-        this.level = lv;
+    constructor(scene, data, row, col, dir, offset = 0) {
+        this.name = data.name;
+        this.occupation = data.occupation;
+        this.level = data.level;
+        this.items = data.items;
         this.row = row;
         this.col = col;
-    	this.sprite = scene.physics.add.sprite(col * TILE_SIZE * SCALE, (row * TILE_SIZE-offset) * SCALE, occupation, 0);
+    	this.sprite = scene.physics.add.sprite(col * TILE_SIZE * SCALE, (row * TILE_SIZE-offset) * SCALE, data.occupation, 0);
         this.sprite.setScale(2);
         this.sprite.setOrigin(0, 0);
         this.direction = dir;
         this.action = ACTION.NONE;
         this.stepCount = 0;
 
-        let prms = OccupationData.getParams(occupation, lv);
+        let prms = OccupationData.getParams(data.occupation, data.level);
         if (prms) {
             this.hp = this.MaxHP = prms.HP;
             this.mp = this.MaxMP = prms.MP;
