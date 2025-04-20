@@ -1,4 +1,5 @@
 import EquipmentData from "./EquipmentData.js";
+import { getNumberStr } from "./util.js";
 
 export default class Menu {
     constructor(parent, scene, strList, x, y, w, h, row=0, idx=0) {
@@ -42,14 +43,14 @@ export default class Menu {
         this.textList.setVisible(onoff);
     }
 
-    setStrList(strList, equip=false) {
+    setStrList(strList, equip=false, left=66) {
         this.textList.removeAll(true);
         this.strList = strList;
         if (!strList) return;
         for (let i = 0; i < strList.length; i++) {
             let row = (this.rowNum > 0)? i%this.rowNum : i;
             let col = (this.rowNum > 0)? Math.floor(i/this.rowNum) : 0;
-            let x = 66 + col*164;
+            let x = left + col*164;
             let y = 54 + row*64;
             let str = strList[i];
             if (equip && (str[0] != 'E' || str[1] != ':')) continue;
@@ -96,7 +97,7 @@ export default class Menu {
         let row = (this.rowNum > 0)? idx%this.rowNum : idx;
         let col = (this.rowNum > 0)? Math.floor(idx/this.rowNum) : 0;
         this.cursor.x = 42+col*167;
-        this.cursor.y = 62+row*63;
+        this.cursor.y = 62+row*64;
         this.idx = idx;
     }
 
@@ -105,21 +106,26 @@ export default class Menu {
         if (onoff && this.idx >= 0) this.cursor.setVisible(true);
     }
 
-    createCursor() {
+    createRight(x=0, y=0) {
         const w = 14, h = 26;
-        this.cursor = this.scene.add.graphics();
-        this.drawList.add(this.cursor);
-        this.cursor.fillStyle(0xffffff, 1); // 白色、不透明
-        this.cursor.beginPath();
-        this.cursor.moveTo(0, 0);
-        this.cursor.lineTo(4, 0);
-        this.cursor.lineTo(w+4, h/2);
-        this.cursor.lineTo(4, h);
-        this.cursor.lineTo(0, h);
-        this.cursor.closePath();
-        this.cursor.fillPath();
+        let tri = this.scene.add.graphics();
+        this.drawList.add(tri);
+        tri.fillStyle(0xffffff, 1); // 白色、不透明
+        tri.beginPath();
+        tri.moveTo(x, y);
+        tri.lineTo(x+4, y);
+        tri.lineTo(x+w+4, y+h/2);
+        tri.lineTo(x+4, y+h);
+        tri.lineTo(x, y+h);
+        tri.closePath();
+        tri.fillPath();
+        tri.setDepth(10);
+        return tri;
+    }
+
+    createCursor() {
+        this.cursor = this.createRight();
         this.cursor.setVisible(false);
-        this.cursor.setDepth(10);
         this.fix = false;
     }
 
@@ -168,16 +174,19 @@ export default class Menu {
 	    }
     }
 
-    setEquipment(member, equip) {
+    setEquipment(member, menu, equip) {
         const titleList = ["ぶき", "よろい", "たて", "かぶと"];
         let strList = [];
+        let equipVal = 0;
+        let item = null;
         for (let i = 0; i < member.items.length; i++) {
-            let item = member.items[i];
-            let isEquip = (item.length > 2 && item[0] == 'E' && item[1] == ':')? true : false;
-            let itemName = (isEquip)? item.substr(2, item.length-2) : item;
-            const type = EquipmentData.getTypeByName(itemName);
+            let str = member.items[i];
+            let isEquip = (str.length > 2 && str[0] == 'E' && str[1] == ':')? true : false;
+            let itemName = (isEquip)? str.substr(2, str.length-2) : str;
+            let type = EquipmentData.getTypeByName(itemName);
             if (type != equip) continue;
-            strList.push(item);
+            strList.push(str);
+            if (isEquip) item = EquipmentData.getItemByName(itemName);
         }
         strList.push("そうびしない");
         this.height = 61 + strList.length*64;
@@ -186,5 +195,28 @@ export default class Menu {
         this.setTitle(titleList[equip-1], true);
         this.cursor.setVisible(true);
         this.drawList.bringToTop(this.cursor);
+        menu.setEquipParam(member, equip, strList[0], item);
+    }
+
+    setEquipParam(member, type, itemName, eqItem) {
+        if (itemName.length > 2 && itemName[0] == 'E' && itemName[1] == ':')
+            itemName = itemName.substr(2, itemName.length-2);
+        let strList = [];
+        let str = "こうげき：";
+        let curAtk = member.power + eqItem.ability;
+        str += getNumberStr(curAtk, 3);
+        if (type == EQUIP.WEAPON) {
+	        let data = EquipmentData.getItemByName(itemName);
+	        let newAtk = member.power + data.ability;
+	        str += " " + getNumberStr(newAtk, 3);
+	    }
+        strList.push(str);
+        str = "　しゅび：";
+        let curDef = member.getDefenceValue();
+        str += getNumberStr(curDef, 3);
+        strList.push(str);
+        this.setStrList(strList, false, 35);
+        this.createRight(285, 60);
+        this.setTitle(member.name, true);
     }
 }

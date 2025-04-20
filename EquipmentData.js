@@ -56,7 +56,16 @@ export default class EquipmentData {
         const type = this.getTypeByName(name);
         if (!type) return null;
 
-        const list = this[type];
-        return list.find(item => item.name === name) || null;
+        if (type == EQUIP.WEAPON) {
+	        return EquipmentData.weapons.find(item => item.name === name) || null;
+        } else if (type == EQUIP.ARMOR) {
+	        return EquipmentData.armors.find(item => item.name === name) || null;
+        } else if (type == EQUIP.SHIELD) {
+	        return EquipmentData.shields.find(item => item.name === name) || null;
+        } else if (type == EQUIP.HELMET) {
+	        return EquipmentData.helmets.find(item => item.name === name) || null;
+        } else {
+	        return null;
+	    }
     }
 }

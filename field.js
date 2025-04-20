@@ -127,7 +127,7 @@ class FieldScene extends Phaser.Scene {
     		    this.status = null;
     		}
         } else {
-            this.command = new Command(this, this.members, 80, 16);
+            this.command = new Command(this, this.members);
             this.status = new DrawStatus(this, this.members, 85, 304);
             this.buttonSound.play();
         }

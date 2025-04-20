@@ -1,7 +1,7 @@
-// import OccupationData from "./OccupationData.js";
 import Player from "./player.js";
+import { getNumberStr } from "./util.js";
 
-class DrawStatus {
+export default class DrawStatus {
     constructor(scene, members, x, y) {
         x *= SCALE;
         y *= SCALE;
@@ -65,27 +65,3 @@ function headName(occ) {
     if (occ == "wizard") return "ま：";
     return "";
 }
-
-function getNumberStr(num) {
-    let str = "";
-    let mod = num;
-    let nums = ["０", "１", "２", "３", "４", "５", "６", "７", "８", "９"];
-    if (num >= 100) {
-        let idx = Math.floor(mod/100);
-        str = nums[idx];
-        mod -= idx * 100;
-    } else {
-        str = (num >= 10)? "　" : "　　";
-    }
-    if (num >= 10) {
-        let idx = Math.floor(mod/10);
-        str += nums[idx];
-        mod -= idx * 10;
-    }
-    if (num >= 0) {
-        str += nums[mod];
-    }
-    return str;
-}
-
-export default DrawStatus;

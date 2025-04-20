@@ -50,7 +50,7 @@ class TownScene extends Phaser.Scene {
 			            this.status = null;
 			        } */
 		        } else {
-		            this.command = new Command(this, members, 40, 16);
+		            this.command = new Command(this, members);
 		            this.status = new DrawStatus(this, members, 80, 304);
 		        }
 	            return;
@@ -71,6 +71,13 @@ class TownScene extends Phaser.Scene {
 
     onButtonB() {
         updateTalk.call(this);
+    }
+
+    exitCommand() {
+        this.command.destroy();
+        this.status.destroy();
+        this.command = null;
+        this.status = null;
     }
 
     findNPC(player) {

@@ -46,3 +46,37 @@ export function getInverseDir(dir)
 	else if (dir == DIR.RIGHT) return DIR.LEFT;
 	else return dir;
 }
+
+export function getNumberStr(num, digitNum=0)
+{
+    let str = "";
+    if (digitNum > 0) {
+        let d = 0, n = num;
+        while (n > 0) {
+            n = Math.floor(n/10);
+            d++
+        }
+        for (let i = 0; i < digitNum-d; i++) {
+            str += "　";
+        }
+    }
+
+    let mod = num;
+    let nums = ["０", "１", "２", "３", "４", "５", "６", "７", "８", "９"];
+    if (num >= 100) {
+        let idx = Math.floor(mod/100);
+        str = nums[idx];
+        mod -= idx * 100;
+    } else {
+        str = (num >= 10)? "　" : "　　";
+    }
+    if (num >= 10) {
+        let idx = Math.floor(mod/10);
+        str += nums[idx];
+        mod -= idx * 10;
+    }
+    if (num >= 0) {
+        str += nums[mod];
+    }
+    return str;
+}
