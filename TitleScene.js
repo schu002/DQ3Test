@@ -1,6 +1,7 @@
 import TownScene from "./town.js";
 import MonsterData from "./MonsterData.js";
 import OccupationData from "./OccupationData.js";
+import EquipmentData from "./EquipmentData.js";
 
 class TitleScene extends Phaser.Scene {
     constructor() {
@@ -26,7 +27,10 @@ class TitleScene extends Phaser.Scene {
 	    this.load.audio("fieldBGM", "sound/field1.mp3");
 	    // モンスター
         this.load.json("monstersData", "data/monsters.json");
+        // 職業
         this.load.json("occData", "data/occupation.json");
+        // 装備品
+        // this.load.json("equipData", "data/equipment.json");
 
         WebFont.load({
 	        custom: {
@@ -55,6 +59,9 @@ class TitleScene extends Phaser.Scene {
 	    });
 
         OccupationData.loadData(this);
+        EquipmentData.loadData(this, (ok) => {
+            if (ok) console.log("EquipmentData.load");
+        });
         MonsterData.loadData(this);
 
         // preload() でロードした JSON を MonsterData に渡す

@@ -1,0 +1,1323 @@
+{
+  "weapons": [
+    {
+      "name": "ひのきのぼう",
+      "buy": 5,
+      "sell": 3,
+      "ability": 2,
+      "occups": [ "hero", "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "どくばり",
+      "buy": 10,
+      "sell": 7,
+      "ability": 10,
+      "occups": [ "wizard", "thief" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "こんぼう",
+      "buy": 30,
+      "sell": 22,
+      "ability": 7,
+      "occups": [ "hero", "soldier", "fighter", "monk", "merchant", "playboy", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "ブロンズナイフ",
+      "buy": 80,
+      "sell": 60,
+      "ability": 8,
+      "occups": [ "wizard", "playboy", "thief" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "どうのつるぎ",
+      "buy": 100,
+      "sell": 75,
+      "ability": 12,
+      "occups": [ "hero", "soldier", "fighter", "monk", "merchant", "playboy", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "せいなるナイフ",
+      "buy": 200,
+      "sell": 150,
+      "ability": 14,
+      "occups": [ "hero", "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "くさりがま",
+      "buy": 320,
+      "sell": 240,
+      "ability": 16,
+      "occups": [ "hero", "soldier", "fighter", "monk", "merchant", "playboy", "thief", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "とげのムチ",
+      "buy": 320,
+      "sell": 240,
+      "ability": 18,
+      "occups": [ "hero", "wizard", "thief", "wise" ],
+      "group": 0,
+      "whole": 1
+    },
+    {
+      "name": "まじゅうのつめ",
+      "buy": 550,
+      "sell": 412,
+      "ability": 95,
+      "occups": [ "fighter", "thief" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "てつのヤリ",
+      "buy": 650,
+      "sell": 487,
+      "ability": 26,
+      "occups": [ "hero", "soldier", "fighter", "monk", "merchant", "playboy", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "てつのつめ",
+      "buy": 870,
+      "sell": 652,
+      "ability": 25,
+      "occups": [ "fighter" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "チェーンクロス",
+      "buy": 1000,
+      "sell": 750,
+      "ability": 27,
+      "occups": [ "merchant", "playboy", "thief", "wise" ],
+      "group": 0,
+      "whole": 1
+    },
+    {
+      "name": "ブーメラン",
+      "buy": 1200,
+      "sell": 900,
+      "ability": 19,
+      "occups": [ "hero", "wizard", "merchant", "playboy", "thief" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "はがねのハリセン",
+      "buy": 1300,
+      "sell": 975,
+      "ability": 31,
+      "occups": [ "merchant", "playboy" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "はがねのつるぎ",
+      "buy": 1300,
+      "sell": 975,
+      "ability": 33,
+      "occups": [ "hero", "soldier", "fighter", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "まどうしのつえ",
+      "buy": 1500,
+      "sell": 1125,
+      "ability": 15,
+      "occups": [ "wizard", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "モーニングスター",
+      "buy": 1700,
+      "sell": 1275,
+      "ability": 30,
+      "occups": [ "monk", "wise" ],
+      "group": 0,
+      "whole": 1
+    },
+    {
+      "name": "ホーリーランス",
+      "buy": 2300,
+      "sell": 1725,
+      "ability": 35,
+      "occups": [ "monk", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "アサシンダガー",
+      "buy": 2500,
+      "sell": 1875,
+      "ability": 25,
+      "occups": [ "wizard", "thief" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "てつのオノ",
+      "buy": 2500,
+      "sell": 1875,
+      "ability": 37,
+      "occups": [ "hero", "soldier", "fighter", "merchant", "playboy" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "いかずちのつえ",
+      "buy": 2500,
+      "sell": 1875,
+      "ability": 45,
+      "occups": [ "wizard", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "りりょくのつえ",
+      "buy": 2500,
+      "sell": 1875,
+      "ability": 65,
+      "occups": [ "wizard", "monk", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "さばきのつえ",
+      "buy": 2700,
+      "sell": 2025,
+      "ability": 37,
+      "occups": [ "monk", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "はがねのムチ",
+      "buy": 3100,
+      "sell": 2325,
+      "ability": 40,
+      "occups": [ "hero", "playboy", "thief", "wise" ],
+      "group": 0,
+      "whole": 1
+    },
+    {
+      "name": "魔封じの杖",
+      "buy": 3300,
+      "sell": 2475,
+      "ability": 20,
+      "occups": [ "wizard", "monk", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "眠りの杖",
+      "buy": 4200,
+      "sell": 3150,
+      "ability": 30,
+      "occups": [ "wizard", "monk", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "大ハサミ",
+      "buy": 4700,
+      "sell": 3525,
+      "ability": 47,
+      "occups": [ "soldier" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "雨雲の杖",
+      "buy": 5000,
+      "sell": 3750,
+      "ability": 16,
+      "occups": [ "wizard", "monk", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "諸刃の剣",
+      "buy": 5000,
+      "sell": 3750,
+      "ability": 115,
+      "occups": [ "hero", "soldier" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "刃のブーメラン",
+      "buy": 5500,
+      "sell": 4125,
+      "ability": 24,
+      "occups": [ "hero", "wizard", "merchant", "playboy", "thief" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "炎のブーメラン",
+      "buy": 6500,
+      "sell": 4875,
+      "ability": 42,
+      "occups": [ "hero", "wizard", "merchant", "playboy", "thief" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "大金づち",
+      "buy": 6500,
+      "sell": 4875,
+      "ability": 55,
+      "occups": [ "soldier" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "ドラゴンテイル",
+      "buy": 6600,
+      "sell": 4950,
+      "ability": 52,
+      "occups": [ "hero", "soldier", "playboy", "thief", "wise" ],
+      "group": 0,
+      "whole": 1
+    },
+    {
+      "name": "ルーンスタッフ",
+      "buy": 6800,
+      "sell": 5100,
+      "ability": 40,
+      "occups": [ "wizard", "monk", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "さざ波の杖",
+      "buy": 7000,
+      "sell": 5250,
+      "ability": 33,
+      "occups": [ "wizard", "monk", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "パワーナックル",
+      "buy": 7100,
+      "sell": 5325,
+      "ability": 40,
+      "occups": [ "fighter", "thief" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "魔法のソロバン",
+      "buy": 7700,
+      "sell": 5775,
+      "ability": 45,
+      "occups": [ "merchant" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "ガイアの剣",
+      "buy": 7800,
+      "sell": 5850,
+      "ability": 51,
+      "occups": [ "hero", "soldier" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "黄金の爪",
+      "buy": 8000,
+      "sell": 6000,
+      "ability": 50,
+      "occups": [ "fighter" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "くさなぎの剣",
+      "buy": 8400,
+      "sell": 6300,
+      "ability": 65,
+      "occups": [ "hero", "soldier", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "バトルアックス",
+      "buy": 8700,
+      "sell": 6525,
+      "ability": 60,
+      "occups": [ "soldier" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "ウォーハンマー",
+      "buy": 9500,
+      "sell": 7125,
+      "ability": 70,
+      "occups": [ "soldier" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "誘惑の剣",
+      "buy": 9800,
+      "sell": 7350,
+      "ability": 50,
+      "occups": [ "soldier", "merchant", "playboy", "thief" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "ゾンビキラー",
+      "buy": 9800,
+      "sell": 7350,
+      "ability": 67,
+      "occups": [ "hero", "soldier", "monk", "merchant", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "稲妻の剣",
+      "buy": 10000,
+      "sell": 7500,
+      "ability": 82,
+      "occups": [ "hero", "soldier" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "魔人のオノ",
+      "buy": 12000,
+      "sell": 9000,
+      "ability": 105,
+      "occups": [ "soldier" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "賢者の杖",
+      "buy": 15000,
+      "sell": 11250,
+      "ability": 50,
+      "occups": [ "wizard", "monk", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "ドラゴンキラー",
+      "buy": 15000,
+      "sell": 11250,
+      "ability": 79,
+      "occups": [ "hero", "soldier" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "ドラゴンクロウ",
+      "buy": 17000,
+      "sell": 12750,
+      "ability": 85,
+      "occups": [ "fighter", "merchant", "thief" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "吹雪の剣",
+      "buy": 23000,
+      "sell": 17250,
+      "ability": 90,
+      "occups": [ "hero", "soldier" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "ハヤブサの剣",
+      "buy": 25000,
+      "sell": 18750,
+      "ability": 5,
+      "occups": [ "hero", "merchant", "thief", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "正義のソロバン",
+      "buy": 25000,
+      "sell": 18750,
+      "ability": 110,
+      "occups": [ "merchant" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "グリンガムのムチ",
+      "buy": 28000,
+      "sell": 21000,
+      "ability": 105,
+      "occups": [ "hero", "soldier", "playboy", "thief", "wise" ],
+      "group": 0,
+      "whole": 1
+    },
+    {
+      "name": "バスタードソード",
+      "buy": 31000,
+      "sell": 23250,
+      "ability": 105,
+      "occups": [ "hero", "soldier" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "王者の剣",
+      "buy": 35000,
+      "sell": 26250,
+      "ability": 120,
+      "occups": [ "hero" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "破壊の鉄球",
+      "buy": 37000,
+      "sell": 27750,
+      "ability": 135,
+      "occups": [ "hero", "soldier", "fighter", "thief", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "復活の杖",
+      "buy": 45000,
+      "sell": 33750,
+      "ability": 33,
+      "occups": [ "monk", "wise" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "破壊の剣",
+      "buy": 45000,
+      "sell": 33750,
+      "ability": 110,
+      "occups": [ "hero", "soldier" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "雷神の剣",
+      "buy": 65000,
+      "sell": 48750,
+      "ability": 95,
+      "occups": [ "hero", "soldier" ],
+      "group": 0,
+      "whole": 0
+    },
+    {
+      "name": "ルビスの剣",
+      "buy": 98000,
+      "sell": 73500,
+      "ability": 165,
+      "occups": [ "hero", "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise" ],
+      "group": 0,
+      "whole": 0
+    }
+  ],
+  "armors": [
+    {
+      "name": "危ない水着",
+      "buy": 78000,
+      "sell": 58500,
+      "ability": 1,
+      "occups": [ "hero", "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise" ],
+      "limit": 2
+    },
+    {
+      "name": "ぬののふく",
+      "buy": 10,
+      "sell": 7,
+      "ability": 4,
+      "occups": [ "hero", "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "たびびとのふく",
+      "buy": 70,
+      "sell": 52,
+      "ability": 8,
+      "occups": [ "hero", "soldier", "wizard", "monk", "merchant", "playboy", "thief", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "ステテコパンツ",
+      "buy": 120,
+      "sell": 90,
+      "ability": 10,
+      "occups": [ "hero", "soldier", "monk", "merchant", "playboy", "thief" ],
+      "limit": 1
+    },
+    {
+      "name": "けいこぎ",
+      "buy": 80,
+      "sell": 60,
+      "ability": 10,
+      "occups": [ "fighter", "playboy", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "かめのこうら",
+      "buy": 330,
+      "sell": 247,
+      "ability": 11,
+      "occups": [ "wizard", "merchant", "playboy" ],
+      "limit": 0
+    },
+    {
+      "name": "かわのよろい",
+      "buy": 150,
+      "sell": 112,
+      "ability": 12,
+      "occups": [ "hero", "soldier", "monk", "merchant", "thief", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "かわのドレス",
+      "buy": 420,
+      "sell": 315,
+      "ability": 15,
+      "occups": [ "hero", "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise" ],
+      "limit": 2
+    },
+    {
+      "name": "こうらのよろい",
+      "buy": 350,
+      "sell": 262,
+      "ability": 16,
+      "occups": [ "hero", "soldier", "monk", "merchant", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "くさりかたびら",
+      "buy": 480,
+      "sell": 360,
+      "ability": 20,
+      "occups": [ "hero", "soldier", "monk", "merchant", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "絹のローブ",
+      "buy": 1500,
+      "sell": 1125,
+      "ability": 20,
+      "occups": [ "hero", "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise" ],
+      "limit": 2
+    },
+    {
+      "name": "鉄のまえかけ",
+      "buy": 700,
+      "sell": 525,
+      "ability": 22,
+      "occups": [ "merchant" ],
+      "limit": 0
+    },
+    {
+      "name": "武闘着",
+      "buy": 800,
+      "sell": 600,
+      "ability": 23,
+      "occups": [ "fighter", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "身かわしの服",
+      "buy": 2900,
+      "sell": 2175,
+      "ability": 23,
+      "occups": [ "hero", "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "皮の腰巻",
+      "buy": 800,
+      "sell": 600,
+      "ability": 24,
+      "occups": [ "hero", "soldier", "merchant", "playboy" ],
+      "limit": 0
+    },
+    {
+      "name": "鉄の鎧",
+      "buy": 1100,
+      "sell": 825,
+      "ability": 25,
+      "occups": [ "hero", "soldier", "merchant" ],
+      "limit": 0
+    },
+    {
+      "name": "マジカルスカート",
+      "buy": 1500,
+      "sell": 1125,
+      "ability": 25,
+      "occups": [ "hero", "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "派手な服",
+      "buy": 1300,
+      "sell": 975,
+      "ability": 28,
+      "occups": [ "playboy" ],
+      "limit": 0
+    },
+    {
+      "name": "黒装束",
+      "buy": 2400,
+      "sell": 1800,
+      "ability": 29,
+      "occups": [ "fighter", "thief" ],
+      "limit": 0
+    },
+    {
+      "name": "魔法の法衣",
+      "buy": 4400,
+      "sell": 3300,
+      "ability": 30,
+      "occups": [ "hero", "soldier", "monk", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "不思議なボレロ",
+      "buy": 500,
+      "sell": 375,
+      "ability": 30,
+      "occups": [ "hero", "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "鋼の鎧",
+      "buy": 2400,
+      "sell": 1800,
+      "ability": 32,
+      "occups": [ "hero", "soldier" ],
+      "limit": 0
+    },
+    {
+      "name": "ぬいぐるみ",
+      "buy": 350,
+      "sell": 262,
+      "ability": 35,
+      "occups": [ "hero", "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "天使のローブ",
+      "buy": 3000,
+      "sell": 2250,
+      "ability": 35,
+      "occups": [ "wizard", "monk", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "魔法の鎧",
+      "buy": 5800,
+      "sell": 4350,
+      "ability": 40,
+      "occups": [ "hero", "soldier", "monk", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "パーティドレス",
+      "buy": 12800,
+      "sell": 8850,
+      "ability": 40,
+      "occups": [ "playboy", "thief" ],
+      "limit": 2
+    },
+    {
+      "name": "お洒落なスーツ",
+      "buy": 13199.99967,
+      "sell": 9900,
+      "ability": 42,
+      "occups": [ "playboy", "thief" ],
+      "limit": 1
+    },
+    {
+      "name": "ドラゴンメイル",
+      "buy": 9800,
+      "sell": 7350,
+      "ability": 45,
+      "occups": [ "hero", "soldier" ],
+      "limit": 0
+    },
+    {
+      "name": "魔法のまえかけ",
+      "buy": 9900,
+      "sell": 7425,
+      "ability": 45,
+      "occups": [ "merchant" ],
+      "limit": 0
+    },
+    {
+      "name": "大地の鎧",
+      "buy": 12000,
+      "sell": 9000,
+      "ability": 50,
+      "occups": [ "hero", "soldier" ],
+      "limit": 0
+    },
+    {
+      "name": "水の羽衣",
+      "buy": 12500,
+      "sell": 9375,
+      "ability": 50,
+      "occups": [ "wizard", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "刃の鎧",
+      "buy": 6500,
+      "sell": 4875,
+      "ability": 55,
+      "occups": [ "hero", "soldier", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "忍びの服",
+      "buy": 4200,
+      "sell": 3150,
+      "ability": 58,
+      "occups": [ "fighter", "thief" ],
+      "limit": 0
+    },
+    {
+      "name": "魔法のビキニ",
+      "buy": 5000,
+      "sell": 3750,
+      "ability": 65,
+      "occups": [ "hero", "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise" ],
+      "limit": 2
+    },
+    {
+      "name": "地獄の鎧",
+      "buy": 7000,
+      "sell": 5250,
+      "ability": 65,
+      "occups": [ "hero", "soldier" ],
+      "limit": 0
+    },
+    {
+      "name": "闇の衣",
+      "buy": 16500,
+      "sell": 12375,
+      "ability": 78,
+      "occups": [ "fighter", "playboy", "thief" ],
+      "limit": 0
+    },
+    {
+      "name": "ドラゴンローブ",
+      "buy": 27000,
+      "sell": 20250,
+      "ability": 80,
+      "occups": [ "wizard", "monk", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "光の鎧",
+      "buy": 24000,
+      "sell": 18000,
+      "ability": 82,
+      "occups": [ "hero" ],
+      "limit": 0
+    },
+    {
+      "name": "神秘のビキニ",
+      "buy": 33000,
+      "sell": 24750,
+      "ability": 88,
+      "occups": [ "hero", "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise" ],
+      "limit": 2
+    },
+    {
+      "name": "光のドレス",
+      "buy": 19000,
+      "sell": 14250,
+      "ability": 90,
+      "occups": [ "hero", "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise" ],
+      "limit": 2
+    }
+  ],
+  "shields": [
+    {
+      "name": "おなべのフタ",
+      "buy": 50,
+      "sell": 37,
+      "ability": 2,
+      "occups": [ "hero", "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise" ]
+    },
+    {
+      "name": "かわのたて",
+      "buy": 90,
+      "sell": 67,
+      "ability": 4,
+      "occups": [ "hero", "soldier", "monk", "merchant", "playboy", "thief", "wise" ]
+    },
+    {
+      "name": "せいどうのたて",
+      "buy": 250,
+      "sell": 187,
+      "ability": 7,
+      "occups": [ "hero", "soldier", "monk", "merchant", "thief" ]
+    },
+    {
+      "name": "うろこのたて",
+      "buy": 600,
+      "sell": 450,
+      "ability": 12,
+      "occups": [ "hero", "soldier", "monk", "merchant", "playboy", "thief", "wise" ]
+    },
+    {
+      "name": "てつのたて",
+      "buy": 1200,
+      "sell": 900,
+      "ability": 20,
+      "occups": [ "hero", "soldier", "merchant" ]
+    },
+    {
+      "name": "まほうのたて",
+      "buy": 2000,
+      "sell": 1500,
+      "ability": 25,
+      "occups": [ "hero", "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise" ]
+    },
+    {
+      "name": "ドラゴンシールド",
+      "buy": 3500,
+      "sell": 2625,
+      "ability": 32,
+      "occups": [ "hero", "soldier", "thief" ]
+    },
+    {
+      "name": "ふうじんのたて",
+      "buy": 6500,
+      "sell": 4875,
+      "ability": 35,
+      "occups": [ "hero", "soldier", "fighter", "merchant", "playboy", "thief", "wise" ]
+    },
+    {
+      "name": "水鏡の盾",
+      "buy": 8800,
+      "sell": 6600,
+      "ability": 40,
+      "occups": [ "hero", "soldier", "monk", "thief", "wise" ]
+    },
+    {
+      "name": "嘆きの盾",
+      "buy": 11000,
+      "sell": 7,
+      "ability": 42,
+      "occups": [ "hero", "soldier" ]
+    },
+    {
+      "name": "ちからのたて",
+      "buy": 15000,
+      "sell": 11250,
+      "ability": 50,
+      "occups": [ "hero", "soldier" ]
+    },
+    {
+      "name": "オーガシールド",
+      "buy": 25000,
+      "sell": 18750,
+      "ability": 60,
+      "occups": [ "hero", "soldier" ]
+    },
+    {
+      "name": "勇者の盾",
+      "buy": 38000,
+      "sell": 28500,
+      "ability": 65,
+      "occups": [ "hero" ]
+    }
+  ],
+  "helmets": [
+    {
+      "name": "かわのぼうし",
+      "buy": 80,
+      "sell": 60,
+      "ability": 2,
+      "occups": [ "hero", "soldier", "wizard", "monk", "merchant", "playboy", "thief", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "きのぼうし",
+      "buy": 140,
+      "sell": 105,
+      "ability": 6,
+      "occups": [ "hero", "soldier", "monk", "merchant", "playboy", "thief", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "きんのかんむり",
+      "buy": 160,
+      "sell": 120,
+      "ability": 6,
+      "occups": [ "hero", "soldier", "wizard", "monk", "merchant", "playboy", "thief", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "ふしぎなぼうし",
+      "buy": 9800,
+      "sell": 6,
+      "ability": 8,
+      "occups": [ "wizard", "monk", "merchant", "playboy", "thief", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "ターバン",
+      "buy": 160,
+      "sell": 120,
+      "ability": 8,
+      "occups": [ "merchant", "playboy" ],
+      "limit": 0
+    },
+    {
+      "name": "けがわのフード",
+      "buy": 250,
+      "sell": 187,
+      "ability": 10,
+      "occups": [ "hero", "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise" ],
+      "limit": 2
+    },
+    {
+      "name": "うさ耳バンド",
+      "buy": 520,
+      "sell": 390,
+      "ability": 15,
+      "occups": [ "merchant", "playboy" ],
+      "limit": 2
+    },
+    {
+      "name": "てつかぶと",
+      "buy": 1000,
+      "sell": 750,
+      "ability": 16,
+      "occups": [ "hero", "soldier", "monk", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "くろずきん",
+      "buy": 1200,
+      "sell": 900,
+      "ability": 18,
+      "occups": [ "fighter", "thief" ],
+      "limit": 0
+    },
+    {
+      "name": "きんのかみかざり",
+      "buy": 760,
+      "sell": 570,
+      "ability": 20,
+      "occups": [ "hero", "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise" ],
+      "limit": 2
+    },
+    {
+      "name": "シルクハット",
+      "buy": 1200,
+      "sell": 900,
+      "ability": 20,
+      "occups": [ "merchant", "playboy" ],
+      "limit": 1
+    },
+    {
+      "name": "とんがりぼうし",
+      "buy": 2300,
+      "sell": 1725,
+      "ability": 21,
+      "occups": [ "monk", "playboy", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "てっかめん",
+      "buy": 3500,
+      "sell": 2625,
+      "ability": 25,
+      "occups": [ "hero", "soldier" ],
+      "limit": 0
+    },
+    {
+      "name": "オルテガのかぶと",
+      "buy": 8200,
+      "sell": 6150,
+      "ability": 30,
+      "occups": [ "hero" ],
+      "limit": 0
+    },
+    {
+      "name": "ふこうのかぶと",
+      "buy": 16000,
+      "sell": 13,
+      "ability": 35,
+      "occups": [ "hero", "soldier" ],
+      "limit": 0
+    },
+    {
+      "name": "ミスリルヘルム",
+      "buy": 18000,
+      "sell": 13500,
+      "ability": 38,
+      "occups": [ "hero", "soldier", "wizard", "monk", "merchant", "thief", "wise" ],
+      "limit": 0
+    },
+    {
+      "name": "グレートヘルム",
+      "buy": 35000,
+      "sell": 26250,
+      "ability": 45,
+      "occups": [ "hero", "soldier" ],
+      "limit": 0
+    },
+    {
+      "name": "はんにゃのめん",
+      "buy": 98000,
+      "sell": 1,
+      "ability": 255,
+      "occups": [ "hero", "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise" ],
+      "limit": 0
+    }
+  ],
+  "accessorys": [
+    {
+      "name": "モヒカンのけ",
+      "buy": 60,
+      "sell": 45,
+      "ability": "defense:3",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 0
+    },
+    {
+      "name": "にげにげリング",
+      "buy": 100,
+      "sell": 75,
+      "ability": "speed:7",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 0
+    },
+    {
+      "name": "いしのカツラ",
+      "buy": 200,
+      "sell": 150,
+      "ability": "defense:5",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 0
+    },
+    {
+      "name": "くじけぬこころ",
+      "buy": 250,
+      "sell": 187,
+      "ability": "stamina:10",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 0
+    },
+    {
+      "name": "うさぎのしっぽ",
+      "buy": 270,
+      "sell": 202,
+      "ability": "luck:8",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 0
+    },
+    {
+      "name": "ちからのゆびわ",
+      "buy": 350,
+      "sell": 260,
+      "ability": "attack:7",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 0
+    },
+    {
+      "name": "はくはいリング",
+      "buy": 660,
+      "sell": 495,
+      "ability": "wise:10",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 0
+    },
+    {
+      "name": "ヘビメタリング",
+      "buy": 680,
+      "sell": 510,
+      "ability": "speed:10",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 0
+    },
+    {
+      "name": "きんのロザリオ",
+      "buy": 880,
+      "sell": 660,
+      "ability": "defense:4",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 0
+    },
+    {
+      "name": "スライムピアス",
+      "buy": 950,
+      "sell": 712,
+      "ability": "luck:10",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 0
+    },
+    {
+      "name": "しっぷうのバンダナ",
+      "buy": 1000,
+      "sell": 727,
+      "ability": "speed:12",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 0
+    },
+    {
+      "name": "きんのネックレス",
+      "buy": 1000,
+      "sell": 750,
+      "ability": "stamina:10",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 0
+    },
+    {
+      "name": "いかりのタトゥー",
+      "buy": 1100,
+      "sell": 825,
+      "ability": "attack:8",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 0
+    },
+    {
+      "name": "ガーターベルト",
+      "buy": 1300,
+      "sell": 975,
+      "ability": "defense:3",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 2
+    },
+    {
+      "name": "インテリめがね",
+      "buy": 1700,
+      "sell": 1275,
+      "ability": "wise:15",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 0
+    },
+    {
+      "name": "ルーズソックス",
+      "buy": 2200,
+      "sell": 1650,
+      "ability": "defense:5",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 2
+    },
+    {
+      "name": "いのちのゆびわ",
+      "buy": 2400,
+      "sell": 1800,
+      "ability": "stamina:25",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 0
+    },
+    {
+      "name": "しっぷうのリング",
+      "buy": 3100,
+      "sell": 2325,
+      "ability": "speed:15",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 0
+    },
+    {
+      "name": "ごうけつのうでわ",
+      "buy": 4500,
+      "sell": 3375,
+      "ability": "attack:15",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 0
+    },
+    {
+      "name": "パワーベルト",
+      "buy": 4500,
+      "sell": 3375,
+      "ability": "stamina:15",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 0
+    },
+    {
+      "name": "おうごんのティアラ",
+      "buy": 5000,
+      "sell": 3750,
+      "ability": "luck:13",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 2
+    },
+    {
+      "name": "きんのクチバシ",
+      "buy": 7700,
+      "sell": 5775,
+      "ability": "luck:20",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 1
+    },
+    {
+      "name": "ルビーのうでわ",
+      "buy": 9800,
+      "sell": 7350,
+      "ability": "defense:10",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 0
+    },
+    {
+      "name": "せいなるまもり",
+      "buy": 16000,
+      "sell": 12000,
+      "ability": "luck:30",
+      "occups": [ "soldier" ],
+      "limit": 0
+    },
+    {
+      "name": "めがみのゆびわ",
+      "buy": 17000,
+      "sell": 12750,
+      "ability": "wise:33",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 0
+    },
+    {
+      "name": "ほしふるうでわ",
+      "buy": 20000,
+      "sell": 15000,
+      "ability": "speed:*2",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 0
+    },
+    {
+      "name": "しあわせのくつ",
+      "buy": 24000,
+      "sell": 18000,
+      "ability": "luck:50",
+      "occups": [ "soldier", "fighter", "wizard", "monk", "merchant", "playboy", "thief", "wise", "&@。" ],
+      "limit": 0
+    }
+  ]
+}

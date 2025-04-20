@@ -1,4 +1,4 @@
-class OccupationData {
+export default class OccupationData {
     static datas = [];
 
     // データロード関数
@@ -27,5 +27,3 @@ class OccupationData {
         return levelData;
     }
 }
-
-export default OccupationData;

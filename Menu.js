@@ -6,8 +6,6 @@ class Menu {
         this.scene = scene;
         x *= SCALE;
         y *= SCALE;
-        this.x = x;
-        this.y = y;
         this.width = w;
         this.height = h;
         this.idx = idx;
@@ -38,15 +36,23 @@ class Menu {
         this.timer.remove();
     }
 
-    setStrList(strList) {
+    setVisible(onoff) {
+        this.drawList.setVisible(onoff);
+        this.textList.setVisible(onoff);
+    }
+
+    setStrList(strList, equip=false) {
         this.textList.removeAll(true);
         this.strList = strList;
+        if (!strList) return;
         for (let i = 0; i < strList.length; i++) {
             let row = (this.rowNum > 0)? i%this.rowNum : i;
             let col = (this.rowNum > 0)? Math.floor(i/this.rowNum) : 0;
             let x = 66 + col*164;
             let y = 54 + row*64;
-            this.drawText(x, y, strList[i]);
+            let str = strList[i];
+            if (equip && (str[0] != 'E' || str[1] != ':')) continue;
+            this.drawText(x, y, str);
         }
     }
 
@@ -80,7 +86,12 @@ class Menu {
     }
 
     setCursor(idx) {
-        if (idx < 0) return;
+        if (idx < 0) {
+            this.idx = -1;
+            this.fix = false;
+            this.cursor.setVisible(false);
+            return;
+        }
         let row = (this.rowNum > 0)? idx%this.rowNum : idx;
         let col = (this.rowNum > 0)? Math.floor(idx/this.rowNum) : 0;
         this.cursor.x = 42+col*167;
@@ -89,9 +100,8 @@ class Menu {
     }
 
     fixCursor(onoff) {
-        if (this.idx < 0) return;
         this.fix = onoff;
-        if (onoff) this.cursor.setVisible(true);
+        if (onoff && this.idx >= 0) this.cursor.setVisible(true);
     }
 
     createCursor() {

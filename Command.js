@@ -16,11 +16,11 @@ class Command {
     constructor(scene, members, x, y) {
         x *= SCALE;
         y *= SCALE;
+        this.x = x;
+        this.y = y;
         this.scene = scene;
         this.members = members;
         this.command = COMMAND.NONE;
-        this.drawList = scene.add.container(x, y);
-        this.drawList.setScrollFactor(0);
         this.menuList = [];
         let menu = new Menu(null, scene, cmdList, x, y, 384, 252, 3);
         menu.setTitle("コマンド", true);
@@ -50,27 +50,60 @@ class Command {
     }
 
     destroy() {
-        this.drawList.destroy();
         this.timer.remove();
     }
 
     onButtonA() {
-        let menu = this.menuList[this.menuList.length-1];
+        let cmd = this.menuList[0].idx;
         if (this.menuList.length == 1) {
-	        if (menu.idx == COMMAND.EQUIP) {
-		        drawMembers.call(this, 238, 60);
-	        } else if (menu.idx == COMMAND.SPELL) {
+	        if (cmd == COMMAND.EQUIP) {
+		        drawMembers.call(this, 151, 60);
+	        } else if (cmd == COMMAND.SPELL) {
 		        drawMembers.call(this, 246, 63);
-	        } else if (menu.idx == COMMAND.ITEM) {
+	        } else if (cmd == COMMAND.ITEM) {
 		        drawMembers.call(this, 158, 95);
 	        }
+        } else if (this.menuList.length == 3) {
+	        if (cmd == COMMAND.EQUIP) {
+		        if (this.menu.nest == 1) {
+	                let member = this.members[this.menu.idx];
+                    let menu = this.menuList[this.menuList.length-1];
+	                menu.setVisible(false);
+	                this.menu.setVisible(false);
+	                menu = new Menu(menu, this.scene, null, this.x, this.y+125, 340, 350, 0, -1);
+	                menu.setStrList(member.items, true);
+	                this.menuList.push(menu);
+                    this.buttonSound.play();
+		        }
+	        } else if (cmd == COMMAND.ITEM) {
+		        if (this.menu.nest == 1) {
+                    this.menu.fixCursor(true);
+                    this.menu = this.menuList[this.menuList.length-1];
+                    this.menu.setCursor(0);
+                    this.buttonSound.play();
+		        }
+		    }
         }
     }
 
     onButtonB() {
+        let nest = this.menu.nest;
+        let cmd = this.menuList[0].idx;
+        if (cmd == COMMAND.ITEM && nest == 2 && this.menuList.length == 3) {
+            this.menu.setCursor(-1);
+            this.menu = this.menuList[1];
+            this.menu.fixCursor(false);
+            return;
+        }
+
         let menu = this.menuList.pop();
         menu.destroy();
         if (this.menuList.length < 1) return;
+
+        if (nest == 1 && this.menuList.length == 2) {
+	        menu = this.menuList.pop();
+            menu.destroy();
+        }
         menu = this.menuList[this.menuList.length-1];
         menu.fixCursor(false);
 	    this.menu = menu;
@@ -86,53 +119,20 @@ class Command {
         else if (this.keys.right.isDown || this.wasd.right.isDown) dir = DIR.RIGHT;
         else return;
 
+        let cmd = this.menuList[0].idx;
         this.isListen = false;
         if (this.menu.moveCursor(dir)) {
-            if (this.menuList[0].idx == COMMAND.ITEM && this.menu.nest == 1 && this.menuList.length == 3) {
-                let member = this.members[this.menu.idx];
-                this.menuList[2].setStrList(member.items);
+            if (this.menu.nest == 1 && this.menuList.length == 3) {
+                if (cmd == COMMAND.EQUIP || cmd == COMMAND.ITEM) {
+	                let member = this.members[this.menu.idx];
+	                this.menuList[2].setStrList(member.items);
+	            }
             }
         }
 
         this.scene.time.delayedCall(200, () => {
 	        this.isListen = true;
         });
-    }
-
-    drawRect(x, y, w, h, title=null) {
-        let rect = this.scene.add.graphics();
-        this.drawList.add(rect);
-        rect.lineStyle(14, 0xffffff);
-        rect.fillStyle(0x000000);
-        rect.strokeRoundedRect(x, y, w, h, 5);
-        rect.fillRoundedRect(x, y, w, h, 5);
-        if (title) {
-            let tw = 2 + 33*title.length;
-            let ofsx = Math.floor((w-tw)/2);
-            this.drawFill(x+ofsx, y-9, tw, 12);
-            this.drawText(x+ofsx+4, y-14, title);
-        }
-        return rect;
-    }
-
-    drawFill(x, y, w, h, col=0x000000) {
-        let rect = this.scene.add.graphics();
-        this.drawList.add(rect);
-        rect.fillStyle(col);
-        rect.fillRect(x, y, w, h);
-    }
-
-    drawText(x, y, msg) {
-        for (const ch of msg) {
-	        let text = this.scene.add.text(x, y, ch, {
-	            fontFamily: "PixelMplus10-Regular",
-	            fontSize: '38px',
-	            color: '#ffffff'
-            });
-	        this.drawList.add(text);
-	        text.setScale(0.9, 1.0);
-	        x += 30;
-	    }
     }
 }
 
@@ -150,7 +150,7 @@ function drawMembers(x, y) {
     this.menu = menu;
 
     let member = this.members[0];
-    menu = new Menu(menu, this.scene, member.items, x+114, 31, 310, 430, 0, -1);
+    menu = new Menu(menu, this.scene, member.items, this.x+191, 31, 310, 430, 0, -1);
     this.menuList.push(menu);
 }
 

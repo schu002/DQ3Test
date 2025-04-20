@@ -19,6 +19,15 @@ window.ACTION = {
     ESCAPE	: 5
 };
 
+window.EQUIP = {
+    NONE	: 0,
+    WEAPON	: 1,
+    ARMOR	: 2,
+    SHIELD	: 3,
+    HELMET	: 4,
+    ACCESS	: 5,
+};
+
 export function updatePosition(position, dir)
 {
     if		(dir == DIR.DOWN)  position[0] += 1;
