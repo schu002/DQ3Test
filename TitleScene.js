@@ -60,7 +60,7 @@ class TitleScene extends Phaser.Scene {
 
         OccupationData.loadData(this);
         EquipmentData.loadData(this, (ok) => {
-            if (ok) console.log("EquipmentData.load");
+            // if (ok) console.log("EquipmentData.load");
         });
         MonsterData.loadData(this);
 

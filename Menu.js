@@ -1,5 +1,6 @@
+import EquipmentData from "./EquipmentData.js";
 
-class Menu {
+export default class Menu {
     constructor(parent, scene, strList, x, y, w, h, row=0, idx=0) {
         this.parent = parent;
         this.nest = (parent)? parent.nest+1 : 0;
@@ -15,7 +16,7 @@ class Menu {
         this.drawList.setScrollFactor(0);
         this.textList = scene.add.container(x, y);
         this.textList.setScrollFactor(0);
-        this.drawRect(0, 0, w, h);
+        if (w > 0 && h > 0) this.drawRect(0, 0, w, h);
         this.setStrList(strList);
         this.createCursor();
         if (idx >= 0) this.setCursor(idx);
@@ -118,6 +119,7 @@ class Menu {
         this.cursor.closePath();
         this.cursor.fillPath();
         this.cursor.setVisible(false);
+        this.cursor.setDepth(10);
         this.fix = false;
     }
 
@@ -129,6 +131,7 @@ class Menu {
         rect.fillStyle(0x000000);
         rect.strokeRoundedRect(x+10, y+10, w-20, h-20, 5);
         rect.fillRoundedRect(x+10, y+10, w-20, h-20, 5);
+        rect.setDepth(3);
         return rect;
     }
 
@@ -137,6 +140,7 @@ class Menu {
         this.drawList.add(rect);
         rect.fillStyle(col);
         rect.fillRect(x, y, w, h);
+        rect.setDepth(5);
     }
 
     drawText(x, y, msg, col='#ffffff') {
@@ -147,6 +151,7 @@ class Menu {
 	            fontSize: '32px',
 	            color: col
             });
+	        text.setDepth(6);
             this.textList.add(text);
         }
 
@@ -156,11 +161,30 @@ class Menu {
 	            fontSize: '38px',
 	            color: col
             });
+	        text.setDepth(6);
             this.textList.add(text);
 	        text.setScale(0.9, 1.0);
 	        x += 30;
 	    }
     }
-}
 
-export default Menu;
+    setEquipment(member, equip) {
+        const titleList = ["ぶき", "よろい", "たて", "かぶと"];
+        let strList = [];
+        for (let i = 0; i < member.items.length; i++) {
+            let item = member.items[i];
+            let isEquip = (item.length > 2 && item[0] == 'E' && item[1] == ':')? true : false;
+            let itemName = (isEquip)? item.substr(2, item.length-2) : item;
+            const type = EquipmentData.getTypeByName(itemName);
+            if (type != equip) continue;
+            strList.push(item);
+        }
+        strList.push("そうびしない");
+        this.height = 61 + strList.length*64;
+        this.drawRect(0, 0, this.width, this.height);
+        this.setStrList(strList);
+        this.setTitle(titleList[equip-1], true);
+        this.cursor.setVisible(true);
+        this.drawList.bringToTop(this.cursor);
+    }
+}

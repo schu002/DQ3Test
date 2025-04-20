@@ -66,14 +66,20 @@ class Command {
         } else if (this.menuList.length == 3) {
 	        if (cmd == COMMAND.EQUIP) {
 		        if (this.menu.nest == 1) {
-	                let member = this.members[this.menu.idx];
-                    let menu = this.menuList[this.menuList.length-1];
-	                menu.setVisible(false);
-	                this.menu.setVisible(false);
-	                menu = new Menu(menu, this.scene, null, this.x, this.y+125, 340, 350, 0, -1);
-	                menu.setStrList(member.items, true);
-	                this.menuList.push(menu);
                     this.buttonSound.play();
+	                let member = this.members[this.menu.idx];
+                    let menu1 = this.menuList[this.menuList.length-1];
+	                menu1.setVisible(false);
+	                this.menu.setVisible(false);
+	                // 装備一覧を左下に表示
+	                let menu2 = new Menu(menu1, this.scene, null, this.x, this.y+125, 340, 290, 0, -1);
+	                menu2.setStrList(member.items, true);
+	                this.menuList.push(menu2);
+	                // 装備選択画面を右上に表示
+	                let menu3 = new Menu(menu1, this.scene, null, this.x+191, this.y, 300, 0);
+	                menu3.setEquipment(member, EQUIP.WEAPON);
+	                this.menuList.push(menu3);
+	                this.menu = menu3;
 		        }
 	        } else if (cmd == COMMAND.ITEM) {
 		        if (this.menu.nest == 1) {
