@@ -3,7 +3,6 @@ import TownScene from "./town.js";
 import BattleScene from "./battle.js";
 import OccupationData from "./OccupationData.js";
 import Command from "./Command.js";
-import DrawStatus from "./DrawStatus.js";
 import { updatePosition, getInverseDir } from "./util.js";
 
 const TILE_OBS = 22;
@@ -46,7 +45,6 @@ class FieldScene extends Phaser.Scene {
         });
         player = this.members[0];
         this.isMoving = false;
-        this.status = null;
 
         // カメラ設定
         this.cameras.main.startFollow(player.sprite);
@@ -82,7 +80,7 @@ class FieldScene extends Phaser.Scene {
 
     update() {
         if (this.isMoving) return;
-        if (this.status) return;
+        if (this.command) return;
 
         let newDir = -1;
         if		(this.keys.left.isDown	|| this.wasd.left.isDown)  newDir = DIR.LEFT;
@@ -122,22 +120,13 @@ class FieldScene extends Phaser.Scene {
         if (this.command) {
             this.command.destroy();
             this.command = null;
-            if (this.status) {
-    	        this.status.destroy();
-    		    this.status = null;
-    		}
         } else {
             this.command = new Command(this, this.members);
-            this.status = new DrawStatus(this, this.members, 85, 304);
             this.buttonSound.play();
         }
     }
 
     onButtonB() {
-        if (this.status) {
-            this.status.destroy();
-    	    this.status = null;
-        }
     }
 
     postMove(pos) {

@@ -1,4 +1,5 @@
 import Menu from "./Menu.js";
+import DrawStatus from "./DrawStatus.js";
 
 const COMMAND = {
     NONE	: -1,
@@ -28,6 +29,7 @@ export default class Command {
         this.menu = menu;
         this.buttonSound = scene.sound.add("button", { loop: false, volume: 0.2 });
         this.buttonSound.play();
+        this.status = new DrawStatus(scene, members, 80, 304);
 
         scene.input.keyboard.on("keydown-Z", this.onButtonA, this);
         scene.input.keyboard.on("keydown-X", this.onButtonB, this);
@@ -50,7 +52,7 @@ export default class Command {
     }
 
     destroy() {
-        console.log("destroy");
+        this.status.destroy();
         this.scene.input.keyboard.off("keydown-Z", this.onButtonA, this);
         this.scene.input.keyboard.off("keydown-X", this.onButtonB, this);
         this.timer.remove();

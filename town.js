@@ -3,7 +3,6 @@ import FieldScene from "./field.js";
 import MonsterData from "./MonsterData.js";
 import OccupationData from "./OccupationData.js";
 import Command from "./Command.js";
-import DrawStatus from "./DrawStatus.js";
 import { updatePosition, getInverseDir } from "./util.js";
 
 // 移動間隔
@@ -34,7 +33,7 @@ class TownScene extends Phaser.Scene {
         this.input.keyboard.on("keydown-X", this.onButtonB, this);
 
         // 会話ウィンドウ（黒い背景の四角）を作成
-        this.drawRect(332, 500, 310, 148);
+        this.drawRect(166, 550, 628, 305);
     }
 
     onButtonA() {
@@ -43,15 +42,9 @@ class TownScene extends Phaser.Scene {
 		    let npc = this.findNPC(player);
 		    if (!npc) {
 		        if (this.command) {
-		            /* this.command.destroy();
-		            this.command = null;
-		            if (this.status) {
-			            this.status.destroy();
-			            this.status = null;
-			        } */
+		            // this.command.destroy();
 		        } else {
 		            this.command = new Command(this, members);
-		            this.status = new DrawStatus(this, members, 80, 304);
 		        }
 	            return;
 	        }
@@ -75,9 +68,7 @@ class TownScene extends Phaser.Scene {
 
     exitCommand() {
         this.command.destroy();
-        this.status.destroy();
         this.command = null;
-        this.status = null;
     }
 
     findNPC(player) {
@@ -95,8 +86,8 @@ class TownScene extends Phaser.Scene {
 	    return npc;
     }
 
-    drawCursor(x, y, blink=true) {
-        const w = 18, h = 10;
+    drawDownArrow(x, y, blink=true) {
+        const w = 30, h = 18;
         this.cursor = this.add.graphics();
         this.cursor.fillStyle(0xffffff, 1); // FAs
         this.cursor.beginPath();
@@ -216,7 +207,6 @@ function create() {
     this.luidaLayer.setScale(SCALE);
     this.luidaLayer.setVisible(false);
     this.command = null;
-    this.status = null;
 
     // プレイヤーを追加
     const startData = townData.start;
@@ -277,7 +267,6 @@ function create() {
 
 function update(time) {
     if (this.isMoving) return;
-    if (this.status) return;
     if (this.command) return;
 
     let newDir = -1;
@@ -357,7 +346,7 @@ function updateTalk() {
         chList.push('\n');
     }
 
-    let idx = 0, x = 340, y = 524;
+    let idx = 0, x = 180, y = 600;
     this.time.addEvent({
         delay: 10,
         repeat: chList.length-1,
@@ -365,22 +354,22 @@ function updateTalk() {
 		    if ((idx % 6) == 0) talkBGM.play();
             let ch = chList[idx++];
             if (ch == '\n') {
-                x = 340;
-                y += 32;
+                x = 180;
+                y += 64;
             } else if (ch == '▼') {
-                this.drawCursor(488, y);
+                this.drawDownArrow(488, y);
                 container.add(this.cursor);
             } else {
 	            let text = this.add.text(x, y, ch, {
 	                fontFamily: "PixelMplus10-Regular",
-	                fontSize: '18px',
+	                fontSize: '34px',
 	                color: '#ffffff'
 	            });
 		        text.setScrollFactor(0);
-		        text.setScale(0.9, 1.0);
+		        text.setScale(0.95, 1.0);
 		        text.setDepth(11);
 		        container.add(text);
-		        x += 17;
+		        x += 34;
 	        }
         }
     });
