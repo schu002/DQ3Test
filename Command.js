@@ -12,24 +12,34 @@ const COMMAND = {
 };
 
 const WIN_X = 40 * SCALE;
-const WIN_Y = 16 * SCALE;
+const WIN_Y = 8 * SCALE;
 const WIN_W = 384;
 const WIN_H = 252;
 const cmdList = ["はなす", "つよさ", "そうび", "じゅもん", "どうぐ", "しらべる"];
 
 export default class Command {
-    constructor(scene, members) {
+    constructor(scene, members, npc) {
         this.scene = scene;
         this.members = members;
+        this.npc = npc;
         this.command = COMMAND.NONE;
         this.menuList = [];
+        this.status = null;
         let menu = new Menu(null, scene, cmdList, WIN_X, WIN_Y, WIN_W, WIN_H, 3);
         menu.setTitle("コマンド", true);
         this.menuList.push(menu);
         this.menu = menu;
         this.buttonSound = scene.sound.add("button", { loop: false, volume: 0.2 });
         this.buttonSound.play();
-        this.status = new DrawStatus(scene, members, 80, 304);
+        if (npc) {
+            menu.fixCursor(true);
+            this.command = COMMAND.TALK;
+            let talk = new Menu(menu, scene, npc.talks, 80, 270, 640, 320);
+            this.menuList.push(talk);
+            this.menu = talk;
+        } else {
+            this.status = new DrawStatus(scene, members, 80, 304);
+        }
 
         scene.input.keyboard.on("keydown-Z", this.onButtonA, this);
         scene.input.keyboard.on("keydown-X", this.onButtonB, this);
@@ -52,7 +62,7 @@ export default class Command {
     }
 
     destroy() {
-        this.status.destroy();
+        if (this.status) this.status.destroy();
         this.scene.input.keyboard.off("keydown-Z", this.onButtonA, this);
         this.scene.input.keyboard.off("keydown-X", this.onButtonB, this);
         this.timer.remove();

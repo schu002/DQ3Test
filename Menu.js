@@ -3,6 +3,7 @@ import { getNumberStr } from "./util.js";
 
 export default class Menu {
     constructor(parent, scene, strList, x, y, w, h, row=0, idx=0) {
+        let strlen = (strList)? strList.lenght : 0;
         this.parent = parent;
         this.nest = (parent)? parent.nest+1 : 0;
         this.scene = scene;
@@ -12,21 +13,27 @@ export default class Menu {
         this.height = h;
         this.idx = idx;
         this.rowNum = row;
-        this.colNum = (row > 0 && row < strList.length)? 2 : 1;
+        this.colNum = (row > 0 && strlen)? 2 : 1;
         this.drawList = scene.add.container(x, y);
         this.drawList.setScrollFactor(0);
         this.textList = scene.add.container(x, y);
         this.textList.setScrollFactor(0);
         if (w > 0 && h > 0) this.drawRect(0, 0, w, h);
-        this.setStrList(strList);
-        this.createCursor();
-        if (idx >= 0) this.setCursor(idx);
+        if (parent && parent.idx == 0) {
+            this.talkBGM = scene.sound.add("talk", { loop: false, volume: 0.2 });
+            this.talkList = [...strList];
+            this.updateTalk();
+        } else {
+            this.setStrList(strList);
+            this.createCursor();
+            if (idx >= 0) this.setCursor(idx);
+        }
 
         this.timer = scene.time.addEvent({
             delay: 270,
             loop: true,
             callback: () => {
-                if (!this.fix && this.idx >= 0)
+                if (!this.fix && this.idx >= 0 && this.cursor)
                     this.cursor.setVisible(!this.cursor.visible);
             }
         });
@@ -56,6 +63,52 @@ export default class Menu {
             if (equip && (str[0] != 'E' || str[1] != ':')) continue;
             this.drawText(x, y, str);
         }
+    }
+
+    updateTalk() {
+        if (this.talkList.length == 0) return;
+
+        // 会話テキスト
+        let chList = [];
+        while (this.talkList.length > 0) {
+            let str = this.talkList.shift();
+            if (str == "▼") {
+                chList.push('▼');
+                break;
+            }
+	        str = ((chList.length == 0)? "＊「" : "　　") + str;
+            for (const ch of str) {
+                chList.push(ch);
+            }
+            chList.push('\n');
+        }
+
+        let idx = 0, x = 25, y = 65;
+        this.scene.time.addEvent({
+            delay: 10,
+            repeat: chList.length-1,
+            callback: () => {
+		        if ((idx % 6) == 0) this.talkBGM.play();
+                let ch = chList[idx++];
+                if (ch == '\n') {
+                    x = 25;
+                    y += 64;
+                } else if (ch == '▼') {
+                    this.createDownArrow(300, y);
+                } else {
+	                let text = this.scene.add.text(x, y, ch, {
+	                    fontFamily: "PixelMplus10-Regular",
+	                    fontSize: '38px',
+	                    color: '#ffffff'
+	                });
+		            text.setScrollFactor(0);
+		            text.setScale(0.95, 1.0);
+		            text.setDepth(6);
+                    this.textList.add(text);
+		            x += 34;
+	            }
+            }
+        });
     }
 
     setTitle(title, top=false) {
@@ -106,11 +159,29 @@ export default class Menu {
         if (onoff && this.idx >= 0) this.cursor.setVisible(true);
     }
 
-    createRight(x=0, y=0) {
+    createDownArrow(x, y) {
+        const w = 30, h = 18;
+        this.cursor = this.scene.add.graphics();
+        this.drawList.add(this.cursor);
+        this.cursor.fillStyle(0xffffff, 1);
+        this.cursor.beginPath();
+        this.cursor.moveTo(x, y);
+        this.cursor.lineTo(x+w, y);
+        this.cursor.lineTo(x+w, y+4);
+        this.cursor.lineTo(x+w/2, y+h);
+        this.cursor.lineTo(x, y+4);
+        this.cursor.closePath();
+        this.cursor.fillPath();
+        this.cursor.setDepth(10);
+        this.cursor.setScrollFactor(0);
+        this.cursor.setVisible(true);
+	}
+
+    createRightArrow(x=0, y=0) {
         const w = 14, h = 26;
         let tri = this.scene.add.graphics();
         this.drawList.add(tri);
-        tri.fillStyle(0xffffff, 1); // 白色、不透明
+        tri.fillStyle(0xffffff, 1);
         tri.beginPath();
         tri.moveTo(x, y);
         tri.lineTo(x+4, y);
@@ -124,7 +195,7 @@ export default class Menu {
     }
 
     createCursor() {
-        this.cursor = this.createRight();
+        this.cursor = this.createRightArrow();
         this.cursor.setVisible(false);
         this.fix = false;
     }
