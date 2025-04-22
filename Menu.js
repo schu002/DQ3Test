@@ -3,7 +3,7 @@ import { getNumberStr } from "./util.js";
 
 export default class Menu {
     constructor(parent, scene, strList, x, y, w, h, row=0, idx=0) {
-        let strlen = (strList)? strList.lenght : 0;
+        let slen = (strList)? strList.length : 0;
         this.parent = parent;
         this.nest = (parent)? parent.nest+1 : 0;
         this.scene = scene;
@@ -13,13 +13,13 @@ export default class Menu {
         this.height = h;
         this.idx = idx;
         this.rowNum = row;
-        this.colNum = (row > 0 && strlen)? 2 : 1;
+        this.colNum = (row > 0 && slen)? 2 : 1;
         this.drawList = scene.add.container(x, y);
         this.drawList.setScrollFactor(0);
         this.textList = scene.add.container(x, y);
         this.textList.setScrollFactor(0);
         if (w > 0 && h > 0) this.drawRect(0, 0, w, h);
-        if (parent && parent.idx == 0) {
+        if (parent && parent.nest == 0 && parent.idx == 0) {
             this.talkBGM = scene.sound.add("talk", { loop: false, volume: 0.2 });
             this.talkList = [...strList];
             this.updateTalk();

@@ -36,9 +36,11 @@ class TownScene extends Phaser.Scene {
 	    let npc = this.findNPC(player);
 
 	    // 町人をプレイヤーのいる方向に向ける
-	    npc.direction = getInverseDir(player.direction); // プレイヤーと反対向き
-	    npc.sprite.setFrame(npc.direction * 2); // 町人の向きを即座に反映
-	    npc.isTalking = true;
+	    if (npc) {
+            npc.direction = getInverseDir(player.direction); // プレイヤーと反対向き
+            npc.sprite.setFrame(npc.direction * 2); // 町人の向きを即座に反映
+            npc.isTalking = true;
+		}
 
         this.command = new Command(this, members, npc);
     }

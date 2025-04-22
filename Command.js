@@ -114,11 +114,9 @@ export default class Command {
 	            console.log("meshList", this.menuList.length);
 	        }
         }
-        console.log("A: meshList", this.menuList.length);
     }
 
     onButtonB() {
-        console.log("B: meshList", this.menuList.length);
         let nest = this.menu.nest;
         let cmd = this.menuList[0].idx;
         if (cmd == COMMAND.ITEM && nest == 2 && this.menuList.length == 3) {
