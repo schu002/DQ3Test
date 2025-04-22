@@ -66,9 +66,9 @@ export default class Menu {
         }
     }
 
-    updateTalk(canTalk) {
+    updateTalk(canTalk=true) {
         if (canTalk) {
-	        if (this.talkList.length == 0) return;
+	        if (this.talkList.length == 0) return false;
         } else {
             this.talkList = ["そのほうこうには　だれも　いない。"];
 	    }
@@ -90,7 +90,12 @@ export default class Menu {
             chList.push('\n');
         }
 
-        let idx = 0, x = 25, y = 65;
+        this.textList.removeAll(true);
+        if (this.cursor) {
+	        this.cursor.destroy();
+	        this.cursor = null;
+	    }
+        let idx = 0, x = 25, y = 65, isCursor = false;
         this.scene.time.addEvent({
             delay: 10,
             repeat: chList.length-1,
@@ -101,7 +106,8 @@ export default class Menu {
                     x = 25;
                     y += 64;
                 } else if (ch == '▼') {
-                    this.createDownArrow(300, y);
+                    this.createDownArrow(450, y+550);
+                    isCursor = true;
                 } else {
 	                let text = this.scene.add.text(x, y, ch, {
 	                    fontFamily: "PixelMplus10-Regular",
@@ -116,6 +122,7 @@ export default class Menu {
 	            }
             }
         });
+        return isCursor;
     }
 
     setTitle(title, top=false) {
@@ -169,7 +176,6 @@ export default class Menu {
     createDownArrow(x, y) {
         const w = 30, h = 18;
         this.cursor = this.scene.add.graphics();
-        this.drawList.add(this.cursor);
         this.cursor.fillStyle(0xffffff, 1);
         this.cursor.beginPath();
         this.cursor.moveTo(x, y);

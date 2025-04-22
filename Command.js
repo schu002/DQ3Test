@@ -77,12 +77,24 @@ export default class Command {
         if (this.menuList.length < 1) return;
 
         let cmd = this.menuList[0].idx;
+        if (cmd == COMMAND.TALK) {
+            this.buttonSound.play();
+	        if (this.menuList.length == 1) {
+	            this.createTalkMenu(null);
+	            this.isFinish = true;
+	        } else {
+	            if (!this.menu.updateTalk())
+	                this.isFinish = true;
+	        }
+	        return;
+        } else if (cmd == COMMAND.EQUIP) {
+        } else if (cmd == COMMAND.SPELL) {
+        } else if (cmd == COMMAND.ITEM) {
+        }
+
         if (this.menuList.length == 1) {
             this.buttonSound.play();
-	        if (cmd == COMMAND.TALK) {
-                this.createTalkMenu(null);
-                this.isFinish = true;
-	        } else if (cmd == COMMAND.EQUIP) {
+	        if (cmd == COMMAND.EQUIP) {
 		        drawMembers.call(this, 151, 60);
 	        } else if (cmd == COMMAND.SPELL) {
 		        drawMembers.call(this, 151, 63);
