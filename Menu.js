@@ -13,7 +13,7 @@ export default class Menu {
         this.height = h;
         this.idx = idx;
         this.rowNum = row;
-        this.colNum = (row > 0 && slen)? 2 : 1;
+        this.colNum = (row > 0 && row < slen)? 2 : 1;
         this.drawList = scene.add.container(x, y);
         this.drawList.setScrollFactor(0);
         this.textList = scene.add.container(x, y);
@@ -21,8 +21,9 @@ export default class Menu {
         if (w > 0 && h > 0) this.drawRect(0, 0, w, h);
         if (parent && parent.nest == 0 && parent.idx == 0) {
             this.talkBGM = scene.sound.add("talk", { loop: false, volume: 0.2 });
-            this.talkList = [...strList];
-            this.updateTalk();
+            if (strList) this.talkList = [...strList];
+            let canTalk = (strList)? true : false;
+            this.updateTalk(canTalk);
         } else {
             this.setStrList(strList);
             this.createCursor();
@@ -65,18 +66,24 @@ export default class Menu {
         }
     }
 
-    updateTalk() {
-        if (this.talkList.length == 0) return;
+    updateTalk(canTalk) {
+        if (canTalk) {
+	        if (this.talkList.length == 0) return;
+        } else {
+            this.talkList = ["そのほうこうには　だれも　いない。"];
+	    }
 
         // 会話テキスト
         let chList = [];
         while (this.talkList.length > 0) {
             let str = this.talkList.shift();
-            if (str == "▼") {
-                chList.push('▼');
-                break;
-            }
-	        str = ((chList.length == 0)? "＊「" : "　　") + str;
+            if (canTalk) {
+	            if (str == "▼") {
+	                chList.push('▼');
+	                break;
+	            }
+		        str = ((chList.length == 0)? "＊「" : "　　") + str;
+		    }
             for (const ch of str) {
                 chList.push(ch);
             }
@@ -88,7 +95,7 @@ export default class Menu {
             delay: 10,
             repeat: chList.length-1,
             callback: () => {
-		        if ((idx % 6) == 0) this.talkBGM.play();
+		        if (canTalk && (idx % 6) == 0) this.talkBGM.play();
                 let ch = chList[idx++];
                 if (ch == '\n') {
                     x = 25;

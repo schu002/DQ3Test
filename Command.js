@@ -32,11 +32,7 @@ export default class Command {
         this.buttonSound = scene.sound.add("button", { loop: false, volume: 0.2 });
         this.buttonSound.play();
         if (npc) {
-            menu.fixCursor(true);
-            this.command = COMMAND.TALK;
-            let talk = new Menu(menu, scene, npc.talks, 80, 270, 640, 320);
-            this.menuList.push(talk);
-            this.menu = talk;
+            this.createTalkMenu(npc);
         } else {
             this.status = new DrawStatus(scene, members, 80, 304);
         }
@@ -51,6 +47,7 @@ export default class Command {
 	        right: Phaser.Input.Keyboard.KeyCodes.D
 	    });
         this.isListen = true;
+        this.isFinish = false;
 
         this.timer = scene.time.addEvent({
             delay: 10,
@@ -62,6 +59,10 @@ export default class Command {
     }
 
     destroy() {
+        while (this.menuList.length > 0) {
+            let menu = this.menuList.pop();
+            menu.destroy();
+        }
         if (this.status) this.status.destroy();
         this.scene.input.keyboard.off("keydown-Z", this.onButtonA, this);
         this.scene.input.keyboard.off("keydown-X", this.onButtonB, this);
@@ -69,11 +70,19 @@ export default class Command {
     }
 
     onButtonA() {
+        if (this.isFinish) {
+            this.scene.exitCommand();
+            return;
+        }
         if (this.menuList.length < 1) return;
 
         let cmd = this.menuList[0].idx;
         if (this.menuList.length == 1) {
-	        if (cmd == COMMAND.EQUIP) {
+            this.buttonSound.play();
+	        if (cmd == COMMAND.TALK) {
+                this.createTalkMenu(null);
+                this.isFinish = true;
+	        } else if (cmd == COMMAND.EQUIP) {
 		        drawMembers.call(this, 151, 60);
 	        } else if (cmd == COMMAND.SPELL) {
 		        drawMembers.call(this, 151, 63);
@@ -117,6 +126,10 @@ export default class Command {
     }
 
     onButtonB() {
+        if (this.isFinish) {
+            this.scene.exitCommand();
+            return;
+        }
         let nest = this.menu.nest;
         let cmd = this.menuList[0].idx;
         if (cmd == COMMAND.ITEM && nest == 2 && this.menuList.length == 3) {
@@ -162,6 +175,11 @@ export default class Command {
         else if (this.keys.right.isDown || this.wasd.right.isDown) dir = DIR.RIGHT;
         else return;
 
+        if (this.isFinish) {
+            this.scene.exitCommand();
+            return;
+        }
+
         let cmd = this.menuList[0].idx;
         this.isListen = false;
         if (this.menu.moveCursor(dir)) {
@@ -182,11 +200,19 @@ export default class Command {
 	        this.isListen = true;
         });
     }
+
+    createTalkMenu(npc) {
+        this.menu.fixCursor(true);
+        this.command = COMMAND.TALK;
+        let strList = (npc)? npc.talks : null;
+        let talk = new Menu(this.menu, this.scene, strList, 80, 270, 640, 320);
+        this.menuList.push(talk);
+        this.menu = talk;
+    }
 }
 
 function drawMembers(x, y) {
     let cmd = this.menuList[0].idx;
-    this.buttonSound.play();
     let menu = this.menuList[this.menuList.length-1];
     let idx = menu.idx;
     menu.fixCursor(true);
