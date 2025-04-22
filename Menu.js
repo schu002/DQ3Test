@@ -300,7 +300,7 @@ export default class Menu {
         str += getNumberStr(curDef, 3);
         strList.push(str);
         this.setStrList(strList, false, 35);
-        this.createRight(285, 60);
+        this.createRightArrow(285, 60);
         this.setTitle(member.name, true);
     }
 }

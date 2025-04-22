@@ -76,9 +76,11 @@ export default class Command {
         }
         if (this.menuList.length < 1) return;
 
+        if (!this.isFinish)
+            this.buttonSound.play();
+
         let cmd = this.menuList[0].idx;
         if (cmd == COMMAND.TALK) {
-            this.buttonSound.play();
 	        if (this.menuList.length == 1) {
 	            this.createTalkMenu(null);
 	            this.isFinish = true;
@@ -86,23 +88,10 @@ export default class Command {
 	            if (!this.menu.updateTalk())
 	                this.isFinish = true;
 	        }
-	        return;
         } else if (cmd == COMMAND.EQUIP) {
-        } else if (cmd == COMMAND.SPELL) {
-        } else if (cmd == COMMAND.ITEM) {
-        }
-
-        if (this.menuList.length == 1) {
-            this.buttonSound.play();
-	        if (cmd == COMMAND.EQUIP) {
-		        drawMembers.call(this, 151, 60);
-	        } else if (cmd == COMMAND.SPELL) {
-		        drawMembers.call(this, 151, 63);
-	        } else if (cmd == COMMAND.ITEM) {
-		        drawMembers.call(this, 158, 95);
-	        }
-        } else if (this.menuList.length == 3) {
-	        if (cmd == COMMAND.EQUIP) {
+            if (this.menuList.length == 1) {
+		        drawMembers.call(this, 151, 45);
+            } else if (this.menuList.length == 3) {
 		        if (this.menu.nest == 1) {
                     this.buttonSound.play();
 	                this.member = this.members[this.menu.idx];
@@ -121,7 +110,17 @@ export default class Command {
 	                this.menuList.push(menu3);
 	                this.menu = menu3;
 		        }
-	        } else if (cmd == COMMAND.ITEM) {
+            } else if (this.menuList.length > 3) {
+	            console.log("meshList", this.menuList.length);
+            }
+        } else if (cmd == COMMAND.SPELL) {
+            if (this.menuList.length == 1) {
+		        drawMembers.call(this, 151, 63);
+            }
+        } else if (cmd == COMMAND.ITEM) {
+            if (this.menuList.length == 1) {
+		        drawMembers.call(this, 158, 79);
+            } else if (this.menuList.length == 3) {
 		        if (this.menu.nest == 1) {
                     this.member = this.members[this.menu.idx];
                     this.menu.fixCursor(true);
@@ -129,11 +128,7 @@ export default class Command {
                     this.menu.setCursor(0);
                     this.buttonSound.play();
 		        }
-		    }
-        } else if (this.menuList.length > 3) {
-	        if (cmd == COMMAND.EQUIP) {
-	            console.log("meshList", this.menuList.length);
-	        }
+            }
         }
     }
 
