@@ -81,6 +81,17 @@ export default class Command {
                 }
 	        }
         }
+        // つよさ
+        else if (cmd == COMMAND.ABILITY) {
+            if (this.menuList.length == 1) {
+                this.menu.fixCursor(1);
+                const strList = ["つよさをみる", "じょうたい", "ならびかた"];
+                let menu1 = new Menu(this.menu, this.scene, strList, WIN_X-14, WIN_Y+60, 280, 250);
+                menu1.setTitle("つよさ", true);
+                this.menuList.push(menu1);
+                this.menu = menu1;
+            }
+        }
         // そうび
         else if (cmd == COMMAND.EQUIP) {
             if (this.menuList.length == 1) {
@@ -111,7 +122,7 @@ export default class Command {
         // じゅもん
         else if (cmd == COMMAND.SPELL) {
             if (this.menuList.length == 1) {
-		        drawMembers.call(this, 151, 63);
+		        drawMembers.call(this, 166, 47);
             }
         }
         // どうぐ
