@@ -20,16 +20,9 @@ export default class Menu {
         this.textList.setScrollFactor(0);
         this.cursor = null;
         if (w > 0 && h > 0) this.drawRect(0, 0, w, h);
-        if (parent && parent.nest == 0 && (parent.idx == COMMAND.TALK || parent.idx == COMMAND.CHECK)) {
-            this.talkBGM = scene.sound.add("talk", { loop: false, volume: 0.2 });
-            if (strList) this.talkList = [...strList];
-            let canTalk = (strList)? true : false;
-            this.updateTalk(canTalk);
-        } else {
-            this.setStrList(strList);
-            this.createCursor();
-            if (idx >= 0) this.setCursor(idx);
-        }
+        this.setStrList(strList);
+        this.createCursor();
+        if (idx >= 0) this.setCursor(idx);
 
         this.timer = scene.time.addEvent({
             delay: 270,
@@ -65,84 +58,6 @@ export default class Menu {
             if (equip && (str[0] != 'E' || str[1] != ':')) continue;
             this.drawText(x, y, str);
         }
-    }
-
-    updateTalk(canTalk=true) {
-        if (canTalk) {
-	        if (this.talkList.length == 0) return false;
-        } else {
-            this.talkList = ["そのほうこうには　だれも　いない。"];
-	    }
-
-        // 会話テキスト
-        let chList = [], isCursor = false;
-        while (this.talkList.length > 0) {
-            let str = this.talkList.shift();
-            if (canTalk) {
-	            if (str == "▼") {
-                    isCursor = true;
-	                break;
-	            }
-                if (this.parent.idx == COMMAND.TALK) {
-                    str = ((chList.length == 0)? "＊「" : "　　") + str;
-                }
-		    }
-            for (const ch of str) {
-                chList.push(ch);
-            }
-            chList.push('\n');
-        }
-
-        if (this.cursor) {
-	        this.cursor.destroy();
-	        this.cursor = null;
-	    }
-        let idx = 0, x = 25;
-        this.scene.time.addEvent({
-            delay: 10,
-            repeat: chList.length-1,
-            callback: () => {
-		        if (canTalk && (idx % 6) == 0) this.talkBGM.play();
-                let y = 65 + this.idx*64;
-                let ch = chList[idx++];
-                if (ch == '\n') {
-                    this.idx++;
-                    x = 25;
-                    // 最後に行に来たら、１行ずつ上にずらす
-                    if (this.idx == 4) {
-                        const removeList = [];
-                        this.textList.iterate((child) => {
-                            if (child instanceof Phaser.GameObjects.Text) {
-                                if (child.y < 80) removeList.push(child);
-                            }
-                        });
-                        removeList.forEach(child => child.destroy());
-                        this.textList.iterate((child) => {
-                            if (child instanceof Phaser.GameObjects.Text) {
-                                child.y -= 64;
-                            }
-                        });
-                        this.idx--;
-                        y -= 64;
-                    }
-                } else {
-	                let text = this.scene.add.text(x, y, ch, {
-	                    fontFamily: "PixelMplus10-Regular",
-	                    fontSize: '38px',
-	                    color: '#ffffff'
-	                });
-		            text.setScrollFactor(0);
-		            text.setScale(0.95, 1.0);
-		            text.setDepth(6);
-                    this.textList.add(text);
-		            x += 34;
-	            }
-                if (isCursor && idx == chList.length) {
-                    this.createDownArrow(450, y+620);
-                }
-            }
-        });
-        return isCursor;
     }
 
     setTitle(title, top=false) {
@@ -192,24 +107,6 @@ export default class Menu {
         this.fix = onoff;
         if (onoff && this.idx >= 0) this.cursor.setVisible(true);
     }
-
-    createDownArrow(x, y) {
-        const w = 30, h = 18;
-        if (this.cursor) this.cursor.destroy();
-        this.cursor = this.scene.add.graphics();
-        this.cursor.fillStyle(0xffffff, 1);
-        this.cursor.beginPath();
-        this.cursor.moveTo(x, y);
-        this.cursor.lineTo(x+w, y);
-        this.cursor.lineTo(x+w, y+4);
-        this.cursor.lineTo(x+w/2, y+h);
-        this.cursor.lineTo(x, y+4);
-        this.cursor.closePath();
-        this.cursor.fillPath();
-        this.cursor.setDepth(10);
-        this.cursor.setScrollFactor(0);
-        this.cursor.setVisible(true);
-	}
 
     createRightArrow(x=0, y=0) {
         const w = 14, h = 26;

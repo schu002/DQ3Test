@@ -119,12 +119,16 @@
         ]
       },
       {
-        "name": "npc4",
+        "name": "item",
         "row": 21,
         "col": 16,
         "image": "image/merchant.png",
         "move": false,
-        "dir": 0
+        "dir": 0,
+        "talks": [
+          "ここは　どうぐやです。",
+          "どんな　ごようでしょう？"
+        ]
       },
       {
         "name": "npc5",

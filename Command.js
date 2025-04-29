@@ -1,4 +1,5 @@
 import Menu from "./Menu.js";
+import Message from "./Message.js";
 import DrawStatus from "./DrawStatus.js";
 
 const WIN_X = 40 * SCALE;
@@ -14,6 +15,7 @@ export default class Command {
         this.npc = npc;
         this.command = COMMAND.NONE;
         this.menuList = [];
+        this.message = null;
         this.status = null;
         let menu = new Menu(null, scene, cmdList, WIN_X, WIN_Y, WIN_W, WIN_H, 3);
         menu.setTitle("コマンド", true);
@@ -53,6 +55,7 @@ export default class Command {
             let menu = this.menuList.pop();
             menu.destroy();
         }
+        if (this.message) this.message.destroy();
         if (this.status) this.status.destroy();
         this.scene.input.keyboard.off("keydown-Z", this.onButtonA, this);
         this.scene.input.keyboard.off("keydown-X", this.onButtonB, this);
@@ -72,11 +75,11 @@ export default class Command {
         let cmd = this.menuList[0].idx;
         // はなす
         if (cmd == COMMAND.TALK) {
-	        if (this.menuList.length == 1) {
+	        if (!this.message) {
 	            this.createTalkMenu(null);
 	            this.isFinish = true;
 	        } else {
-	            if (!this.menu.updateTalk()) {
+	            if (!this.message.updateTalk()) {
 	                this.isFinish = true;
                 }
 	        }
@@ -226,12 +229,20 @@ export default class Command {
     }
 
     createTalkMenu(npc, talks=null) {
+        let parent = this.menu;
         this.menu.fixCursor(true);
         this.command = COMMAND.TALK;
         let strList = (npc)? npc.talks : talks;
-        let talk = new Menu(this.menu, this.scene, strList, 80, 270, 640, 320);
-        this.menuList.push(talk);
-        this.menu = talk;
+        this.message = new Message(this.menu, this.scene, strList, 80, 270, 640, 320);
+
+        if (npc && npc.name == "item") {
+            this.scene.time.delayedCall(700, () => {
+                const strList = ["かいにきた", "うりにきた"];
+                let menu1 = new Menu(parent, this.scene, strList, 305, 80, 260, 190);
+                this.menuList.push(menu1);
+                this.menu = menu1;
+            });
+        }
     }
 }
 
