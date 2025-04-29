@@ -18,8 +18,9 @@ export default class Menu {
         this.drawList.setScrollFactor(0);
         this.textList = scene.add.container(x, y);
         this.textList.setScrollFactor(0);
+        this.cursor = null;
         if (w > 0 && h > 0) this.drawRect(0, 0, w, h);
-        if (parent && parent.nest == 0 && parent.idx == 0) {
+        if (parent && parent.nest == 0 && (parent.idx == COMMAND.TALK || parent.idx == COMMAND.CHECK)) {
             this.talkBGM = scene.sound.add("talk", { loop: false, volume: 0.2 });
             if (strList) this.talkList = [...strList];
             let canTalk = (strList)? true : false;
@@ -74,15 +75,18 @@ export default class Menu {
 	    }
 
         // 会話テキスト
-        let chList = [];
+        let chList = [], isCursor = false;
         while (this.talkList.length > 0) {
             let str = this.talkList.shift();
             if (canTalk) {
 	            if (str == "▼") {
 	                chList.push('▼');
+                    isCursor = true;
 	                break;
 	            }
-		        str = ((chList.length == 0)? "＊「" : "　　") + str;
+                if (this.parent.idx == COMMAND.TALK) {
+                    str = ((chList.length == 0)? "＊「" : "　　") + str;
+                }
 		    }
             for (const ch of str) {
                 chList.push(ch);
@@ -95,7 +99,7 @@ export default class Menu {
 	        this.cursor.destroy();
 	        this.cursor = null;
 	    }
-        let idx = 0, x = 25, y = 65, isCursor = false;
+        let idx = 0, x = 25, y = 65;
         this.scene.time.addEvent({
             delay: 10,
             repeat: chList.length-1,
@@ -107,7 +111,6 @@ export default class Menu {
                     y += 64;
                 } else if (ch == '▼') {
                     this.createDownArrow(450, y+550);
-                    isCursor = true;
                 } else {
 	                let text = this.scene.add.text(x, y, ch, {
 	                    fontFamily: "PixelMplus10-Regular",
@@ -175,6 +178,7 @@ export default class Menu {
 
     createDownArrow(x, y) {
         const w = 30, h = 18;
+        if (this.cursor) this.cursor.destroy();
         this.cursor = this.scene.add.graphics();
         this.cursor.fillStyle(0xffffff, 1);
         this.cursor.beginPath();

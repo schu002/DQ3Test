@@ -1,16 +1,6 @@
 import Menu from "./Menu.js";
 import DrawStatus from "./DrawStatus.js";
 
-const COMMAND = {
-    NONE	: -1,
-    TALK	: 0,
-    ABILITY	: 1,
-    EQUIP	: 2,
-    SPELL	: 3,
-    ITEM	: 4,
-    CHECK	: 5
-};
-
 const WIN_X = 40 * SCALE;
 const WIN_Y = 8 * SCALE;
 const WIN_W = 384;
@@ -80,15 +70,19 @@ export default class Command {
             this.buttonSound.play();
 
         let cmd = this.menuList[0].idx;
+        // はなす
         if (cmd == COMMAND.TALK) {
 	        if (this.menuList.length == 1) {
 	            this.createTalkMenu(null);
 	            this.isFinish = true;
 	        } else {
-	            if (!this.menu.updateTalk())
+	            if (!this.menu.updateTalk()) {
 	                this.isFinish = true;
+                }
 	        }
-        } else if (cmd == COMMAND.EQUIP) {
+        }
+        // そうび
+        else if (cmd == COMMAND.EQUIP) {
             if (this.menuList.length == 1) {
 		        drawMembers.call(this, 151, 45);
             } else if (this.menuList.length == 3) {
@@ -113,11 +107,15 @@ export default class Command {
             } else if (this.menuList.length > 3) {
 	            console.log("meshList", this.menuList.length);
             }
-        } else if (cmd == COMMAND.SPELL) {
+        }
+        // じゅもん
+        else if (cmd == COMMAND.SPELL) {
             if (this.menuList.length == 1) {
 		        drawMembers.call(this, 151, 63);
             }
-        } else if (cmd == COMMAND.ITEM) {
+        }
+        // どうぐ
+        else if (cmd == COMMAND.ITEM) {
             if (this.menuList.length == 1) {
 		        drawMembers.call(this, 158, 79);
             } else if (this.menuList.length == 3) {
@@ -129,6 +127,14 @@ export default class Command {
                     this.buttonSound.play();
 		        }
             }
+        }
+        // しらべる
+        else if (cmd == COMMAND.CHECK) {
+	        if (this.menuList.length == 1) {
+	            let talks = [this.members[0].name + "は　あしもとを　しらべた。", "▼"];
+	            this.createTalkMenu(null, talks);
+	        } else {
+	        }
         }
     }
 
@@ -208,10 +214,10 @@ export default class Command {
         });
     }
 
-    createTalkMenu(npc) {
+    createTalkMenu(npc, talks=null) {
         this.menu.fixCursor(true);
         this.command = COMMAND.TALK;
-        let strList = (npc)? npc.talks : null;
+        let strList = (npc)? npc.talks : talks;
         let talk = new Menu(this.menu, this.scene, strList, 80, 270, 640, 320);
         this.menuList.push(talk);
         this.menu = talk;

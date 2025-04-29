@@ -10,6 +10,16 @@ window.DIR = {
 	RIGHT	: 3
 };
 
+window.COMMAND = {
+    NONE	: -1,
+    TALK	: 0,
+    ABILITY	: 1,
+    EQUIP	: 2,
+    SPELL	: 3,
+    ITEM	: 4,
+    CHECK	: 5
+};
+
 window.ACTION = {
     NONE	: 0,
     ATTACK	: 1,
