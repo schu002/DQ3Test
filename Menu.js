@@ -80,7 +80,6 @@ export default class Menu {
             let str = this.talkList.shift();
             if (canTalk) {
 	            if (str == "▼") {
-	                chList.push('▼');
                     isCursor = true;
 	                break;
 	            }
@@ -94,23 +93,38 @@ export default class Menu {
             chList.push('\n');
         }
 
-        this.textList.removeAll(true);
         if (this.cursor) {
 	        this.cursor.destroy();
 	        this.cursor = null;
 	    }
-        let idx = 0, x = 25, y = 65;
+        let idx = 0, x = 25;
         this.scene.time.addEvent({
             delay: 10,
             repeat: chList.length-1,
             callback: () => {
 		        if (canTalk && (idx % 6) == 0) this.talkBGM.play();
+                let y = 65 + this.idx*64;
                 let ch = chList[idx++];
                 if (ch == '\n') {
+                    this.idx++;
                     x = 25;
-                    y += 64;
-                } else if (ch == '▼') {
-                    this.createDownArrow(450, y+550);
+                    // 最後に行に来たら、１行ずつ上にずらす
+                    if (this.idx == 4) {
+                        const removeList = [];
+                        this.textList.iterate((child) => {
+                            if (child instanceof Phaser.GameObjects.Text) {
+                                if (child.y < 80) removeList.push(child);
+                            }
+                        });
+                        removeList.forEach(child => child.destroy());
+                        this.textList.iterate((child) => {
+                            if (child instanceof Phaser.GameObjects.Text) {
+                                child.y -= 64;
+                            }
+                        });
+                        this.idx--;
+                        y -= 64;
+                    }
                 } else {
 	                let text = this.scene.add.text(x, y, ch, {
 	                    fontFamily: "PixelMplus10-Regular",
@@ -123,6 +137,9 @@ export default class Menu {
                     this.textList.add(text);
 		            x += 34;
 	            }
+                if (isCursor && idx == chList.length) {
+                    this.createDownArrow(450, y+620);
+                }
             }
         });
         return isCursor;
