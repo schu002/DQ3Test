@@ -151,7 +151,7 @@ export default class Menu {
         rect.setDepth(5);
     }
 
-    drawText(x, y, msg, col='#ffffff') {
+    drawText(x, y, msg, size='38px', col='#ffffff') {
         if (msg.length > 2 && msg[0] == 'E' && msg[1] == ':') {
             msg = msg.substr(2, msg.length-2);
 	        let text = this.scene.add.text(x-48, y+6, 'E', {
@@ -166,7 +166,7 @@ export default class Menu {
         for (const ch of msg) {
 	        let text = this.scene.add.text(x, y, ch, {
 	            fontFamily: "PixelMplus10-Regular",
-	            fontSize: '38px',
+	            fontSize: size,
 	            color: col
             });
 	        text.setDepth(6);

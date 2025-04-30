@@ -71,22 +71,13 @@ export function getNumberStr(num, digitNum=0)
         }
     }
 
-    let mod = num;
+    let n = num;
+    let numstr = "";
     let nums = ["０", "１", "２", "３", "４", "５", "６", "７", "８", "９"];
-    if (num >= 100) {
-        let idx = Math.floor(mod/100);
-        str = nums[idx];
-        mod -= idx * 100;
-    } else {
-        str = (num >= 10)? "　" : "　　";
+    while (n > 0) {
+        let mod = n % 10;
+        numstr = nums[mod] + numstr;
+        n = Math.floor(n/10);
     }
-    if (num >= 10) {
-        let idx = Math.floor(mod/10);
-        str += nums[idx];
-        mod -= idx * 10;
-    }
-    if (num >= 0) {
-        str += nums[mod];
-    }
-    return str;
+    return str + numstr;
 }

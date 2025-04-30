@@ -1,6 +1,7 @@
 import Menu from "./Menu.js";
 import Message from "./Message.js";
 import DrawStatus from "./DrawStatus.js";
+import { getNumberStr } from "./util.js";
 
 const WIN_X = 40 * SCALE;
 const WIN_Y = 8 * SCALE;
@@ -237,10 +238,16 @@ export default class Command {
 
         if (npc && npc.name == "item") {
             this.scene.time.delayedCall(700, () => {
-                const strList = ["かいにきた", "うりにきた"];
-                let menu1 = new Menu(parent, this.scene, strList, 305, 80, 260, 190);
+                // ゴールド表示
+                const gameData = this.scene.cache.json.get("gameData");
+                let menu1 = new Menu(parent, this.scene, null, 305, WIN_Y, 250, 130, 1, -1);
                 this.menuList.push(menu1);
-                this.menu = menu1;
+                menu1.drawText(20, 60, "Ｇ", '36px');
+                menu1.drawText(70, 60, getNumberStr(gameData.gold, 5));
+                const strList = ["かいにきた", "うりにきた", "やめる"];
+                let menu2 = new Menu(parent, this.scene, strList, 305, 80, 250, 250);
+                this.menuList.push(menu2);
+                this.menu = menu2;
             });
         }
     }
