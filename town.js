@@ -132,7 +132,7 @@ function create()
 {
     const gameData = this.cache.json.get("gameData");
     const townData = this.cache.json.get("townData");
-    if (!gameData || !townData || !townData.start || !townData.objects) {
+    if (!gameData || !townData || !townData.start || !townData.NPCs) {
     	console.error("Error: town data not found in JSON.");
 	    return;
     }
@@ -161,7 +161,7 @@ function create()
     player = members[0];
 
     // 町人を追加
-    const npcData = townData.objects.NPC;
+    const npcData = townData.NPCs.Town;
     npcList = [];
     npcData.forEach(npc => {
         npcList.push(new NPC(this, npc.row, npc.col, npc.name, npc.image, npc.move, npc.dir, npc.talks));
@@ -274,13 +274,13 @@ function changeLayer(scene, pos)
 		if (pos[0] == 16 && (pos[1] == 9 || pos[1] == 10)) {
 		    scene.townLayer.setVisible(false);
 		    scene.luidaLayer.setVisible(true);
-		    swapNPCs(scene, "luida");
+		    swapNPCs(scene, "Luida");
 		}
 	} else if (scene.luidaLayer.visible) {
 		if (pos[0] == 17 && (pos[1] == 9 || pos[1] == 10)) {
 		    scene.townLayer.setVisible(true);
 		    scene.luidaLayer.setVisible(false);
-		    swapNPCs(scene, "town");
+		    swapNPCs(scene, "Town");
 		}
 	}
 }
@@ -291,7 +291,7 @@ function swapNPCs(scene, layer)
     npcList.forEach(npc => npc.sprite.destroy());
     npcList = [];
 
-    const npcData = scene.cache.json.get("townData").objects[layer];
+    const npcData = scene.cache.json.get("townData").NPCs[layer];
     npcData.forEach(npc => {
         npcList.push(new NPC(scene, npc.row, npc.col, npc.name, npc.image, npc.move, npc.dir));
     });

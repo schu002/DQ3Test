@@ -73,8 +73,8 @@
     "move": true,
     "dir": 3
   },
- "objects": {
-    "NPC": [
+ "NPCs": {
+    "Town": [
       {
         "name": "npc1",
         "row": 20,
@@ -171,7 +171,7 @@
         "dir": 0
       }
     ],
-    "luida": [
+    "Luida": [
       {
         "name": "luida_npc1",
         "row": 13,
