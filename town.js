@@ -1,4 +1,5 @@
 import Player from "./player.js";
+import NPC from "./NPC.js";
 import FieldScene from "./field.js";
 import MonsterData from "./MonsterData.js";
 import OccupationData from "./OccupationData.js";
@@ -70,53 +71,6 @@ class TownScene extends Phaser.Scene {
 
     update() {
         update.call(this);
-    }
-}
-
-class NPC {
-    constructor(scene, row, col, name, image, move, dir, talks) {
-        this.scene = scene;
-        this.row = row;
-        this.col = col;
-        this.name = name;
-        this.image = image;
-        this.sprite = scene.physics.add.sprite(col*TILE_SIZE*SCALE, (row*TILE_SIZE-CARA_OFFSET)*SCALE, image, 0);
-        this.sprite.setScale(SCALE);
-        this.sprite.setOrigin(0, 0);
-        this.direction = (dir < 0)? Phaser.Math.Between(0, 3) : dir; // 繝ゥ繝ウ繝な方向
-        this.talks = talks;
-        this.movable = move;
-        this.isTalking = false;
-        this.stepCount = 0;
-    }
-
-    move() {
-        if (!this.movable) return;
-        if (this.isTalking) return;
-
-        this.direction = Phaser.Math.Between(0, 3);
-        let pos = [this.row, this.col];
-        if (!updatePosition(pos, this.direction)) return;
-
-        // 壁などにぶつからないようにチェック
-        if (!canMove(this.scene, pos, false)) return;
-
-        // 移動処理
-        this.scene.tweens.add({
-            targets: this.sprite,
-            x: pos[1] * TILE_SIZE * SCALE,
-            y: (pos[0] * TILE_SIZE - CARA_OFFSET) * SCALE,
-            duration: MOVE_DELAY,
-            onComplete: () => {
-                this.row = pos[0];
-                this.col = pos[1];
-            }
-        });
-    }
-
-    updateFrame() {
-        this.stepCount ^= 1;
-        this.sprite.setFrame(this.direction * 2 + this.stepCount);
     }
 }
 
@@ -203,7 +157,7 @@ function create()
         delay: 2000,
         loop: true,
         callback: () => {
-	        npcList.forEach(npc => npc.move());
+	        npcList.forEach(npc => moveNPC(this, npc));
         }
     });
 }
@@ -249,6 +203,20 @@ function update(time)
     if (pos[1] < 6) {
 	    exitTown(this);
     }
+}
+
+function moveNPC(scene, npc) {
+    if (!npc.movable) return;
+    if (npc.isTalking) return;
+
+    npc.direction = Phaser.Math.Between(0, 3);
+    let pos = [npc.row, npc.col];
+    if (!updatePosition(pos, npc.direction)) return;
+
+    // 壁などにぶつからないようにチェック
+    if (!canMove(scene, pos, false)) return;
+
+    npc.move(pos);
 }
 
 function canMove(scene, position, isPlayer)
