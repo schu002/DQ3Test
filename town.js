@@ -1,16 +1,13 @@
 import Player from "./player.js";
 import NPC from "./NPC.js";
+import Layer from "./Layer.js";
 import FieldScene from "./field.js";
 import MonsterData from "./MonsterData.js";
 import OccupationData from "./OccupationData.js";
 import Command from "./Command.js";
 import { updatePosition, getInverseDir } from "./util.js";
 
-// 移動間隔
 const TILE_OBS = 15;
-const TILE_DESK = 20;
-const IMG_MERCHANT = "image/merchant.png";
-
 let MAP_WIDTH = 0;
 let MAP_HEIGHT = 0;
 
@@ -33,10 +30,10 @@ class TownScene extends Phaser.Scene {
 
     onButtonA() {
         if (this.command) return;
-
-	    let npc = this.findNPC(player);
+        if (!this.layer) return;
 
 	    // 町人をプレイヤーのいる方向に向ける
+	    let npc = this.layer.findNPC(player.row, player.col, player.direction);
 	    if (npc) {
             npc.direction = getInverseDir(player.direction); // プレイヤーと反対向き
             npc.sprite.setFrame(npc.direction * 2); // 町人の向きを即座に反映
@@ -54,24 +51,69 @@ class TownScene extends Phaser.Scene {
         this.command = null;
     }
 
-    findNPC(player) {
-	    let pos = [player.row, player.col];
-	    if (!updatePosition(pos, player.direction)) return null;
-
-	    let npc = npcList.find(n => n.row === pos[0] && n.col === pos[1]);
-	    if (!npc) {
-			if (getTileIndex(this, pos[0], pos[1]) != TILE_DESK) return null;
-		    if (!updatePosition(pos, player.direction)) return null;
-		    npc = npcList.find(n => n.row === pos[0] && n.col === pos[1]);
-		    if (!npc) return null;
-		    if (npc.image != IMG_MERCHANT) return null;
-	    }
-	    return npc;
-    }
-
     update() {
         update.call(this);
     }
+
+    setLayer(layname) {
+        let layer = this.layerMap[layname];
+        if (this.layer == layer) return;
+
+        if (this.layer) {
+            this.layer.setVisible(false);
+            this.layer = null;
+        }
+
+        npcList = [];
+        this.layer = layer;
+        if (layer) {
+            npcList = layer.npcs;
+            // this.cameras.main.stopFollow();
+            members.forEach(member => member.setPosition(layer.start));
+            layer.setVisible(true);
+            // this.cameras.main.centerOn(members[0].x, members[0].y);
+            // camera.startFollow(player.sprite, true, 1, 1, -8*SCALE, -24*SCALE);
+            /* layer.npcs.forEach(npc => {
+                npcList.push(npc));
+            }); */
+        }
+    }
+
+    changeLayer(pos) {
+        let toLayer = this.layer.getToLayerAt(pos[0], pos[1]);
+        if (!toLayer) return;
+        this.setLayer(toLayer.layer);
+    }
+
+    moveNPC(npc) {
+        if (!npc.movable) return;
+        if (npc.isTalking) return;
+
+        npc.direction = Phaser.Math.Between(0, 3);
+        let pos = [npc.row, npc.col];
+        if (!updatePosition(pos, npc.direction)) return;
+
+        // 壁などにぶつからないようにチェック
+        if (!this.canMove(pos, false)) return;
+
+        npc.move(pos);
+    }
+
+    canMove(position, isPlayer) {
+        let row = position[0], col = position[1];
+        let idx = this.layer.getTileIndex(row, col);
+        if (idx < 0) return false;
+        if (idx >= TILE_OBS) {
+            if (isPlayer) this.changeLayer(position);
+            return false;
+        }
+        if (!isPlayer) {
+            if (members.some(mem => row == mem.row && col == mem.col)) return false;
+        }
+        if (npcList.some(npc => row == npc.row && col == npc.col)) return false;
+        return true;
+    }
+
 }
 
 let player, camera, bgm;
@@ -86,7 +128,7 @@ function create()
 {
     const gameData = this.cache.json.get("gameData");
     const townData = this.cache.json.get("townData");
-    if (!gameData || !townData || !townData.start || !townData.NPCs) {
+    if (!gameData || !townData || !townData.layers) {
     	console.error("Error: town data not found in JSON.");
 	    return;
     }
@@ -98,28 +140,25 @@ function create()
     const map = this.make.tilemap({ key: "townMap" });
     const tileset = map.addTilesetImage("townTiles");
 
-    // 地面レイヤーを作成
-    this.townLayer = map.createLayer("Town", tileset, 0, 0);
-    this.townLayer.setScale(SCALE);
-    this.luidaLayer = map.createLayer("Luida", tileset, 0, 0);
-    this.luidaLayer.setScale(SCALE);
-    this.luidaLayer.setVisible(false);
+    // 各レイヤーを作成
     this.command = null;
+    this.layer = null;
+    this.layerMap = {};
+    townData.layers.forEach(layData => {
+        let drawLayer = map.createLayer(layData.name, tileset, 0, 0);
+        drawLayer.setScale(SCALE);
+        drawLayer.setVisible(false);
+        let layer = new Layer(this, layData, drawLayer);
+        this.layerMap[layData.name] = layer;
+    });
+    this.setLayer("Town");
 
     // プレイヤーを追加
-    const startData = townData.start;
     members = [];
     gameData.members.forEach(member => {
-        members.push(new Player(this, member, startData.row, startData.col, startData.dir, CARA_OFFSET));
+        members.push(new Player(this, member, this.layer.start, this.layer.dir, CARA_OFFSET));
     });
     player = members[0];
-
-    // 町人を追加
-    const npcData = townData.NPCs.Town;
-    npcList = [];
-    npcData.forEach(npc => {
-        npcList.push(new NPC(this, npc.row, npc.col, npc.name, npc.image, npc.move, npc.dir, npc.talks));
-    });
 
     // カメラ設定
     this.physics.world.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
@@ -148,7 +187,6 @@ function create()
         loop: true,
         callback: () => {
             members.forEach(member => member.updateFrame());
-            npcList.forEach(npc => npc.updateFrame());
         }
     });
 
@@ -157,7 +195,7 @@ function create()
         delay: 2000,
         loop: true,
         callback: () => {
-	        npcList.forEach(npc => moveNPC(this, npc));
+	        npcList.forEach(npc => this.moveNPC(npc));
         }
     });
 }
@@ -174,7 +212,6 @@ function update(time)
     else if (this.keys.down.isDown	|| this.wasd.down.isDown)  newDir = DIR.DOWN;
     else return;
 
-    // const pre = Object.assign({}, members[0]);
     let dir = members[0].direction;
 	members[0].direction = newDir;
 
@@ -182,7 +219,7 @@ function update(time)
     if (!updatePosition(pos, newDir)) return;
 
     // 壁などにぶつからないようにチェック
-    this.isMoving = canMove(this, pos, true);
+    this.isMoving = this.canMove(pos, true);
     if (!this.isMoving) return;
 
     let row = pos[0], col = pos[1], lastIdx = 0;
@@ -203,77 +240,6 @@ function update(time)
     if (pos[1] < 6) {
 	    exitTown(this);
     }
-}
-
-function moveNPC(scene, npc) {
-    if (!npc.movable) return;
-    if (npc.isTalking) return;
-
-    npc.direction = Phaser.Math.Between(0, 3);
-    let pos = [npc.row, npc.col];
-    if (!updatePosition(pos, npc.direction)) return;
-
-    // 壁などにぶつからないようにチェック
-    if (!canMove(scene, pos, false)) return;
-
-    npc.move(pos);
-}
-
-function canMove(scene, position, isPlayer)
-{
-	let row = position[0], col = position[1];
-	let idx = getTileIndex(scene, row, col);
-	if (idx < 0) return false;
-	if (idx >= TILE_OBS) {
-    	if (isPlayer) changeLayer(scene, position);
-		return false;
-	}
-	if (!isPlayer) {
-	    if (members.some(mem => row == mem.row && col == mem.col)) return false;
-    }
-    if (npcList.some(npc => row == npc.row && col == npc.col)) return false;
-	return true;
-}
-
-function changeLayer(scene, pos)
-{
-	let idx = getTileIndex(scene, pos[0], pos[1]);
-	if (scene.townLayer.visible) {
-		if (pos[0] == 16 && (pos[1] == 9 || pos[1] == 10)) {
-		    scene.townLayer.setVisible(false);
-		    scene.luidaLayer.setVisible(true);
-		    swapNPCs(scene, "Luida");
-		}
-	} else if (scene.luidaLayer.visible) {
-		if (pos[0] == 17 && (pos[1] == 9 || pos[1] == 10)) {
-		    scene.townLayer.setVisible(true);
-		    scene.luidaLayer.setVisible(false);
-		    swapNPCs(scene, "Town");
-		}
-	}
-}
-
-function swapNPCs(scene, layer)
-{
-    // 既存の NPC を削除
-    npcList.forEach(npc => npc.sprite.destroy());
-    npcList = [];
-
-    const npcData = scene.cache.json.get("townData").NPCs[layer];
-    npcData.forEach(npc => {
-        npcList.push(new NPC(scene, npc.row, npc.col, npc.name, npc.image, npc.move, npc.dir));
-    });
-}
-
-function getTileIndex(scene, row, col)
-{
-    let tile;
-    if (scene.townLayer.visible) {
-	    tile = scene.townLayer.getTileAt(col, row);
-    } else {
-	    tile = scene.luidaLayer.getTileAt(col, row);
-    }
-    return tile ? tile.index : -1;
 }
 
 function exitTown(scene) {

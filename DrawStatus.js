@@ -15,11 +15,11 @@ export default class DrawStatus {
             this.drawFill(34+idx*w, -1, 130, 12);
             this.drawText(38+idx*w, -6, members[idx].name);
             this.drawText(38+idx*w, 52, "Ｈ");
-            this.drawText(66+idx*w, 52, getNumberStr(members[idx].hp));
+            this.drawText(66+idx*w, 52, getNumberStr(members[idx].hp, 3));
             this.drawText(38+idx*w, 115, "Ｍ");
-            this.drawText(66+idx*w, 115, getNumberStr(members[idx].mp));
+            this.drawText(66+idx*w, 115, getNumberStr(members[idx].mp, 3));
             this.drawText(38+idx*w, 178, headName(members[idx].occupation));
-            this.drawText(66+idx*w, 178, getNumberStr(members[idx].level));
+            this.drawText(66+idx*w, 178, getNumberStr(members[idx].level, 3));
         }
     }
 

@@ -2,15 +2,16 @@ import OccupationData from "./OccupationData.js";
 import EquipmentData from "./EquipmentData.js";
 
 export default class Player {
-    constructor(scene, data, row, col, dir, offset = 0) {
+    constructor(scene, data, pos, dir, offset = 0) {
         this.name = data.name;
         this.occupation = data.occupation;
         this.level = data.level;
         this.items = data.items;
-        this.row = row;
-        this.col = col;
-    	this.sprite = scene.physics.add.sprite(col * TILE_SIZE * SCALE, (row * TILE_SIZE-offset) * SCALE, data.occupation, 0);
-        this.sprite.setScale(2);
+        this.row = pos[0];
+        this.col = pos[1];
+        this.offset = offset;
+    	this.sprite = scene.physics.add.sprite(this.col * TILE_SIZE * SCALE, (this.row * TILE_SIZE-offset) * SCALE, data.occupation, 0);
+        this.sprite.setScale(SCALE);
         this.sprite.setOrigin(0, 0);
         this.direction = dir;
         this.action = ACTION.NONE;
@@ -50,6 +51,12 @@ export default class Player {
 		        }
 		    });
 	    }
+    }
+
+    setPosition(pos) {
+        this.row = pos[0];
+        this.col = pos[1];
+        this.sprite.setPosition(this.col * TILE_SIZE * SCALE, (this.row * TILE_SIZE - this.offset) * SCALE);
     }
 
     getDefenceValue() {

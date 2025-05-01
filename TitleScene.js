@@ -47,13 +47,14 @@ class TitleScene extends Phaser.Scene {
         const gameData = this.cache.json.get("gameData");
         const townData = this.cache.json.get("townData");
 	    const fieldData = this.cache.json.get("fieldData");
-	    if (!gameData || !townData || !townData.start || !townData.NPCs || !fieldData) {
+	    if (!gameData || !townData || !townData.layers || !fieldData) {
 	    	console.error("Error: data not found in JSON.");
 		    return;
 	    }
 
 	    // 町人画像をロード
-	    const npcData = townData.NPCs.Town;
+        let townLayer = townData.layers.find(layer => layer.name === "Town");
+	    const npcData = townLayer.npcs;
 	    npcData.forEach(npc => {
 	        this.load.spritesheet(npc.image, npc.image, { frameWidth: 32, frameHeight: 32 });
 	    });
