@@ -1,8 +1,7 @@
 export default class NPC {
     constructor(scene, npcData) {
         this.scene = scene;
-        this.row = npcData.row;
-        this.col = npcData.col;
+        this.pos = [...npcData.position];
         this.name = npcData.name;
         this.image = npcData.image;
         this.sprite = null;
@@ -21,8 +20,7 @@ export default class NPC {
             y: (pos[0] * TILE_SIZE - CARA_OFFSET) * SCALE,
             duration: MOVE_DELAY,
             onComplete: () => {
-                this.row = pos[0];
-                this.col = pos[1];
+                this.pos = [...pos];
             }
         });
     }
@@ -30,7 +28,7 @@ export default class NPC {
     setVisible(onoff) {
         if (onoff) {
             if (!this.sprite) {
-                this.sprite = this.scene.physics.add.sprite(this.col*TILE_SIZE*SCALE, (this.row*TILE_SIZE-CARA_OFFSET)*SCALE, this.image, 0);
+                this.sprite = this.scene.physics.add.sprite(this.pos[1]*TILE_SIZE*SCALE, (this.pos[0]*TILE_SIZE-CARA_OFFSET)*SCALE, this.image, 0);
                 this.sprite.setScale(SCALE);
                 this.sprite.setOrigin(0, 0);
             }

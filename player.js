@@ -2,15 +2,15 @@ import OccupationData from "./OccupationData.js";
 import EquipmentData from "./EquipmentData.js";
 
 export default class Player {
-    constructor(scene, data, pos, dir, offset = 0) {
+    constructor(scene, data, order, pos, dir, offset = 0) {
         this.name = data.name;
         this.occupation = data.occupation;
         this.level = data.level;
         this.items = data.items;
-        this.row = pos[0];
-        this.col = pos[1];
+        this.pos = [...pos];
         this.offset = offset;
-    	this.sprite = scene.physics.add.sprite(this.col * TILE_SIZE * SCALE, (this.row * TILE_SIZE-offset) * SCALE, data.occupation, 0);
+    	this.sprite = scene.physics.add.sprite(pos[1] * TILE_SIZE * SCALE, (pos[0] * TILE_SIZE-offset) * SCALE, data.occupation, 0);
+        this.sprite.setDepth(5-order);
         this.sprite.setScale(SCALE);
         this.sprite.setOrigin(0, 0);
         this.direction = dir;
@@ -35,18 +35,17 @@ export default class Player {
         this.sprite.setFrame(this.direction * 2 + this.stepCount);
     }
 
-    move(scene, row, col, offset = 0, callback = null) {
-	    if (this.row == row && this.col == col) {
+    move(scene, pos, offset = 0, callback = null) {
+	    if (this.pos[0] == pos[0] && this.pos[1] == pos[1]) {
             if (callback) callback();
 	    } else {
 		    scene.tweens.add({
 		        targets: this.sprite,
-		        x: col * TILE_SIZE * SCALE,
-		        y: (row * TILE_SIZE - offset) * SCALE,
+		        x: pos[1] * TILE_SIZE * SCALE,
+		        y: (pos[0] * TILE_SIZE - offset) * SCALE,
 		        duration: MOVE_DELAY,
 		        onComplete: () => {
-		            this.row = row;
-		            this.col = col;
+		            this.pos = [...pos];
 		            if (callback) callback();
 		        }
 		    });
@@ -54,9 +53,8 @@ export default class Player {
     }
 
     setPosition(pos) {
-        this.row = pos[0];
-        this.col = pos[1];
-        this.sprite.setPosition(this.col * TILE_SIZE * SCALE, (this.row * TILE_SIZE - this.offset) * SCALE);
+        this.pos = [...pos];
+        this.sprite.setPosition(pos[1] * TILE_SIZE * SCALE, (pos[0] * TILE_SIZE - this.offset) * SCALE);
     }
 
     getDefenceValue() {

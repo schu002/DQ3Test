@@ -110,7 +110,7 @@ export default class Message {
 	                });
 		            text.setScrollFactor(0);
 		            text.setScale(0.95, 1.0);
-		            text.setDepth(6);
+		            text.setDepth(8);
                     this.textList.add(text);
 		            x += 34;
 	            }
@@ -148,7 +148,7 @@ export default class Message {
         rect.fillStyle(0x000000);
         rect.strokeRoundedRect(x+10, y+10, w-20, h-20, 5);
         rect.fillRoundedRect(x+10, y+10, w-20, h-20, 5);
-        rect.setDepth(3);
+        rect.setDepth(5);
         return rect;
     }
 
@@ -157,6 +157,6 @@ export default class Message {
         this.drawList.add(rect);
         rect.fillStyle(col);
         rect.fillRect(x, y, w, h);
-        rect.setDepth(5);
+        rect.setDepth(7);
     }
 }

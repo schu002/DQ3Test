@@ -27,15 +27,26 @@ export default class Layer {
     }
 
     // 指定位置のタイル番号を取得
-    getTileIndex(row, col) {
-        if (row < 0 || row >= this.rows || col < 0 || col >= this.columns) return -1;
-        let idx = row * this.columns + col;
-        return this.data[row * this.columns + col];
+    getTileIndex(pos) {
+        if (pos[0] < 0 || pos[0] >= this.rows || pos[1] < 0 || pos[1] >= this.columns) return -1;
+        let idx = pos[0] * this.columns + pos[1];
+        return this.data[pos[0] * this.columns + pos[1]];
     }
 
     // 指定位置のtoLayerがあるか確認
-    getToLayerAt(row, col) {
-        return this.toLayers.find(t => t.from[0] === row && t.from[1] === col) || null;
+    getToLayerAt(pos) {
+        if (!this.toLayers) return null;
+        let row = pos[0], col = pos[1];
+        for (const toLayer of this.toLayers) {
+            if (toLayer.position) {
+                if (toLayer.position[0] === row && toLayer.position[1] === col) return toLayer;
+            }
+            if (toLayer.outrange) {
+                if (row < toLayer.outrange[0] || row > toLayer.outrange[2] ||
+                    col < toLayer.outrange[1] || col > toLayer.outrange[3]) return toLayer;
+            }
+        }
+        return null;
     }
 
     // NPCを全取得
@@ -43,15 +54,15 @@ export default class Layer {
         return this.npcs;
     }
 
-    findNPC(row, col, dir) {
-	    let pos = [row, col];
+    // posの位置にいるNPCを検索する
+    findNPC(pos, dir) {
 	    if (!updatePosition(pos, dir)) return null;
 
-	    let npc = this.npcs.find(n => n.row === pos[0] && n.col === pos[1]);
+	    let npc = this.npcs.find(n => n.pos[0] === pos[0] && n.pos[1] === pos[1]);
 	    if (!npc) {
 			if (this.getTileIndex(pos[0], pos[1]) != TILE_DESK) return null;
 		    if (!updatePosition(pos, dir)) return null;
-		    npc = this.npcs.find(n => n.row === pos[0] && n.col === pos[1]);
+		    npc = this.npcs.find(n => n.pos[0] === pos[0] && n.pos[1] === pos[1]);
 		    if (!npc) return null;
 		    if (npc.image != IMG_MERCHANT) return null;
 	    }

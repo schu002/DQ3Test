@@ -38,9 +38,10 @@ class FieldScene extends Phaser.Scene {
         this.fieldLayer.setVisible(true);
 
         // プレイヤーをフィールドの開始位置に追加
+        let order = 1;
         this.members = [];
         gameData.members.forEach(member => {
-            this.members.push(new Player(this, member, data.row, data.col, 0, 0));
+            this.members.push(new Player(this, member, order++, data.pos, 0, 0));
             this.add.existing(this.members[this.members.length-1]);
         });
         player = this.members[0];

@@ -33,7 +33,7 @@ class TownScene extends Phaser.Scene {
         if (!this.layer) return;
 
 	    // 町人をプレイヤーのいる方向に向ける
-	    let npc = this.layer.findNPC(player.row, player.col, player.direction);
+	    let npc = this.layer.findNPC(player.pos, player.direction);
 	    if (npc) {
             npc.direction = getInverseDir(player.direction); // プレイヤーと反対向き
             npc.sprite.setFrame(npc.direction * 2); // 町人の向きを即座に反映
@@ -55,34 +55,29 @@ class TownScene extends Phaser.Scene {
         update.call(this);
     }
 
-    setLayer(layname) {
+    setLayer(layname, pos=null) {
         let layer = this.layerMap[layname];
-        if (this.layer == layer) return;
+        if (!layer || this.layer == layer) return false;
 
         if (this.layer) {
+            camera.fadeOut(1000, 0, 0, 0);
             this.layer.setVisible(false);
             this.layer = null;
         }
 
         npcList = [];
         this.layer = layer;
-        if (layer) {
-            npcList = layer.npcs;
-            // this.cameras.main.stopFollow();
-            members.forEach(member => member.setPosition(layer.start));
-            layer.setVisible(true);
-            // this.cameras.main.centerOn(members[0].x, members[0].y);
-            // camera.startFollow(player.sprite, true, 1, 1, -8*SCALE, -24*SCALE);
-            /* layer.npcs.forEach(npc => {
-                npcList.push(npc));
-            }); */
-        }
+        npcList = layer.npcs;
+        members.forEach(member => member.setPosition((pos)? pos : layer.start));
+        layer.setVisible(true);
+        this.cameras.main.fadeIn(1000, 0, 0, 0);
+        return true;
     }
 
     changeLayer(pos) {
-        let toLayer = this.layer.getToLayerAt(pos[0], pos[1]);
-        if (!toLayer) return;
-        this.setLayer(toLayer.layer);
+        let toLayer = this.layer.getToLayerAt(pos);
+        if (!toLayer) return false;
+        return this.setLayer(toLayer.layer, toLayer.to);
     }
 
     moveNPC(npc) {
@@ -90,7 +85,7 @@ class TownScene extends Phaser.Scene {
         if (npc.isTalking) return;
 
         npc.direction = Phaser.Math.Between(0, 3);
-        let pos = [npc.row, npc.col];
+        let pos = [...npc.pos];
         if (!updatePosition(pos, npc.direction)) return;
 
         // 壁などにぶつからないようにチェック
@@ -99,18 +94,20 @@ class TownScene extends Phaser.Scene {
         npc.move(pos);
     }
 
-    canMove(position, isPlayer) {
-        let row = position[0], col = position[1];
-        let idx = this.layer.getTileIndex(row, col);
+    canMove(pos, isPlayer) {
+        let idx = this.layer.getTileIndex(pos);
         if (idx < 0) return false;
+
+        if (isPlayer) {
+            if (this.changeLayer(pos)) return false;
+        }
         if (idx >= TILE_OBS) {
-            if (isPlayer) this.changeLayer(position);
             return false;
         }
         if (!isPlayer) {
-            if (members.some(mem => row == mem.row && col == mem.col)) return false;
+            if (members.some(mem => pos[0] == mem.pos[0] && pos[1] == mem.pos[1])) return false;
         }
-        if (npcList.some(npc => row == npc.row && col == npc.col)) return false;
+        if (npcList.some(npc => pos[0] == npc.pos[0] && pos[1] == npc.pos[1])) return false;
         return true;
     }
 
@@ -133,6 +130,9 @@ function create()
 	    return;
     }
 
+    this.command = null;
+    this.range = townData.range;
+    this.field = townData.field;
     MAP_WIDTH = townData.width * TILE_SIZE * SCALE;
     MAP_HEIGHT = townData.height * TILE_SIZE * SCALE;
 
@@ -141,7 +141,6 @@ function create()
     const tileset = map.addTilesetImage("townTiles");
 
     // 各レイヤーを作成
-    this.command = null;
     this.layer = null;
     this.layerMap = {};
     townData.layers.forEach(layData => {
@@ -154,9 +153,10 @@ function create()
     this.setLayer("Town");
 
     // プレイヤーを追加
+    let order = 1;
     members = [];
     gameData.members.forEach(member => {
-        members.push(new Player(this, member, this.layer.start, this.layer.dir, CARA_OFFSET));
+        members.push(new Player(this, member, order++, this.layer.start, this.layer.dir, CARA_OFFSET));
     });
     player = members[0];
 
@@ -215,7 +215,7 @@ function update(time)
     let dir = members[0].direction;
 	members[0].direction = newDir;
 
-    let pos = [members[0].row, members[0].col];
+    let pos = [...members[0].pos];
     if (!updatePosition(pos, newDir)) return;
 
     // 壁などにぶつからないようにチェック
@@ -224,20 +224,22 @@ function update(time)
 
     let row = pos[0], col = pos[1], lastIdx = 0;
     for (let idx = 0; idx < members.length; idx++) {
-        let preRow = members[idx].row, preCol = members[idx].col;
+        let prePos = [...members[idx].pos];
         let preDir = (idx == 0)? dir : members[idx].direction;
         if (idx > 0) {
-            if (row == preRow && col == preCol) break;
+            if (row == prePos[0] && col == prePos[1]) break;
 	        lastIdx = idx;
             members[idx].direction = dir;
         }
-	    members[idx].move(this, row, col, CARA_OFFSET, () => {
+	    members[idx].move(this, [row, col], CARA_OFFSET, () => {
 		    if (idx == lastIdx) this.isMoving = false;
 	    });
-	    row = preRow, col = preCol, dir = preDir;
+	    row = prePos[0], col = prePos[1], dir = preDir;
     }
 
-    if (pos[1] < 6) {
+    if (this.layer.name == "Town" &&
+        pos[0] < this.range[0] || pos[0] > this.range[2] ||
+        pos[1] < this.range[1] || pos[1] > this.range[3]) {
 	    exitTown(this);
     }
 }
@@ -246,7 +248,7 @@ function exitTown(scene) {
     camera.fadeOut(200, 0, 0, 0);
     camera.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
 	    bgm.stop();
-	    scene.scene.start("FieldScene", { row: 213, col: 172 }); 
+	    scene.scene.start("FieldScene", { pos: scene.field }); 
     });
 }
 

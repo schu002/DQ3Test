@@ -139,7 +139,7 @@ export default class Menu {
         rect.fillStyle(0x000000);
         rect.strokeRoundedRect(x+10, y+10, w-20, h-20, 5);
         rect.fillRoundedRect(x+10, y+10, w-20, h-20, 5);
-        rect.setDepth(3);
+        rect.setDepth(5);
         return rect;
     }
 
@@ -148,7 +148,7 @@ export default class Menu {
         this.drawList.add(rect);
         rect.fillStyle(col);
         rect.fillRect(x, y, w, h);
-        rect.setDepth(5);
+        rect.setDepth(7);
     }
 
     drawText(x, y, msg, size='38px', col='#ffffff') {
@@ -159,7 +159,7 @@ export default class Menu {
 	            fontSize: '32px',
 	            color: col
             });
-	        text.setDepth(6);
+	        text.setDepth(8);
             this.textList.add(text);
         }
 
@@ -169,7 +169,7 @@ export default class Menu {
 	            fontSize: size,
 	            color: col
             });
-	        text.setDepth(6);
+	        text.setDepth(8);
             this.textList.add(text);
 	        text.setScale(0.9, 1.0);
 	        x += 30;

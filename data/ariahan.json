@@ -13,16 +13,14 @@
       "npcs": [
         {
           "name": "npc1",
-          "row": 20,
-          "col": 21,
+          "position": [20, 21],
           "image": "image/man.png",
           "move": true,
           "dir": -1
         },
         {
           "name": "npc2",
-          "row": 23,
-          "col": 9,
+          "position": [23, 9],
           "image": "image/woman.png",
           "move": true,
           "dir": -1,
@@ -36,8 +34,7 @@
         },
         {
           "name": "npc3",
-          "row": 26,
-          "col": 13,
+          "position": [26, 13],
           "image": "image/oldman.png",
           "move": true,
           "dir": 2,
@@ -56,8 +53,7 @@
         },
         {
           "name": "item",
-          "row": 21,
-          "col": 16,
+          "position": [21, 16],
           "image": "image/merchant.png",
           "move": false,
           "dir": 0,
@@ -68,40 +64,35 @@
         },
         {
           "name": "npc5",
-          "row": 29,
-          "col": 17,
+          "position": [29, 17],
           "image": "image/merchant.png",
           "move": false,
           "dir": 3
         },
         {
           "name": "npc6",
-          "row": 30,
-          "col": 26,
+          "position": [30, 26],
           "image": "image/merchant.png",
           "move": false,
           "dir": 0
         },
         {
           "name": "npc7",
-          "row": 32,
-          "col": 35,
+          "position": [32, 35],
           "image": "image/oldman.png",
           "move": false,
           "dir": 2
         },
         {
           "name": "npc8",
-          "row": 34,
-          "col": 27,
+          "position": [34, 27],
           "image": "image/fencer.png",
           "move": false,
           "dir": 2
         },
         {
           "name": "npc9",
-          "row": 5,
-          "col": 33,
+          "position": [5, 33],
           "image": "image/father.png",
           "move": false,
           "dir": 0
@@ -110,23 +101,21 @@
       "toLayers": [
         {
           "layer": "Luida",
-          "from": [16, 9],
+          "position": [16, 9],
           "to": [16, 9]
         },
         {
           "layer": "Luida",
-          "from": [16, 10],
+          "position": [16, 10],
           "to": [16, 10]
         },
         {
           "layer": "Castle",
-          "from": [4, 21],
-          "to": [15, 18]
+          "position": [4, 21]
         },
         {
           "layer": "Castle",
-          "from": [4, 22],
-          "to": [15, 19]
+          "position": [4, 22]
         }
       ]
     },
@@ -142,25 +131,22 @@
       "visible":false,
       "npcs": [
         {
-          "name": "luida_npc1",
-          "row": 13,
-          "col": 11,
+          "name": "npc1",
+          "position": [13, 11],
           "image": "image/merchant.png",
           "move": false,
           "dir": 2
         },
         {
-          "name": "luida_npc2",
-          "row": 4,
-          "col": 8,
+          "name": "npc2",
+          "position": [4, 8],
           "image": "image/woman.png",
           "move": false,
           "dir": 0
         },
         {
-          "name": "luida_npc3",
-          "row": 8,
-          "col": 10,
+          "name": "npc3",
+          "position": [8, 10],
           "image": "image/fencer.png",
           "move": false,
           "dir": 2
@@ -169,12 +155,12 @@
       "toLayers": [
         {
           "layer": "Town",
-          "from": [17, 9],
+          "position": [17, 9],
           "to": [17, 9]
         },
         {
           "layer": "Town",
-          "from": [17, 10],
+          "position": [17, 10],
           "to": [17, 10]
         }
       ]
@@ -188,7 +174,14 @@
       "dir": 1,
       "opacity":1,
       "type":"tilelayer",
-      "visible":false
+      "visible":false,
+      "toLayers": [
+        {
+          "layer": "Town",
+          "outrange": [6, 5, 35, 34],
+          "to": [4, 21]
+        }
+      ]
     }
  ],
  "nextobjectid":6,
@@ -200,6 +193,8 @@
  "renderorder":"right-down",
  "width":44,
  "height":45,
+ "range": [0, 6, 38, 37],
+ "field": [213, 172],
  "tilewidth":32,
  "tileheight":32,
  "tilesets":[
