@@ -208,6 +208,10 @@ export default class Command {
         else if (this.keys.right.isDown || this.wasd.right.isDown) dir = DIR.RIGHT;
         else return;
 
+        if (this.message && !this.message.isCursor()) {
+            this.isFinish = true;
+            dir = -1;
+        }
         if (this.isFinish) {
             this.scene.exitCommand();
             return;

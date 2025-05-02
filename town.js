@@ -40,7 +40,10 @@ class TownScene extends Phaser.Scene {
 
     exitCommand() {
         this.command.destroy();
-        this.command = null;
+        // 0.5秒だけキー入力を無視する
+        this.time.delayedCall(500, () => {
+            this.command = null;
+        });
     }
 
     update() {

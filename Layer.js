@@ -61,7 +61,7 @@ export default class Layer {
 
 	    let npc = this.npcs.find(n => n.pos[0] === newpos[0] && n.pos[1] === newpos[1]);
 	    if (!npc) {
-			if (this.getTileIndex(newpos[0], newpos[1]) != TILE_DESK) return null;
+			if (this.getTileIndex(newpos) != TILE_DESK) return null;
 		    if (!updatePosition(newpos, dir)) return null;
 		    npc = this.npcs.find(n => n.pos[0] === newpos[0] && n.pos[1] === newpos[1]);
 		    if (!npc) return null;
