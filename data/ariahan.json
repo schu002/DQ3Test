@@ -14,7 +14,7 @@
         {
           "name": "npc1",
           "position": [20, 21],
-          "image": "image/man.png",
+          "image": "man",
           "move": true,
           "dir": -1,
           "talks": [
@@ -26,7 +26,7 @@
         {
           "name": "npc2",
           "position": [23, 9],
-          "image": "image/woman.png",
+          "image": "woman",
           "move": true,
           "dir": -1,
           "talks": [
@@ -40,7 +40,7 @@
         {
           "name": "npc3",
           "position": [26, 13],
-          "image": "image/oldman.png",
+          "image": "oldman",
           "move": true,
           "dir": 2,
           "talks": [
@@ -59,7 +59,7 @@
         {
           "name": "item",
           "position": [21, 16],
-          "image": "image/merchant.png",
+          "image": "merchant",
           "move": false,
           "dir": 0,
           "talks": [
@@ -70,35 +70,35 @@
         {
           "name": "npc5",
           "position": [29, 17],
-          "image": "image/merchant.png",
+          "image": "merchant",
           "move": false,
           "dir": 3
         },
         {
           "name": "npc6",
           "position": [30, 26],
-          "image": "image/merchant.png",
+          "image": "merchant",
           "move": false,
           "dir": 0
         },
         {
           "name": "npc7",
           "position": [32, 35],
-          "image": "image/oldman.png",
+          "image": "oldman",
           "move": false,
           "dir": 2
         },
         {
           "name": "npc8",
           "position": [34, 27],
-          "image": "image/fencer.png",
+          "image": "fencer",
           "move": false,
           "dir": 2
         },
         {
           "name": "npc9",
           "position": [5, 33],
-          "image": "image/father.png",
+          "image": "father",
           "move": false,
           "dir": 0
         }
@@ -138,21 +138,21 @@
         {
           "name": "npc1",
           "position": [13, 11],
-          "image": "image/merchant.png",
+          "image": "merchant",
           "move": false,
           "dir": 2
         },
         {
           "name": "npc2",
           "position": [4, 8],
-          "image": "image/woman.png",
+          "image": "woman",
           "move": false,
           "dir": 0
         },
         {
           "name": "npc3",
           "position": [8, 10],
-          "image": "image/fencer.png",
+          "image": "fencer",
           "move": false,
           "dir": 2
         }
@@ -180,6 +180,52 @@
       "opacity":1,
       "type":"tilelayer",
       "visible":false,
+      "npcs": [
+        {
+          "name": "npc1",
+          "position": [34, 17],
+          "image": "sentry",
+          "move": false,
+          "dir": 3,
+          "talks": [
+            "アリアハンの　おしろに",
+            "ようこそ。"
+          ]
+        },
+        {
+          "name": "npc2",
+          "position": [34, 22],
+          "image": "sentry",
+          "move": false,
+          "dir": 2,
+          "talks": [
+            "アリアハンの　おしろに",
+            "ようこそ。"
+          ]
+        },
+        {
+          "name": "npc3",
+          "position": [17, 18],
+          "image": "sentry",
+          "move": false,
+          "dir": 3,
+          "talks": [
+            "おうさまは　このうえに",
+            "おはします。"
+          ]
+        },
+        {
+          "name": "npc4",
+          "position": [17, 21],
+          "image": "sentry",
+          "move": false,
+          "dir": 2,
+          "talks": [
+            "さあ　おうさまが",
+            "おまちかね　ですぞ。"
+          ]
+        }
+      ],
       "toLayers": [
         {
           "layer": "Town",

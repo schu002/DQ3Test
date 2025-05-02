@@ -52,11 +52,9 @@ class TitleScene extends Phaser.Scene {
 		    return;
 	    }
 
-	    // 町人画像をロード
-        let townLayer = townData.layers.find(layer => layer.name === "Town");
-	    const npcData = townLayer.npcs;
-	    npcData.forEach(npc => {
-	        this.load.spritesheet(npc.image, npc.image, { frameWidth: 32, frameHeight: 32 });
+	    // スプライト画像をロード
+	    gameData.sprites.forEach(item => {
+	        this.load.spritesheet(item.key, item.file, { frameWidth: 32, frameHeight: 32 });
 	    });
 
         OccupationData.loadData(this);
