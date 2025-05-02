@@ -56,13 +56,14 @@ export default class Layer {
 
     // posの位置にいるNPCを検索する
     findNPC(pos, dir) {
-	    if (!updatePosition(pos, dir)) return null;
+        let newpos = [...pos];
+	    if (!updatePosition(newpos, dir)) return null;
 
-	    let npc = this.npcs.find(n => n.pos[0] === pos[0] && n.pos[1] === pos[1]);
+	    let npc = this.npcs.find(n => n.pos[0] === newpos[0] && n.pos[1] === newpos[1]);
 	    if (!npc) {
-			if (this.getTileIndex(pos[0], pos[1]) != TILE_DESK) return null;
-		    if (!updatePosition(pos, dir)) return null;
-		    npc = this.npcs.find(n => n.pos[0] === pos[0] && n.pos[1] === pos[1]);
+			if (this.getTileIndex(newpos[0], newpos[1]) != TILE_DESK) return null;
+		    if (!updatePosition(newpos, dir)) return null;
+		    npc = this.npcs.find(n => n.pos[0] === newpos[0] && n.pos[1] === newpos[1]);
 		    if (!npc) return null;
 		    if (npc.image != IMG_MERCHANT) return null;
 	    }

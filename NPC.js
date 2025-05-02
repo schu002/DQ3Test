@@ -1,3 +1,5 @@
+import { getInverseDir } from "./util.js";
+
 export default class NPC {
     constructor(scene, npcData) {
         this.scene = scene;
@@ -23,6 +25,17 @@ export default class NPC {
                 this.pos = [...pos];
             }
         });
+    }
+
+    setTalking(onoff, dir=-1) {
+        if (this.isTalking == onoff) return;
+        if (onoff) {
+            if (dir >= 0) this.direction = getInverseDir(dir); // プレイヤーと反対向き
+            this.sprite.setFrame(this.direction * 2); // 町人の向きを即座に反映
+            this.isTalking = true;
+        } else {
+            this.isTalking = false;
+        }
     }
 
     setVisible(onoff) {

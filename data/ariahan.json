@@ -16,7 +16,12 @@
           "position": [20, 21],
           "image": "image/man.png",
           "move": true,
-          "dir": -1
+          "dir": -1,
+          "talks": [
+            "おしろから　うみづたいを",
+            "あるくと　みさきの　どうくつが",
+            "あるそうです。"
+          ]
         },
         {
           "name": "npc2",

@@ -10,10 +10,9 @@ const WIN_H = 252;
 const cmdList = ["はなす", "つよさ", "そうび", "じゅもん", "どうぐ", "しらべる"];
 
 export default class Command {
-    constructor(scene, members, npc) {
+    constructor(scene, members, layer=null) {
         this.scene = scene;
         this.members = members;
-        this.npc = npc;
         this.command = COMMAND.NONE;
         this.menuList = [];
         this.message = null;
@@ -24,8 +23,13 @@ export default class Command {
         this.menu = menu;
         this.buttonSound = scene.sound.add("button", { loop: false, volume: 0.2 });
         this.buttonSound.play();
-        if (npc) {
-            this.createTalkMenu(npc);
+        this.isListen = true;
+        this.isFinish = false;
+        let player = members[0];
+	    this.npc = (layer)? layer.findNPC(player.pos, player.direction) : null;
+	    if (this.npc) {
+            this.npc.setTalking(true, player.direction);
+            this.createTalkMenu(this.npc);
         } else {
             this.status = new DrawStatus(scene, members, 80, 304);
         }
@@ -39,8 +43,6 @@ export default class Command {
 	        left: Phaser.Input.Keyboard.KeyCodes.A,
 	        right: Phaser.Input.Keyboard.KeyCodes.D
 	    });
-        this.isListen = true;
-        this.isFinish = false;
 
         this.timer = scene.time.addEvent({
             delay: 10,
@@ -56,6 +58,7 @@ export default class Command {
             let menu = this.menuList.pop();
             menu.destroy();
         }
+        if (this.npc) this.npc.setTalking(false);
         if (this.message) this.message.destroy();
         if (this.status) this.status.destroy();
         this.scene.input.keyboard.off("keydown-Z", this.onButtonA, this);
@@ -64,6 +67,9 @@ export default class Command {
     }
 
     onButtonA() {
+        if (this.message && !this.message.isCursor()) {
+            this.isFinish = true;
+        }
         if (this.isFinish) {
             this.scene.exitCommand();
             return;
@@ -78,7 +84,6 @@ export default class Command {
         if (cmd == COMMAND.TALK) {
 	        if (!this.message) {
 	            this.createTalkMenu(null);
-	            this.isFinish = true;
 	        } else {
 	            if (!this.message.updateTalk()) {
 	                this.isFinish = true;

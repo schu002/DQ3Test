@@ -5,7 +5,7 @@ import FieldScene from "./field.js";
 import MonsterData from "./MonsterData.js";
 import OccupationData from "./OccupationData.js";
 import Command from "./Command.js";
-import { updatePosition, getInverseDir } from "./util.js";
+import { updatePosition } from "./util.js";
 
 const TILE_OBS = 15;
 let MAP_WIDTH = 0;
@@ -32,15 +32,7 @@ class TownScene extends Phaser.Scene {
         if (this.command) return;
         if (!this.layer) return;
 
-	    // 町人をプレイヤーのいる方向に向ける
-	    let npc = this.layer.findNPC(player.pos, player.direction);
-	    if (npc) {
-            npc.direction = getInverseDir(player.direction); // プレイヤーと反対向き
-            npc.sprite.setFrame(npc.direction * 2); // 町人の向きを即座に反映
-            npc.isTalking = true;
-		}
-
-        this.command = new Command(this, members, npc);
+        this.command = new Command(this, members, this.layer);
     }
 
     onButtonB() {
@@ -222,19 +214,19 @@ function update(time)
     this.isMoving = this.canMove(pos, true);
     if (!this.isMoving) return;
 
-    let row = pos[0], col = pos[1], lastIdx = 0;
+    let wkpos = [...pos], lastIdx = 0;
     for (let idx = 0; idx < members.length; idx++) {
         let prePos = [...members[idx].pos];
         let preDir = (idx == 0)? dir : members[idx].direction;
         if (idx > 0) {
-            if (row == prePos[0] && col == prePos[1]) break;
+            if (wkpos[0] == prePos[0] && wkpos[1] == prePos[1]) break;
 	        lastIdx = idx;
             members[idx].direction = dir;
         }
-	    members[idx].move(this, [row, col], CARA_OFFSET, () => {
+	    members[idx].move(this, wkpos, CARA_OFFSET, () => {
 		    if (idx == lastIdx) this.isMoving = false;
 	    });
-	    row = prePos[0], col = prePos[1], dir = preDir;
+	    wkpos = [...prePos], dir = preDir;
     }
 
     if (this.layer.name == "Town" &&

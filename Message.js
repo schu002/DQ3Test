@@ -13,8 +13,10 @@ export default class Message {
         this.idx = 0;
         this.drawList = scene.add.container(x, y);
         this.drawList.setScrollFactor(0);
+        this.drawList.setDepth(1000);
         this.textList = scene.add.container(x, y);
         this.textList.setScrollFactor(0);
+        this.textList.setDepth(1010);
         this.cursor = null;
         if (w > 0 && h > 0) this.drawRect(0, 0, w, h);
 
@@ -42,6 +44,10 @@ export default class Message {
     setVisible(onoff) {
         this.drawList.setVisible(onoff);
         this.textList.setVisible(onoff);
+    }
+
+    isCursor() {
+        return (this.cursor)? true : false;
     }
 
     updateTalk(canTalk=true) {
@@ -110,7 +116,6 @@ export default class Message {
 	                });
 		            text.setScrollFactor(0);
 		            text.setScale(0.95, 1.0);
-		            text.setDepth(8);
                     this.textList.add(text);
 		            x += 34;
 	            }
@@ -135,7 +140,7 @@ export default class Message {
         this.cursor.lineTo(x, y+4);
         this.cursor.closePath();
         this.cursor.fillPath();
-        this.cursor.setDepth(10);
+        this.cursor.setDepth(1010);
         this.cursor.setScrollFactor(0);
         this.cursor.setVisible(true);
 	}
@@ -148,7 +153,7 @@ export default class Message {
         rect.fillStyle(0x000000);
         rect.strokeRoundedRect(x+10, y+10, w-20, h-20, 5);
         rect.fillRoundedRect(x+10, y+10, w-20, h-20, 5);
-        rect.setDepth(5);
+        rect.setDepth(1005);
         return rect;
     }
 
@@ -157,6 +162,6 @@ export default class Message {
         this.drawList.add(rect);
         rect.fillStyle(col);
         rect.fillRect(x, y, w, h);
-        rect.setDepth(7);
+        rect.setDepth(1007);
     }
 }
