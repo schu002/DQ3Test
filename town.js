@@ -54,16 +54,20 @@ class TownScene extends Phaser.Scene {
         let layer = this.layerMap[layname];
         if (!layer || this.layer == layer) return false;
 
+        let newpos = (pos)? [...pos] : [...layer.start];
         npcList = [];
         this.layer = layer;
         npcList = layer.npcs;
-        members.forEach(member => member.setPosition((pos)? pos : layer.start));
+        members.forEach(member => member.setPosition(newpos));
         layer.setVisible(true);
         this.cameras.main.fadeIn(1000, 0, 0, 0);
         return true;
     }
 
-    changeLayer(toLayer) {
+    changeLayer(pos) {
+        let toLayer = this.layer.getToLayerAt(pos);
+        if (!toLayer) return false;
+
         this.isMoving = true;
         if (this.layer) {
             camera.fadeOut(500, 0, 0, 0);
@@ -77,6 +81,7 @@ class TownScene extends Phaser.Scene {
             this.setLayer(toLayer.layer, toLayer.to);
             this.isMoving = false;
         });
+        return true;
     }
 
     moveNPC(npc) {
@@ -98,14 +103,8 @@ class TownScene extends Phaser.Scene {
         let idx = this.layer.getTileIndex(pos);
         if (idx < 0) return false;
 
-        if (isPlayer) {
-            let toLayer = this.layer.getToLayerAt(pos);
-            if (toLayer) {
-                this.changeLayer(toLayer);
-                return false;
-            }
-        }
         if (idx >= TILE_OBS) {
+            if (isPlayer) this.changeLayer(pos);
             return false;
         }
         if (!isPlayer) {
@@ -115,6 +114,15 @@ class TownScene extends Phaser.Scene {
         return true;
     }
 
+    postMove(pos) {
+        if (this.layer.name == "Town" &&
+            (pos[0] < this.range[0] || pos[0] > this.range[2] ||
+             pos[1] < this.range[1] || pos[1] > this.range[3])) {
+            exitTown(this);
+        } else {
+            this.changeLayer(pos);
+        }
+    }
 }
 
 let player, camera, bgm;
@@ -236,15 +244,12 @@ function update(time)
             members[idx].direction = dir;
         }
 	    members[idx].move(this, wkpos, CARA_OFFSET, () => {
-		    if (idx == lastIdx) this.isMoving = false;
+		    if (idx == lastIdx) {
+                this.isMoving = false;
+                this.postMove(pos);
+            }
 	    });
 	    wkpos = [...prePos], dir = preDir;
-    }
-
-    if (this.layer.name == "Town" &&
-        pos[0] < this.range[0] || pos[0] > this.range[2] ||
-        pos[1] < this.range[1] || pos[1] > this.range[3]) {
-	    exitTown(this);
     }
 }
 
