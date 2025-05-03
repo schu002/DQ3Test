@@ -1,3 +1,4 @@
+import Player from "./player.js";
 import { getNumberStr } from "./util.js";
 
 export default class Message {
@@ -71,6 +72,7 @@ export default class Message {
         while (this.talkList.length > 0) {
             let str = this.talkList.shift();
             if (canTalk) {
+                str = str.replace("<hero>", Player.getHero().name);
 	            if (str == "▼") {
                     isCursor = true;
 	                break;

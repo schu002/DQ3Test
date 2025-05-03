@@ -2,6 +2,8 @@ import OccupationData from "./OccupationData.js";
 import EquipmentData from "./EquipmentData.js";
 
 export default class Player {
+    static hero = null;
+
     constructor(scene, data, order, pos, dir, offset = 0) {
         this.name = data.name;
         this.occupation = data.occupation;
@@ -28,6 +30,8 @@ export default class Player {
             this.wise = prms.wise;
             this.luck = prms.luck;
         }
+
+        if (this.occupation == "hero") Player.hero = this;
     }
 
     updateFrame() {
@@ -70,5 +74,9 @@ export default class Player {
             if (data) value += data.ability;
         }
         return value;
+    }
+
+    static getHero() {
+        return Player.hero;
     }
 }
