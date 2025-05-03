@@ -16,8 +16,10 @@ export default class Menu {
         this.colNum = (row > 0 && row < slen)? 2 : 1;
         this.drawList = scene.add.container(x, y);
         this.drawList.setScrollFactor(0);
+        this.drawList.setDepth(1100);
         this.textList = scene.add.container(x, y);
         this.textList.setScrollFactor(0);
+        this.textList.setDepth(1110);
         this.cursor = null;
         if (w > 0 && h > 0) this.drawRect(0, 0, w, h);
         this.setStrList(strList);

@@ -13,7 +13,7 @@
       "npcs": [
         {
           "name": "npc1",
-          "position": [20, 21],
+          "position": [25, 25],
           "image": "man",
           "move": true,
           "dir": -1,
@@ -83,20 +83,59 @@
         },
         {
           "name": "npc7",
-          "position": [32, 35],
-          "image": "oldman",
-          "move": false,
-          "dir": 2
+          "position": [21, 33],
+          "image": "woman",
+          "move": true,
+          "dir": 2,
+          "talks": [
+            "まちのなかにいると",
+            "まおうが　せかいをほろぼすなど",
+            "まるで　うそのようですわ。"
+          ]
         },
         {
           "name": "npc8",
-          "position": [34, 27],
-          "image": "fencer",
+          "position": [32, 35],
+          "image": "oldman",
           "move": false,
-          "dir": 2
+          "dir": 2,
+          "talks": [
+            "このしろの　にしに",
+            "うかぶ　しまを",
+            "もう　みなさったか？",
+            "<Y/N>",
+            "Y/あの　しまに　そびえるのが？",
+            "ナジミのとう　じゃ。/Y",
+            "N/そとにでれば",
+            "すぐに　みられるはずじゃ。/N"
+          ]
         },
         {
           "name": "npc9",
+          "position": [34, 27],
+          "image": "fencer",
+          "move": false,
+          "dir": 2,
+          "talks": [
+            "あなたが　あの　ゆうかんだった",
+            "オルテガの　むすこさんか？",
+            "おちちうえは　りっぱでしたぞ！"
+          ]
+        },
+        {
+          "name": "npc10",
+          "position": [26, 34],
+          "image": "man",
+          "move": false,
+          "dir": 0,
+          "talks": [
+            "まちのそとに　でて",
+            "ながくあるけば　やがて　よるに",
+            "なります。"
+          ]
+        },
+        {
+          "name": "npc11",
           "position": [5, 33],
           "image": "father",
           "move": false,
@@ -223,6 +262,29 @@
           "talks": [
             "さあ　おうさまが",
             "おまちかね　ですぞ。"
+          ]
+        },
+        {
+          "name": "npc5",
+          "position": [13, 13],
+          "image": "woman",
+          "move": true,
+          "dir": 2,
+          "talks": [
+            "おひめさまを　みませんでした？",
+            "おひめさまー。オロオロ…。"
+          ]
+        },
+        {
+          "name": "npc6",
+          "position": [27, 12],
+          "image": "oldman",
+          "move": false,
+          "dir": 0,
+          "talks": [
+            "とうぞくバコタの　つくった",
+            "カギは　かんたんなドアを",
+            "すべて　あけたそうじゃ。"
           ]
         }
       ],

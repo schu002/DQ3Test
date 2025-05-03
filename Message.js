@@ -18,6 +18,7 @@ export default class Message {
         this.textList.setScrollFactor(0);
         this.textList.setDepth(1010);
         this.cursor = null;
+        this.confirm = CONFIRM.NONE;
         if (w > 0 && h > 0) this.drawRect(0, 0, w, h);
 
         this.talkBGM = scene.sound.add("talk", { loop: false, volume: 0.2 });
@@ -46,8 +47,16 @@ export default class Message {
         this.textList.setVisible(onoff);
     }
 
-    isCursor() {
-        return (this.cursor)? true : false;
+    setConfirm(confirm) {
+        this.confirm = confirm;
+    }
+
+    isConfirmYesNo() {
+        return (this.confirm == CONFIRM.WAITING)? true : false;
+    }
+
+    isFinish() {
+        return (this.cursor || this.confirm == CONFIRM.WAITING)? false : true;
     }
 
     updateTalk(canTalk=true) {
@@ -58,14 +67,31 @@ export default class Message {
 	    }
 
         // 会話テキスト
-        let chList = [], isCursor = false;
+        let chList = [], isCursor = false, confirm = CONFIRM.NONE;
         while (this.talkList.length > 0) {
             let str = this.talkList.shift();
             if (canTalk) {
 	            if (str == "▼") {
                     isCursor = true;
 	                break;
-	            }
+                } else if (str == "<Y/N>") {
+                    this.confirm = CONFIRM.WAITING;
+	                break;
+                } else if (str.substr(0, 2) == "Y/") {
+                    str = str.slice(2);
+                    confirm = CONFIRM.YES;
+                } else if (str.substr(0, 2) == "N/") {
+                    str = str.slice(2);
+                    confirm = CONFIRM.NO;
+                }
+                if (confirm != CONFIRM.NONE) {
+                    let isSkip = (confirm != this.confirm)? true : false;
+                    if (str.slice(-2) == "/Y" || str.slice(-2) == "/N") {
+                        str = str.slice(0, -2);
+                        confirm = CONFIRM.NONE;
+                    }
+                    if (isSkip) continue;
+                }
                 if (this.parent.idx == COMMAND.TALK) {
                     str = ((chList.length == 0)? "＊「" : "　　") + str;
                 }
@@ -124,7 +150,7 @@ export default class Message {
                 }
             }
         });
-        return isCursor;
+        return (isCursor || this.confirm == CONFIRM.WAITING)? true : false;
     }
 
     createDownArrow(x, y) {
