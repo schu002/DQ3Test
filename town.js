@@ -54,12 +54,6 @@ class TownScene extends Phaser.Scene {
         let layer = this.layerMap[layname];
         if (!layer || this.layer == layer) return false;
 
-        if (this.layer) {
-            camera.fadeOut(1000, 0, 0, 0);
-            this.layer.setVisible(false);
-            this.layer = null;
-        }
-
         npcList = [];
         this.layer = layer;
         npcList = layer.npcs;
@@ -69,10 +63,20 @@ class TownScene extends Phaser.Scene {
         return true;
     }
 
-    changeLayer(pos) {
-        let toLayer = this.layer.getToLayerAt(pos);
-        if (!toLayer) return false;
-        return this.setLayer(toLayer.layer, toLayer.to);
+    changeLayer(toLayer) {
+        this.isMoving = true;
+        if (this.layer) {
+            camera.fadeOut(500, 0, 0, 0);
+            this.time.delayedCall(500, () => {
+                this.layer.setVisible(false);
+                this.layer = null;
+            });
+        }
+
+        this.time.delayedCall(500, () => {
+            this.setLayer(toLayer.layer, toLayer.to);
+            this.isMoving = false;
+        });
     }
 
     moveNPC(npc) {
@@ -90,11 +94,16 @@ class TownScene extends Phaser.Scene {
     }
 
     canMove(pos, isPlayer) {
+        if (!this.layer) return false;
         let idx = this.layer.getTileIndex(pos);
         if (idx < 0) return false;
 
         if (isPlayer) {
-            if (this.changeLayer(pos)) return false;
+            let toLayer = this.layer.getToLayerAt(pos);
+            if (toLayer) {
+                this.changeLayer(toLayer);
+                return false;
+            }
         }
         if (idx >= TILE_OBS) {
             return false;
@@ -214,9 +223,9 @@ function update(time)
     if (!updatePosition(pos, newDir)) return;
 
     // 壁などにぶつからないようにチェック
-    this.isMoving = this.canMove(pos, true);
-    if (!this.isMoving) return;
+    if (!this.canMove(pos, true)) return;
 
+    this.isMoving = true;
     let wkpos = [...pos], lastIdx = 0;
     for (let idx = 0; idx < members.length; idx++) {
         let prePos = [...members[idx].pos];
