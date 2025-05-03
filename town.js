@@ -7,7 +7,7 @@ import OccupationData from "./OccupationData.js";
 import Command from "./Command.js";
 import { updatePosition } from "./util.js";
 
-const TILE_OBS = 15;
+const TILE_OBS = 16;
 let MAP_WIDTH = 0;
 let MAP_HEIGHT = 0;
 
