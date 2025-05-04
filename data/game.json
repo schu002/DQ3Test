@@ -29,9 +29,13 @@
  "sprites": [
     { "key": "father", "file": "image/father.png" },
     { "key": "fencer", "file": "image/fencer.png" },
+    { "key": "flute", "file": "image/flute.png" },
     { "key": "hero", "file": "image/hero.png" },
+    { "key": "king", "file": "image/king.png" },
+    { "key": "lady", "file": "image/lady.png" },
     { "key": "man", "file": "image/man.png" },
     { "key": "merchant", "file": "image/merchant.png" },
+    { "key": "minister", "file": "image/minister.png" },
     { "key": "monk", "file": "image/monk.png" },
     { "key": "oldman", "file": "image/oldman.png" },
     { "key": "ruffian", "file": "image/ruffian.png" },
