@@ -1,8 +1,6 @@
 import Player from "./player.js";
 import NPC from "./NPC.js";
 import Layer from "./Layer.js";
-import FieldScene from "./field.js";
-import MonsterData from "./MonsterData.js";
 import OccupationData from "./OccupationData.js";
 import Command from "./Command.js";
 import { updatePosition } from "./util.js";

@@ -1,6 +1,6 @@
 import Player from "./player.js";
-import TownScene from "./town.js";
-import BattleScene from "./battle.js";
+import Layer from "./Layer.js";
+import MonsterData from "./MonsterData.js";
 import OccupationData from "./OccupationData.js";
 import Command from "./Command.js";
 import { updatePosition, getInverseDir } from "./util.js";
@@ -33,17 +33,30 @@ class FieldScene extends Phaser.Scene {
         const map = this.make.tilemap({ key: "fieldMap" });
         const tileset = map.addTilesetImage("fieldTiles");
 
-        this.fieldLayer = map.createLayer("Field", tileset, 0, 0);
-        this.fieldLayer.setScale(SCALE);
-        this.fieldLayer.setVisible(true);
+        // 各レイヤーを作成
+        this.layer = null;
+        this.layerMap = {};
+        let startpos;
+        fieldData.layers.forEach(layData => {
+            let drawLayer = map.createLayer(layData.name, tileset, 0, 0);
+            drawLayer.setScale(SCALE);
+            drawLayer.setVisible(false);
+            let layer = new Layer(this, layData, drawLayer);
+            this.layerMap[layData.name] = layer;
+            if (layer.name == "Field") startpos = layer.start;
+        });
+        // this.fieldLayer = map.createLayer("Field", tileset, 0, 0);
+        // this.fieldLayer.setScale(SCALE);
+        // this.fieldLayer.setVisible(true);
 
         // プレイヤーをフィールドの開始位置に追加
         let order = 1;
         this.members = [];
         gameData.members.forEach(member => {
-            this.members.push(new Player(this, member, order++, data.pos, 0, 0));
-            this.add.existing(this.members[this.members.length-1]);
+            this.members.push(new Player(this, member, order++, startpos, 0, 0));
+            // this.add.existing(this.members[this.members.length-1]);
         });
+        this.setLayer("Field");
         player = this.members[0];
         this.isMoving = false;
 
@@ -90,30 +103,33 @@ class FieldScene extends Phaser.Scene {
         else if (this.keys.down.isDown	|| this.wasd.down.isDown)  newDir = DIR.DOWN;
         else return;
 
-    	let dir = this.members[0].direction;
-    	this.members[0].direction = newDir;
+        let dir = this.members[0].direction;
+        this.members[0].direction = newDir;
 
-    	let pos = [this.members[0].row, this.members[0].col];
+        let pos = [...this.members[0].pos];
         if (!updatePosition(pos, newDir)) return;
 
         // 壁などにぶつからないようにチェック
-        this.isMoving = canMove(this, pos, true);
-        if (!this.isMoving) return;
+        if (!this.canMove(pos)) return;
 
-        let row = pos[0], col = pos[1], lastIdx = 0;
+        this.isMoving = true;
+        let wkpos = [...pos], lastIdx = 0;
         for (let idx = 0; idx < this.members.length; idx++) {
             let member = this.members[idx];
-            let preRow = member.row, preCol = member.col;
+            let prePos = [...member.pos];
             let preDir = (idx == 0)? dir : member.direction;
             if (idx > 0) {
-                if (row == preRow && col == preCol) break;
+                if (wkpos[0] == prePos[0] && wkpos[1] == prePos[1]) break;
                 lastIdx = idx;
                 member.direction = dir;
             }
-            member.move(this, row, col, 0, () => {
-    	        if (idx == lastIdx) this.postMove(pos);
+            member.move(this, wkpos, 0, () => {
+    	        if (idx == lastIdx) {
+                    this.isMoving = false;
+                    this.postMove(pos);
+                }
             });
-            row = preRow, col = preCol, dir = preDir;
+            wkpos = [...prePos], dir = preDir;
         }
     }
 
@@ -128,6 +144,30 @@ class FieldScene extends Phaser.Scene {
     }
 
     onButtonB() {
+    }
+
+    setLayer(layname, pos=null) {
+        let layer = this.layerMap[layname];
+        if (!layer || this.layer == layer) return false;
+
+        let newpos = (pos)? [...pos] : [...layer.start];
+        this.layer = layer;
+        this.members.forEach(member => member.setPosition(newpos));
+        layer.setVisible(true);
+        this.cameras.main.fadeIn(1000, 0, 0, 0);
+        return true;
+    }
+
+    canMove(pos) {
+        let idx = this.layer.getTileIndex(pos);
+        if (idx < 0) return false;
+        if (idx >= TILE_OBS) {
+            // if (isPlayer) changeLayer(scene, position);
+            return false;
+        }
+        // if (row == player.row && col == player.col) return false;
+        // if (npcList.some(npc => row == npc.row && col == npc.col)) return false;
+        return true;
     }
 
     postMove(pos) {
@@ -153,20 +193,6 @@ class FieldScene extends Phaser.Scene {
         this.isMoving = false;
         bgm.play();
     }
-}
-
-function canMove(scene, position, isPlayer) {
-    let row = position[0], col = position[1];
-    let tile = scene.fieldLayer.getTileAt(col, row);
-    let idx = tile ? tile.index : -1;
-    if (idx < 0) return false;
-    if (idx >= TILE_OBS) {
-    	// if (isPlayer) changeLayer(scene, position);
-    	return false;
-    }
-    // if (row == player.row && col == player.col) return false;
-    // if (npcList.some(npc => row == npc.row && col == npc.col)) return false;
-    return true;
 }
 
 export default FieldScene;

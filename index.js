@@ -3,9 +3,9 @@ const SCREEN_WIDTH = 992;
 const SCREEN_HEIGHT = 890;
 
 import TitleScene from "./TitleScene.js";
-import FieldScene from "./field.js";
-import TownScene from "./town.js";
-import BattleScene from "./battle.js";
+import FieldScene from "./FieldScene.js";
+import TownScene from "./TownScene.js";
+import BattleScene from "./BattleScene.js";
 
 const config = {
     type: Phaser.AUTO,

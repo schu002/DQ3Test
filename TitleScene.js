@@ -1,4 +1,3 @@
-import TownScene from "./town.js";
 import MonsterData from "./MonsterData.js";
 import OccupationData from "./OccupationData.js";
 import EquipmentData from "./EquipmentData.js";
