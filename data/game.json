@@ -34,6 +34,7 @@
     { "key": "merchant", "file": "image/merchant.png" },
     { "key": "monk", "file": "image/monk.png" },
     { "key": "oldman", "file": "image/oldman.png" },
+    { "key": "ruffian", "file": "image/ruffian.png" },
     { "key": "sentry", "file": "image/sentry.png" },
     { "key": "soldier", "file": "image/soldier.png" },
     { "key": "wizard", "file": "image/wizard.png" },
