@@ -70,6 +70,7 @@ class TownScene extends Phaser.Scene {
 
         this.isMoving = true;
         if (this.layer) {
+            if (toLayer.sound) this.stepSound.play();
             camera.fadeOut(500, 0, 0, 0);
             this.time.delayedCall(500, () => {
                 this.layer.setVisible(false);
@@ -190,7 +191,7 @@ function create()
     // BGM
     bgm = this.sound.add("townBGM", { loop: true, volume: 0.3 });
     bgm.play();
-    this.buttonSound = this.sound.add("button", { loop: false, volume: 0.2 });
+    this.stepSound = this.sound.add("step", { loop: false, volume: 0.2 });
     this.isMoving = false;
 
     // 歩行アニメーション

@@ -158,11 +158,13 @@
         },
         {
           "layer": "Castle1",
-          "position": [4, 21]
+          "position": [4, 21],
+          "sound": true
         },
         {
           "layer": "Castle1",
-          "position": [4, 22]
+          "position": [4, 22],
+          "sound": true
         }
       ]
     },
@@ -211,7 +213,8 @@
         },
         {
           "layer": "Luida2",
-          "position": [5, 12]
+          "position": [5, 12],
+          "sound": true
         }
       ]
     },
@@ -271,7 +274,8 @@
         {
           "layer": "Luida1",
           "position": [7, 14],
-          "to": [5, 12]
+          "to": [5, 12],
+          "sound": true
         }
       ]
     },
@@ -292,7 +296,8 @@
         },
         {
           "layer": "Home2",
-          "position": [7, 9]
+          "position": [7, 9],
+          "sound": true
         }
       ]
     },
@@ -340,7 +345,8 @@
         {
           "layer": "Home1",
           "position": [13, 13],
-          "to": [7, 9]
+          "to": [7, 9],
+          "sound": true
         }
       ]
     },
@@ -438,11 +444,13 @@
         {
           "layer": "Town",
           "outrange": [6, 5, 35, 34],
-          "to": [4, 21]
+          "to": [4, 21],
+          "sound": true
         },
         {
           "layer": "Castle2",
-          "position": [15, 20]
+          "position": [15, 20],
+          "sound": true
         }
       ]
     },
@@ -547,7 +555,8 @@
         {
           "layer": "Castle1",
           "position": [26, 15],
-          "to": [15, 20]
+          "to": [15, 20],
+          "sound": true
         }
       ]
     }
