@@ -3,6 +3,7 @@ import NPC from "./NPC.js";
 import Layer from "./Layer.js";
 import OccupationData from "./OccupationData.js";
 import Command from "./Command.js";
+import TalkManager from "./TalkManager.js";
 import { updatePosition } from "./util.js";
 
 const TILE_OBS = 16;
@@ -12,6 +13,11 @@ let MAP_HEIGHT = 0;
 class TownScene extends Phaser.Scene {
     constructor() {
         super({ key: "TownScene" });
+    }
+
+    destroy() {
+        TalkManager.clear();
+	    this.bgm.stop();
     }
 
     preload() {
@@ -124,7 +130,7 @@ class TownScene extends Phaser.Scene {
     }
 }
 
-let player, camera, bgm;
+let player, camera;
 let members = [];	// パーティメンバ
 let npcList = [];	// 町人リスト
 
@@ -142,6 +148,7 @@ function create()
     }
 
     this.command = null;
+    this.isMoving = true;
     this.range = townData.range;
     this.field = townData.field;
     MAP_WIDTH = townData.width * TILE_SIZE * SCALE;
@@ -162,6 +169,9 @@ function create()
         this.layerMap[layData.name] = layer;
     });
     this.setLayer("Town");
+
+    // 会話データをロード
+    TalkManager.load("talk/ariahan.txt");
 
     // プレイヤーを追加
     let order = 1;
@@ -187,10 +197,13 @@ function create()
 	});
 
     // BGM
-    bgm = this.sound.add("townBGM", { loop: true, volume: 0.3 });
-    bgm.play();
+    this.bgm = this.sound.add("townBGM", { loop: true, volume: 0.3 });
     this.stepSound = this.sound.add("step", { loop: false, volume: 0.2 });
-    this.isMoving = false;
+
+    this.time.delayedCall(500, () => {
+        this.bgm.play();
+        this.isMoving = false;
+    });
 
     // 歩行アニメーション
     this.time.addEvent({
@@ -253,9 +266,11 @@ function update(time)
 }
 
 function exitTown(scene) {
+    scene.stepSound.play();
+    scene.isMoving = true;
     camera.fadeOut(200, 0, 0, 0);
     camera.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-	    bgm.stop();
+        scene.destroy();
 	    scene.scene.start("FieldScene", { pos: scene.field }); 
     });
 }

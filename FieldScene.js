@@ -7,8 +7,6 @@ import { updatePosition, getInverseDir } from "./util.js";
 
 const TILE_OBS = 22;
 
-let player, bgm, battleBGM;
-
 class FieldScene extends Phaser.Scene {
     constructor() {
         super({ key: "FieldScene" });
@@ -32,6 +30,7 @@ class FieldScene extends Phaser.Scene {
         // マップを読み込む
         const map = this.make.tilemap({ key: "fieldMap" });
         const tileset = map.addTilesetImage("fieldTiles");
+        this.isMoving = true;
 
         // 各レイヤーを作成
         this.layer = null;
@@ -45,20 +44,15 @@ class FieldScene extends Phaser.Scene {
             this.layerMap[layData.name] = layer;
             if (layer.name == "Field") startpos = layer.start;
         });
-        // this.fieldLayer = map.createLayer("Field", tileset, 0, 0);
-        // this.fieldLayer.setScale(SCALE);
-        // this.fieldLayer.setVisible(true);
 
         // プレイヤーをフィールドの開始位置に追加
         let order = 1;
         this.members = [];
         gameData.members.forEach(member => {
             this.members.push(new Player(this, member, order++, startpos, 0, 0));
-            // this.add.existing(this.members[this.members.length-1]);
         });
         this.setLayer("Field");
-        player = this.members[0];
-        this.isMoving = false;
+        let player = this.members[0];
 
         // カメラ設定
         this.cameras.main.startFollow(player.sprite);
@@ -76,11 +70,15 @@ class FieldScene extends Phaser.Scene {
         this.input.keyboard.on("keydown-X", this.onButtonB, this);
 
         // BGM
-        battleBGM = this.sound.add("battleBGM1", { loop: false, volume: 0.3 });
-        bgm = this.sound.add("fieldBGM", { loop: true, volume: 0.3 });
-        bgm.play();
+        this.bgm = this.sound.add("fieldBGM", { loop: true, volume: 0.3 });
         this.buttonSound = this.sound.add("button", { loop: false, volume: 0.2 });
+        this.stepSound = this.sound.add("step", { loop: false, volume: 0.2 });
+        this.battleBGM = this.sound.add("battleBGM1", { loop: false, volume: 0.3 });
 
+        this.time.delayedCall(500, () => {
+            this.bgm.play();
+            this.isMoving = false;
+        });
         this.events.on("resume", this.onResume, this);
 
         this.time.addEvent({
@@ -172,14 +170,16 @@ class FieldScene extends Phaser.Scene {
 
     postMove(pos) {
         if (pos[0] == 213 && (pos[1] == 172 || pos[1] == 173)) {
+            this.bgm.stop();
+            this.stepSound.play();
+            this.isMoving = true;
     	    this.cameras.main.fadeOut(500, 0, 0, 0);
     	    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-    		    bgm.stop();
     		    this.scene.start("TownScene");
     	    });
         } else if (Math.random() < 0.1) { // 低確率で戦闘開始
-    	    bgm.stop();
-    	    battleBGM.play();
+    	    this.bgm.stop();
+    	    this.battleBGM.play();
     	    this.time.delayedCall(500, () => {
     		    this.scene.pause(); // フィールドを一時停止
     		    this.scene.launch("BattleScene", { members: this.members }); // 戦闘シーンを起動
@@ -191,7 +191,7 @@ class FieldScene extends Phaser.Scene {
 
     onResume() {
         this.isMoving = false;
-        bgm.play();
+        this.bgm.play();
     }
 }
 

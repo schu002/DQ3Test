@@ -73,7 +73,7 @@ export default class Message {
             let str = this.talkList.shift();
             if (canTalk) {
                 str = str.replace("<hero>", Player.getHero().name);
-	            if (str == "▼") {
+	            if (str == "<btn>") {
                     isCursor = true;
 	                break;
                 } else if (str == "<Y/N>") {

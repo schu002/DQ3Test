@@ -1,6 +1,7 @@
 import Menu from "./Menu.js";
 import Message from "./Message.js";
 import DrawStatus from "./DrawStatus.js";
+import TalkManager from "./TalkManager.js";
 import { getNumberStr } from "./util.js";
 
 const WIN_X = 40 * SCALE;
@@ -28,6 +29,7 @@ export default class Command {
         let player = members[0];
 	    this.npc = (layer)? layer.findNPC(player.pos, player.direction) : null;
 	    if (this.npc) {
+            this.command = COMMAND.TALK;
             this.talk();
         } else {
             this.status = new DrawStatus(scene, members, 80, 304);
@@ -76,9 +78,9 @@ export default class Command {
         if (this.menuList.length < 1) return;
 
         this.buttonSound.play();
-        let cmd = this.menuList[0].idx;
+        this.command = this.menuList[0].idx;
         // はなす
-        if (cmd == COMMAND.TALK) {
+        if (this.command == COMMAND.TALK) {
             if (this.message && this.message.isConfirmYesNo()) {
                 this.message.setConfirm((this.menu.idx == 0)? CONFIRM.YES : CONFIRM.NO);
                 this.deleteLastMenu();
@@ -86,7 +88,7 @@ export default class Command {
             this.talk();
         }
         // つよさ
-        else if (cmd == COMMAND.ABILITY) {
+        else if (this.command == COMMAND.ABILITY) {
             if (this.menuList.length == 1) {
                 this.menu.fixCursor(1);
                 const strList = ["つよさをみる", "じょうたい", "ならびかた"];
@@ -97,7 +99,7 @@ export default class Command {
             }
         }
         // そうび
-        else if (cmd == COMMAND.EQUIP) {
+        else if (this.command == COMMAND.EQUIP) {
             if (this.menuList.length == 1) {
 		        drawMembers.call(this, 151, 45);
             } else if (this.menuList.length == 3) {
@@ -124,13 +126,13 @@ export default class Command {
             }
         }
         // じゅもん
-        else if (cmd == COMMAND.SPELL) {
+        else if (this.command == COMMAND.SPELL) {
             if (this.menuList.length == 1) {
 		        drawMembers.call(this, 166, 47);
             }
         }
         // どうぐ
-        else if (cmd == COMMAND.ITEM) {
+        else if (this.command == COMMAND.ITEM) {
             if (this.menuList.length == 1) {
 		        drawMembers.call(this, 158, 79);
             } else if (this.menuList.length == 3) {
@@ -144,11 +146,9 @@ export default class Command {
             }
         }
         // しらべる
-        else if (cmd == COMMAND.CHECK) {
+        else if (this.command == COMMAND.CHECK) {
 	        if (this.menuList.length == 1) {
-	            let talks = [this.members[0].name + "は　あしもとを　しらべた。", "▼"];
-	            this.createTalkMenu(null, talks);
-	        } else {
+	            this.createTalkMenu();
 	        }
         }
     }
@@ -159,15 +159,14 @@ export default class Command {
             return;
         }
         let nest = this.menu.nest;
-        let cmd = this.menuList[0].idx;
-        if (cmd == COMMAND.TALK) {
+        if (this.command == COMMAND.TALK) {
             if (this.message && this.message.isConfirmYesNo()) {
                 this.message.setConfirm(CONFIRM.NO);
                 this.deleteLastMenu();
                 this.talk();
                 return;
             }
-        } else if (cmd == COMMAND.ITEM) {
+        } else if (this.command == COMMAND.ITEM) {
             if (nest == 2 && this.menuList.length == 3) {
                 this.member = null;
                 this.menu.setCursor(-1);
@@ -175,7 +174,7 @@ export default class Command {
                 this.menu.fixCursor(false);
                 return;
             }
-        } else if (cmd == COMMAND.EQUIP) {
+        } else if (this.command == COMMAND.EQUIP) {
             if (this.menuList.length == 6) {
                 for (let i = 0; i < 3; i++) {
                     this.deleteLastMenu();
@@ -220,16 +219,15 @@ export default class Command {
             return;
         }
 
-        let cmd = this.menuList[0].idx;
         this.isListen = false;
         if (this.menu.moveCursor(dir)) {
             if (this.menu.nest == 1 && this.menuList.length == 3) {
-                if (cmd == COMMAND.EQUIP || cmd == COMMAND.ITEM) {
+                if (this.command == COMMAND.EQUIP || this.command == COMMAND.ITEM) {
 	                let member = this.members[this.menu.idx];
 	                this.menuList[2].setStrList(member.items);
 	            }
             } else if (this.menuList.length == 6) {
-                if (cmd == COMMAND.EQUIP) {
+                if (this.command == COMMAND.EQUIP) {
 	                let menu = this.menuList[3];
 	                console.log(menu);
                 }
@@ -257,7 +255,7 @@ export default class Command {
                 this.npc.setTalking(true, this.members[0].direction);
                 this.createTalkMenu(this.npc);
             } else {
-                this.createTalkMenu(null);
+                this.createTalkMenu();
                 return;
             }
         } else {
@@ -277,11 +275,15 @@ export default class Command {
         }
     }
 
-    createTalkMenu(npc, talks=null) {
+    createTalkMenu(npc=null) {
         let parent = this.menu;
+        let strList = [];
+        if (this.command == COMMAND.TALK) {
+            if (npc) strList = TalkManager.findTalks(this.scene.layer, npc);
+        } else if (this.command == COMMAND.CHECK) {
+            strList = [this.members[0].name + "は　あしもとを　しらべた。", "<btn>"];
+        }
         this.menu.fixCursor(true);
-        this.command = COMMAND.TALK;
-        let strList = (npc)? npc.talks : talks;
         this.message = new Message(this.menu, this.scene, strList, 80, 270, 640, 320);
 
         if (npc && npc.name == "item") {
@@ -302,7 +304,6 @@ export default class Command {
 }
 
 function drawMembers(x, y) {
-    let cmd = this.menuList[0].idx;
     let menu = this.menuList[this.menuList.length-1];
     let idx = menu.idx;
     menu.fixCursor(true);
@@ -314,7 +315,7 @@ function drawMembers(x, y) {
     this.menuList.push(menu);
     this.menu = menu;
 
-    if (cmd != COMMAND.SPELL) {
+    if (this.command != COMMAND.SPELL) {
 	    let member = this.members[0];
 	    menu = new Menu(menu, this.scene, member.items, WIN_X+191, WIN_Y, 310, 430, 0, -1);
 	    this.menuList.push(menu);
