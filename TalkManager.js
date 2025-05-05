@@ -4,7 +4,7 @@ export default class TalkManager {
     // 非同期でファイルを読み込む
     static async load(filepath) {
         try {
-            const response = await fetch(filePath);
+            const response = await fetch(filepath);
             const text = await response.text();
             let lines = text.split(/\r?\n/);
             let layname = "", npcname = "";
@@ -28,9 +28,9 @@ export default class TalkManager {
                     strList.push(line);
                 }
             }
-            // console.log(`Loaded ${this.lines.length} lines from ${this.filePath}`);
+            // console.log(`Loaded ${this.lines.length} lines from ${filepath}`);
         } catch (error) {
-            // console.error(`Failed to load talk file:`, error);
+            console.error(`Failed to load talk file: ${filepath}`, error);
         }
     }
 
