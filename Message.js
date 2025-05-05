@@ -1,33 +1,35 @@
 import Player from "./player.js";
+import Menu from "./Menu.js";
 import { getNumberStr } from "./util.js";
 
 export default class Message {
-    constructor(parent, scene, strList, x, y, w, h) {
+    constructor(command, strList, x, y, w, h) {
         let slen = (strList)? strList.length : 0;
-        this.parent = parent;
-        this.nest = (parent)? parent.nest+1 : 0;
-        this.scene = scene;
+        this.command = command;
+        this.parent = command.menu;
+        this.scene = command.scene;
         x *= SCALE;
         y *= SCALE;
         this.width = w;
         this.height = h;
         this.idx = 0;
-        this.drawList = scene.add.container(x, y);
+        this.drawList = this.scene.add.container(x, y);
         this.drawList.setScrollFactor(0);
         this.drawList.setDepth(1000);
-        this.textList = scene.add.container(x, y);
+        this.textList = this.scene.add.container(x, y);
         this.textList.setScrollFactor(0);
         this.textList.setDepth(1010);
         this.cursor = null;
-        this.confirm = CONFIRM.NONE;
+        this.selectList = [];
+        this.selectIdx = -1;
         if (w > 0 && h > 0) this.drawRect(0, 0, w, h);
 
-        this.talkBGM = scene.sound.add("talk", { loop: false, volume: 0.2 });
+        this.talkBGM = this.scene.sound.add("talk", { loop: false, volume: 0.2 });
         if (strList) this.talkList = [...strList];
         let canTalk = (strList)? true : false;
         this.updateTalk(canTalk);
 
-        this.timer = scene.time.addEvent({
+        this.timer = this.scene.time.addEvent({
             delay: 270,
             loop: true,
             callback: () => {
@@ -48,16 +50,17 @@ export default class Message {
         this.textList.setVisible(onoff);
     }
 
-    setConfirm(confirm) {
-        this.confirm = confirm;
+    setSelectIdx(idx) {
+        this.selectIdx = idx;
+        this.selectList = [];
     }
 
-    isConfirmYesNo() {
-        return (this.confirm == CONFIRM.WAITING)? true : false;
+    isSelectNow() {
+        return (this.selectList.length > 0)? true : false;
     }
 
     isFinish() {
-        return (this.cursor || this.confirm == CONFIRM.WAITING)? false : true;
+        return (this.cursor || this.selectList.length > 0)? false : true;
     }
 
     updateTalk(canTalk=true) {
@@ -68,7 +71,7 @@ export default class Message {
 	    }
 
         // 会話テキスト
-        let chList = [], isCursor = false, confirm = CONFIRM.NONE;
+        let chList = [], isCursor = false, isMatch = false, isSkip = false;
         while (this.talkList.length > 0) {
             let str = this.talkList.shift();
             if (canTalk) {
@@ -76,22 +79,30 @@ export default class Message {
 	            if (str == "<btn>") {
                     isCursor = true;
 	                break;
-                } else if (str == "<Y/N>") {
-                    this.confirm = CONFIRM.WAITING;
-	                break;
-                } else if (str.substr(0, 2) == "Y/") {
-                    str = str.slice(2);
-                    confirm = CONFIRM.YES;
-                } else if (str.substr(0, 2) == "N/") {
-                    str = str.slice(2);
-                    confirm = CONFIRM.NO;
-                }
-                if (confirm != CONFIRM.NONE) {
-                    let isSkip = (confirm != this.confirm)? true : false;
-                    if (str.slice(-2) == "/Y" || str.slice(-2) == "/N") {
-                        str = str.slice(0, -2);
-                        confirm = CONFIRM.NONE;
+                } else if (str.substring(0, 8) == "<select>") {
+                    if (this.showSelectMenu(str)) break;
+                } else if (str.substring(0, 2) == "if") {
+                    str = str.slice(2).trim();
+                    isMatch = this.isMatchCondition(str);
+                    if (!isMatch) isSkip = true;
+                    continue;
+                } else if (str.substring(0, 4) == "elif") {
+                    str = str.slice(4).trim();
+                    if (isMatch) isSkip = true;
+                    else {
+                        isMatch = this.isMatchCondition(str);
+                        if (!isMatch) isSkip = true;
                     }
+                    continue;
+                } else if (str.substring(0, 4) == "else") {
+                    if (isMatch) {
+                        isSkip = true;
+                    } else {
+                        isMatch = true;
+                        isSkip = false;
+                    }
+                    continue;
+                } else {
                     if (isSkip) continue;
                 }
                 if (this.parent.idx == COMMAND.TALK) {
@@ -152,7 +163,71 @@ export default class Message {
                 }
             }
         });
-        return (isCursor || this.confirm == CONFIRM.WAITING)? true : false;
+        return (isCursor || this.selectList.length > 0)? true : false;
+    }
+
+    isMatchCondition(condstr) {
+        let signList = ["==", "!=", "<=", ">=", "<", ">"];
+        let tokenList = [];
+        for (let i = 0; i < signList.length; i++) {
+            let signstr = signList[i];
+            let idx = condstr.indexOf(signstr);
+            if (idx < 0) continue;
+            tokenList.push(condstr.substring(0, idx).trim());
+            tokenList.push(condstr.substring(idx, idx+signstr.length));
+            tokenList.push(condstr.substring(idx+signstr.length).trim());
+            break;
+        }
+        if (tokenList.length == 0) tokenList.push(condstr);
+
+        for (let i = 0; i < tokenList.length; i++) {
+            if (tokenList[i] == "<select>") tokenList[i] = String(this.selectIdx);
+        }
+
+        if (tokenList.length == 3) {
+            let num1 = Number(tokenList[0]), num2 = Number(tokenList[2]);
+            if (tokenList[1] == "==") {
+                return (num1 == num2)? true : false;
+            } else if (tokenList[1] == "!=") {
+                return (num1 != num2)? true : false;
+            } else if (tokenList[1] == "<=") {
+                return (num1 <= num2)? true : false;
+            } else if (tokenList[1] == ">=") {
+                return (num1 >= num2)? true : false;
+            } else if (tokenList[1] == "<") {
+                return (num1 < num2)? true : false;
+            } else if (tokenList[1] == ">") {
+                return (num1 > num2)? true : false;
+            } else {
+                return false;
+            }
+        } else {
+            return (Number(tokenList[0]) == 0)? false : true;
+        }
+    }
+
+    showSelectMenu(str)
+    {
+        this.selectList = [];
+        str = str.substring(8).trim();
+        let idx = str.indexOf(']');
+        if (str[0] != '[' || idx < 1) return false;
+        this.selectList = JSON.parse(str.substring(0, idx+1)); // メニュー項目
+        if (this.selectList.length < 2) return false;
+        str = str.substring(idx+1).trim();
+        idx = (str)? str.indexOf(']') : -1;
+        if (!str || str[0] != '[' || idx < 1) return false;
+        let geoms = JSON.parse(str.substring(0, idx+1)); // 表示位置とサイズ
+        if (geoms.length < 4) return false;
+        str = str.substring(idx+1).trim(); // 表示の遅延時間
+        let delay = (str)? Number(str) : -1;
+        if (delay < 0) delay = 700;
+        this.scene.time.delayedCall(delay, () => {
+            let menu = new Menu(this.parent, this.scene, this.selectList, geoms[0], geoms[1], geoms[2], geoms[3]);
+            this.command.menuList.push(menu);
+            this.command.menu = menu;
+        });
+        return true;
     }
 
     createDownArrow(x, y) {

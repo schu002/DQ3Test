@@ -38,13 +38,6 @@ window.EQUIP = {
     ACCESS	: 5,
 };
 
-window.CONFIRM = {
-	NONE	: -1,
-	WAITING	: 0,
-	YES     : 1,
-	NO      : 2
-};
-
 export function updatePosition(position, dir)
 {
     if		(dir == DIR.DOWN)  position[0] += 1;

@@ -11,14 +11,14 @@ export default class TalkManager {
             let strList = [];
             for (let idx = 0; idx < lines.length; idx++) {
                 let line = lines[idx].trim();
-                if (line.substr(0, 6) == "layer:") {
-                    layname = line.substr(6, line.length-7).trim();
-                } else if (line.substr(0, 5) == "name:") {
+                if (line.substring(0, 6) == "layer:") {
+                    layname = line.substring(6, line.length-1).trim();
+                } else if (line.substring(0, 5) == "name:") {
                     if (strList.length > 0) {
                         TalkManager.talkMap[layname + "/" + npcname] = strList;
                         strList = [];
                     }
-                    npcname = line.substr(5, line.length-5).trim();
+                    npcname = line.substring(5).trim();
                 } else if (line == "}") {
                     if (strList.length > 0) {
                         TalkManager.talkMap[layname + "/" + npcname] = strList;

@@ -81,8 +81,8 @@ export default class Command {
         this.command = this.menuList[0].idx;
         // はなす
         if (this.command == COMMAND.TALK) {
-            if (this.message && this.message.isConfirmYesNo()) {
-                this.message.setConfirm((this.menu.idx == 0)? CONFIRM.YES : CONFIRM.NO);
+            if (this.message && this.message.isSelectNow()) {
+                this.message.setSelectIdx(this.menu.idx);
                 this.deleteLastMenu();
             }
             this.talk();
@@ -160,8 +160,8 @@ export default class Command {
         }
         let nest = this.menu.nest;
         if (this.command == COMMAND.TALK) {
-            if (this.message && this.message.isConfirmYesNo()) {
-                this.message.setConfirm(CONFIRM.NO);
+            if (this.message && this.message.isSelectNow()) {
+                this.message.setSelectIdx(-1);
                 this.deleteLastMenu();
                 this.talk();
                 return;
@@ -264,15 +264,6 @@ export default class Command {
                 return;
             }
         }
-
-        if (this.message.isConfirmYesNo()) {
-            this.scene.time.delayedCall(800, () => {
-                const strList = ["はい", "いいえ"];
-                let menu1 = new Menu(this.menu, this.scene, strList, 305, WIN_Y+60, 190, 190);
-                this.menuList.push(menu1);
-                this.menu = menu1;
-            });
-        }
     }
 
     createTalkMenu(npc=null) {
@@ -284,7 +275,7 @@ export default class Command {
             strList = [this.members[0].name + "は　あしもとを　しらべた。", "<btn>"];
         }
         this.menu.fixCursor(true);
-        this.message = new Message(this.menu, this.scene, strList, 80, 270, 640, 320);
+        this.message = new Message(this, strList, 80, 270, 640, 320);
 
         if (npc && npc.name == "item") {
             this.scene.time.delayedCall(700, () => {
