@@ -206,6 +206,7 @@ export default class Message {
         }
     }
 
+    // 選択メニューの表示
     showSelectMenu(str)
     {
         this.selectList = [];
@@ -219,8 +220,12 @@ export default class Message {
         if (!str || str[0] != '[' || idx < 1) return false;
         let geoms = JSON.parse(str.substring(0, idx+1)); // 表示位置とサイズ
         if (geoms.length < 4) return false;
-        str = str.substring(idx+1).trim(); // 表示の遅延時間
-        let delay = (str)? Number(str) : -1;
+        str = str.substring(idx+1).trim();
+        if (str.indexOf("<gold>") >= 0) { // Goldの表示
+            str = str.replace("<gold>", "").trim();
+            this.showGoldMenu(geoms[0], geoms[1]-60, geoms[2], 120);
+        }
+        let delay = (str)? Number(str) : -1; // 表示の遅延時間
         if (delay < 0) delay = 700;
         this.scene.time.delayedCall(delay, () => {
             let menu = new Menu(this.parent, this.scene, this.selectList, geoms[0], geoms[1], geoms[2], geoms[3]);
@@ -228,6 +233,15 @@ export default class Message {
             this.command.menu = menu;
         });
         return true;
+    }
+
+    // Goldメニュー表示
+    showGoldMenu(x, y, w, h) {
+        const gameData = this.scene.cache.json.get("gameData");
+        let menu = new Menu(this.parent, this.scene, null, x, y, w, h, 1, -1);
+        this.command.menuList.push(menu);
+        menu.drawText(20, 60, "Ｇ", '36px');
+        menu.drawText(70, 60, getNumberStr(gameData.gold, 5));
     }
 
     createDownArrow(x, y) {

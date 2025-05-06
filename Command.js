@@ -276,21 +276,6 @@ export default class Command {
         }
         this.menu.fixCursor(true);
         this.message = new Message(this, strList, 80, 270, 640, 320);
-
-        if (npc && npc.name == "item") {
-            this.scene.time.delayedCall(700, () => {
-                // ゴールド表示
-                const gameData = this.scene.cache.json.get("gameData");
-                let menu1 = new Menu(parent, this.scene, null, 305, WIN_Y, 250, 130, 1, -1);
-                this.menuList.push(menu1);
-                menu1.drawText(20, 60, "Ｇ", '36px');
-                menu1.drawText(70, 60, getNumberStr(gameData.gold, 5));
-                const strList = ["かいにきた", "うりにきた", "やめる"];
-                let menu2 = new Menu(parent, this.scene, strList, 305, 80, 250, 250);
-                this.menuList.push(menu2);
-                this.menu = menu2;
-            });
-        }
     }
 }
 

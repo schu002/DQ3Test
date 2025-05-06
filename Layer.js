@@ -1,7 +1,7 @@
 import NPC from "./NPC.js";
 import { updatePosition } from "./util.js";
 
-const TILE_DESK = 20;
+const TILE_DESK = 31;
 const IMG_MERCHANT = "image/merchant.png";
 
 export default class Layer {
