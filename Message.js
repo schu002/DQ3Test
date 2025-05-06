@@ -81,6 +81,8 @@ export default class Message {
 	                break;
                 } else if (str.substring(0, 8) == "<select>") {
                     if (this.showSelectMenu(str)) break;
+                } else if (str.substring(0, 12) == "<selectitem>") {
+                    if (this.showSelectShopMenu(str)) break;
                 } else if (str.substring(0, 2) == "if") {
                     str = str.slice(2).trim();
                     isMatch = this.isMatchCondition(str);
@@ -217,18 +219,44 @@ export default class Message {
         if (this.selectList.length < 2) return false;
         str = str.substring(idx+1).trim();
         idx = (str)? str.indexOf(']') : -1;
-        if (!str || str[0] != '[' || idx < 1) return false;
+        if (!str || str[0] != '[' || idx < 8) return false;
         let geoms = JSON.parse(str.substring(0, idx+1)); // 表示位置とサイズ
         if (geoms.length < 4) return false;
         str = str.substring(idx+1).trim();
         if (str.indexOf("<gold>") >= 0) { // Goldの表示
             str = str.replace("<gold>", "").trim();
-            this.showGoldMenu(geoms[0], geoms[1]-60, geoms[2], 120);
+            this.showGoldMenu(geoms[0], geoms[1]-60, geoms[2], 60);
         }
         let delay = (str)? Number(str) : -1; // 表示の遅延時間
         if (delay < 0) delay = 700;
         this.scene.time.delayedCall(delay, () => {
             let menu = new Menu(this.parent, this.scene, this.selectList, geoms[0], geoms[1], geoms[2], geoms[3]);
+            this.command.menuList.push(menu);
+            this.command.menu = menu;
+        });
+        return true;
+    }
+
+    // どうぐ屋選択メニューの表示
+    showSelectShopMenu(str)
+    {
+        this.selectList = [];
+        str = str.substring(12).trim();
+        this.selectList = this.scene.getItemList();
+        if (this.selectList.length < 1) return false;
+
+        let idx = (str)? str.indexOf(']') : -1;
+        if (!str || str[0] != '[' || idx < 8) return false;
+        let geoms = JSON.parse(str.substring(0, idx+1)); // 表示位置とサイズ
+        if (geoms.length < 4) return false;
+
+        str = str.substring(idx+1).trim();
+        let delay = (str)? Number(str) : -1; // 表示の遅延時間
+        if (delay < 0) delay = 700;
+        this.scene.time.delayedCall(delay, () => {
+            this.command.menu.setVisible(false);
+            let menu = new Menu(this.command.menu, this.scene, null, geoms[0], geoms[1], geoms[2], geoms[3]);
+            menu.setShopList(this.selectList);
             this.command.menuList.push(menu);
             this.command.menu = menu;
         });

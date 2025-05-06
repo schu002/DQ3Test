@@ -6,8 +6,8 @@ import { getNumberStr } from "./util.js";
 
 const WIN_X = 40 * SCALE;
 const WIN_Y = 8 * SCALE;
-const WIN_W = 384;
-const WIN_H = 252;
+const WIN_W = 192;
+const WIN_H = 126;
 const cmdList = ["はなす", "つよさ", "そうび", "じゅもん", "どうぐ", "しらべる"];
 
 export default class Command {
@@ -92,7 +92,7 @@ export default class Command {
             if (this.menuList.length == 1) {
                 this.menu.fixCursor(1);
                 const strList = ["つよさをみる", "じょうたい", "ならびかた"];
-                let menu1 = new Menu(this.menu, this.scene, strList, WIN_X-14, WIN_Y+60, 280, 250);
+                let menu1 = new Menu(this.menu, this.scene, strList, WIN_X-14, WIN_Y+60, 140, 125);
                 menu1.setTitle("つよさ", true);
                 this.menuList.push(menu1);
                 this.menu = menu1;
@@ -109,14 +109,14 @@ export default class Command {
                     let menu = this.menuList[this.menuList.length-1];
 	                menu.setVisible(false);
 	                this.menu.setVisible(false);
-	                let menu1 = new Menu(menu, this.scene, null, WIN_X, WIN_Y, 428, 252, 0, -1);
+	                let menu1 = new Menu(menu, this.scene, null, WIN_X, WIN_Y, 214, 126, 0, -1);
 	                this.menuList.push(menu1);
 	                // 装備一覧を左下に表示
-	                let menu2 = new Menu(menu, this.scene, null, WIN_X, WIN_Y+125, 340, 290, 0, -1);
+	                let menu2 = new Menu(menu, this.scene, null, WIN_X, WIN_Y+125, 170, 145, 0, -1);
 	                menu2.setStrList(this.member.items, true);
 	                this.menuList.push(menu2);
 	                // 装備選択画面を右上に表示
-	                let menu3 = new Menu(menu, this.scene, null, WIN_X+213, WIN_Y, 300, 0);
+	                let menu3 = new Menu(menu, this.scene, null, WIN_X+213, WIN_Y, 150, 0);
 	                menu3.setEquipment(this.member, menu1, EQUIP.WEAPON);
 	                this.menuList.push(menu3);
 	                this.menu = menu3;
@@ -245,7 +245,7 @@ export default class Command {
         let isThis = (menu == this.menu)? true : false;
         menu.destroy();
         if (isThis) {
-            this.menu = (this.menuList.length > 0)? this.menuList[this.menuList.length-1] : null;
+            this.menu = (this.menuList.length > 0)? this.menuList[0] : null;
         }
     }
 
@@ -286,14 +286,14 @@ function drawMembers(x, y) {
 
     let nameList = [];
     this.members.forEach(member => nameList.push(member.name));
-    menu = new Menu(menu, this.scene, nameList, x, y, 240, 310);
+    menu = new Menu(menu, this.scene, nameList, x, y, 120, 155);
     menu.setTitle(cmdList[idx]);
     this.menuList.push(menu);
     this.menu = menu;
 
     if (this.command != COMMAND.SPELL) {
 	    let member = this.members[0];
-	    menu = new Menu(menu, this.scene, member.items, WIN_X+191, WIN_Y, 310, 430, 0, -1);
+	    menu = new Menu(menu, this.scene, member.items, WIN_X+191, WIN_Y, 155, 215, 0, -1);
 	    this.menuList.push(menu);
     }
 }

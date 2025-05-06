@@ -9,6 +9,8 @@ export default class Menu {
         this.scene = scene;
         x *= SCALE;
         y *= SCALE;
+        w *= SCALE;
+        h *= SCALE;
         this.width = w;
         this.height = h;
         this.idx = idx;
@@ -16,10 +18,10 @@ export default class Menu {
         this.colNum = (row > 0 && row < slen)? 2 : 1;
         this.drawList = scene.add.container(x, y);
         this.drawList.setScrollFactor(0);
-        this.drawList.setDepth(1100);
+        this.drawList.setDepth(1100+this.nest);
         this.textList = scene.add.container(x, y);
         this.textList.setScrollFactor(0);
-        this.textList.setDepth(1110);
+        this.textList.setDepth(1110+this.nest);
         this.cursor = null;
         if (w > 0 && h > 0) this.drawRect(0, 0, w, h);
         this.setStrList(strList);
@@ -59,6 +61,16 @@ export default class Menu {
             let str = strList[i];
             if (equip && (str[0] != 'E' || str[1] != ':')) continue;
             this.drawText(x, y, str);
+        }
+    }
+
+    setShopList(itemList) {
+        this.strList = itemList;
+        for (let i = 0; i < itemList.length; i++) {
+            let item = itemList[i];
+            let x = 70, y = 54+i*64;
+            this.drawText(x, y, item.name);
+            this.drawText(x+260, y, getNumberStr(item.price, 5));
         }
     }
 
