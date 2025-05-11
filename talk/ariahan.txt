@@ -54,7 +54,31 @@ layer:Town {
   ＊「では　またの　おこしを
   　　おまちしてます。
 
-  name:npc6
+  name: equipment
+  ＊「ここは　ぶきと　ぼうぐのみせだ。
+  　　うってるものを　みるかね？
+  for 
+    <yesno> [305, 76]
+    if <index> != 0
+      break
+    endif
+    ＊「なにを　かうかね？
+    <showgold> [305, 16] 200
+    <selectweapon> [50, 16] 0
+    if <index> < 0
+      break
+    endif
+    ＊「<item>だね。
+    　　どうも　ありがとう。
+    ＊「だれが　もつかね？
+    <selectmember> [305, 75, 125, 155]
+    if <index> < 0
+      break
+    endif
+    ＊「ほらよっ　<member>さん。
+    ＊「ほかに　なにか　かうかね？
+  endfor
+  ＊「また　きてくれよなっ。
 
   name:npc7
   ＊「まちのなかにいると

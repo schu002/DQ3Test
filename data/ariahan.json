@@ -90,7 +90,7 @@
           "dir": 3
         },
         {
-          "name": "npc6",
+          "name": "equipment",
           "position": [30, 26],
           "image": "merchant",
           "move": false,

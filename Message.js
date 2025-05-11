@@ -77,6 +77,9 @@ export default class Message {
             } else if (str.substring(0, 12) == "<selectitem>") {
                 if (isSkip) continue;
                 if (this.showSelectBuyMenu(str)) break;
+            } else if (str.substring(0, 14) == "<selectweapon>") {
+                if (isSkip) continue;
+                if (this.showSelectBuyMenu(str)) break;
             } else if (str.substring(0, 14) == "<selectmember>") {
                 if (isSkip) continue;
                 if (this.showSelectMemberMenu(str)) break;
@@ -265,8 +268,9 @@ export default class Message {
     // どうぐ屋選択メニューの表示
     showSelectBuyMenu(str)
     {
-        str = str.substring(12).trim();
-        let itemList = this.scene.getItemList();
+        let len = (str.substring(12) == "<selectitem>")? 12 : 14;
+        str = str.substring(len).trim();
+        let itemList = (len == 12)? this.scene.getItemList() : this.scene.getWeaponList();
         if (itemList.length < 1) return false;
 
         let idx = (str)? str.indexOf(']') : -1;

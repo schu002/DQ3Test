@@ -65,6 +65,12 @@ class TownScene extends Phaser.Scene {
         return townData.items;
     }
 
+    // 武器と防具の店の売り物リストを取得する
+    getWeaponList() {
+        const townData = this.cache.json.get("townData");
+        return townData.weapons;
+    }
+
     setLayer(layname, pos=null) {
         let layer = this.layerMap[layname];
         if (!layer || this.layer == layer) return false;
