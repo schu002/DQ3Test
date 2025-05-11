@@ -81,3 +81,8 @@ export function getNumberStr(num, digitNum=0)
     }
     return str + numstr;
 }
+
+export function trim(str)
+{
+    return str.replace(/^[ \t]+|[ \t]+$/g, "");
+}

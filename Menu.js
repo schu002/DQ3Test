@@ -1,11 +1,37 @@
 import EquipmentData from "./EquipmentData.js";
 import { getNumberStr } from "./util.js";
 
+export const MenuType = {
+    Command:    1,  // コマンドメニュー
+    Member:     2,  // メンバー
+    Item:       3,  // 持ち物一覧
+    Shop:       4,  // お店の売り物一覧
+    Gold:       5,  // ゴールド
+    YesNo:      6,  // はい、いいえ
+    BuySell:    7,  // 買う、売る
+    Power:      8,  // 攻撃力、守備力
+    SelectEquip: 9, // そうび選択
+    Equipment:  10, // そうび一覧
+    Ability:    11, // つよさ
+    Spell:      12, // じゅもん
+};
+
+export const MenuFlags = {
+    Remain:     0x01,   // 選択後も残す
+    ShowCursor: 0x02,   // カーソル表示する
+    MultiCols:  0x04,   // 複数カラム
+    ShopItem:   0x08,   // どうぐ、武器防具のメニュー表示
+    BaseDepth:  0x10,   // 最も最背面に表示するメニュー
+    FixCursor:  0x20,   // カーソル位置を固定
+
+    Default:    0x03    // デフォルト
+};
+
 export default class Menu {
-    constructor(parent, scene, strList, x, y, w, h, row=0, idx=0) {
-        let slen = (strList)? strList.length : 0;
-        this.parent = parent;
-        this.nest = (parent)? parent.nest+1 : 0;
+    static menuCnt = 0;
+
+    constructor(type, scene, strList, x, y, w, h, flags=MenuFlags.Default) {
+        this.type = type;
         this.scene = scene;
         x *= SCALE;
         y *= SCALE;
@@ -13,26 +39,30 @@ export default class Menu {
         h *= SCALE;
         this.width = w;
         this.height = h;
-        this.idx = idx;
-        this.rowNum = row;
-        this.colNum = (row > 0 && row < slen)? 2 : 1;
+        this.flags = flags;
+        this.strList = [];
+        Menu.menuCnt++;
+        let depth = 1100; // (flags & MenuFlags.BaseDepth)? 1100 : 1100+Menu.menuCnt;
         this.drawList = scene.add.container(x, y);
         this.drawList.setScrollFactor(0);
-        this.drawList.setDepth(1100+this.nest);
+        this.drawList.setDepth(depth);
         this.textList = scene.add.container(x, y);
         this.textList.setScrollFactor(0);
-        this.textList.setDepth(1110+this.nest);
+        this.textList.setDepth(depth);
         this.cursor = null;
         if (w > 0 && h > 0) this.drawRect(0, 0, w, h);
         this.setStrList(strList);
-        this.createCursor();
-        if (idx >= 0) this.setCursor(idx);
+        this.idx = -1;
+        if (flags & MenuFlags.ShowCursor) {
+            this.createCursor();
+            this.setCursor(0);
+        }
 
         this.timer = scene.time.addEvent({
             delay: 270,
             loop: true,
             callback: () => {
-                if (!this.fix && this.idx >= 0 && this.cursor)
+                if ((this.flags & MenuFlags.FixCursor) == 0 && this.idx >= 0 && this.cursor)
                     this.cursor.setVisible(!this.cursor.visible);
             }
         });
@@ -44,6 +74,29 @@ export default class Menu {
         this.timer.remove();
     }
 
+    onButtonB() {
+        this.idx = -1;
+        if (this.strList.length == 2 && this.strList[0] == "はい") {
+            this.idx = 1;
+            if (this.flags & MenuFlags.Remain) {
+                this.fixCursor(true);
+            } else {
+                this.setVisible(false);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    getCurString() {
+        if (this.idx < 0 || this.idx >= this.strList.length) return "";
+        if (this.flags & MenuFlags.ShopItem) {
+            return this.strList[this.idx].name;
+        } else {
+            return this.strList[this.idx];
+        }
+    }
+
     setVisible(onoff) {
         this.drawList.setVisible(onoff);
         this.textList.setVisible(onoff);
@@ -51,11 +104,13 @@ export default class Menu {
 
     setStrList(strList, equip=false, left=66) {
         this.textList.removeAll(true);
-        this.strList = strList;
+        this.strList = [];
         if (!strList) return;
+        this.strList = strList;
+        let rowNum = (this.flags & MenuFlags.MultiCols)? Math.floor((strList.length+1)/2) : strList.length;
         for (let i = 0; i < strList.length; i++) {
-            let row = (this.rowNum > 0)? i%this.rowNum : i;
-            let col = (this.rowNum > 0)? Math.floor(i/this.rowNum) : 0;
+            let row = (i < rowNum)? i : i-rowNum;
+            let col = (i < rowNum)? 0 : 1;
             let x = left + col*164;
             let y = 54 + row*64;
             let str = strList[i];
@@ -65,6 +120,7 @@ export default class Menu {
     }
 
     setShopList(itemList) {
+        this.flags |= MenuFlags.ShopItem;
         this.strList = itemList;
         for (let i = 0; i < itemList.length; i++) {
             let item = itemList[i];
@@ -84,17 +140,17 @@ export default class Menu {
     }
 
     moveCursor(dir) {
-        if (this.fix) return false;
+        if (this.flags & MenuFlags.FixCursor) return false;
         if (this.idx < 0) return false;
 
         let idx = this.idx, len = this.strList.length;
-        let rows = (this.rowNum > 0)? this.rowNum : len;
+        let rows = (this.flags & MenuFlags.MultiCols)? Math.floor((len+1)/2) : len;
         if (dir == DIR.UP) {
             idx = (idx == 0 || idx == rows)? idx+rows-1 : idx-1;
         } else if (dir == DIR.DOWN) {
             idx = (idx == rows-1 || idx == len-1)? Math.floor(idx/rows)*rows : idx+1;
         } else if (dir == DIR.LEFT || dir == DIR.RIGHT) {
-            if (this.colNum > 1) idx += (idx < rows)? rows : -rows;
+            if (MenuFlags.MultiCols) idx += (idx < rows)? rows : -rows;
         } else {
             return false;
         }
@@ -104,22 +160,31 @@ export default class Menu {
     }
 
     setCursor(idx) {
-        if (idx < 0) {
+        if (idx < 0 || !this.strList) {
             this.idx = -1;
-            this.fix = false;
             this.cursor.setVisible(false);
             return;
         }
-        let row = (this.rowNum > 0)? idx%this.rowNum : idx;
-        let col = (this.rowNum > 0)? Math.floor(idx/this.rowNum) : 0;
+        let len = this.strList.length;
+        let rows = (this.flags & MenuFlags.MultiCols)? Math.floor((len+1)/2) : len;
+        let row = (idx < rows)? idx : idx-rows;
+        let col = (idx < rows || rows < 1)? 0 : 1;
         this.cursor.x = 42+col*167;
         this.cursor.y = 62+row*64;
         this.idx = idx;
     }
 
     fixCursor(onoff) {
-        this.fix = onoff;
-        if (onoff && this.idx >= 0) this.cursor.setVisible(true);
+        if (onoff) {
+            this.flags |= MenuFlags.FixCursor;
+            if (this.flags & MenuFlags.Remain) {
+                if (this.idx >= 0) this.cursor.setVisible(true);
+            } else {
+                this.setVisible(false);
+            }
+        } else {
+            this.flags &= ~MenuFlags.FixCursor;
+        }
     }
 
     createRightArrow(x=0, y=0) {
@@ -142,7 +207,6 @@ export default class Menu {
     createCursor() {
         this.cursor = this.createRightArrow();
         this.cursor.setVisible(false);
-        this.fix = false;
     }
 
     drawRect(x, y, w, h, title=null) {

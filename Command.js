@@ -1,4 +1,4 @@
-import Menu from "./Menu.js";
+import Menu, { MenuType, MenuFlags } from "./Menu.js";
 import Message from "./Message.js";
 import DrawStatus from "./DrawStatus.js";
 import TalkManager from "./TalkManager.js";
@@ -18,10 +18,10 @@ export default class Command {
         this.menuList = [];
         this.message = null;
         this.status = null;
-        let menu = new Menu(null, scene, cmdList, WIN_X, WIN_Y, WIN_W, WIN_H, 3);
-        menu.setTitle("コマンド", true);
-        this.menuList.push(menu);
-        this.menu = menu;
+        let flags = MenuFlags.Default|MenuFlags.MultiCols;
+        this.mainMenu = new Menu(MenuType.Command, scene, cmdList, WIN_X, WIN_Y, WIN_W, WIN_H, flags);
+        this.mainMenu.setTitle("コマンド", true);
+        this.curMenu = this.mainMenu;
         this.buttonSound = scene.sound.add("button", { loop: false, volume: 0.2 });
         this.buttonSound.play();
         this.isListen = true;
@@ -59,6 +59,7 @@ export default class Command {
             let menu = this.menuList.pop();
             menu.destroy();
         }
+        this.mainMenu.destroy();
         if (this.npc) this.npc.setTalking(false);
         if (this.message) this.message.destroy();
         if (this.status) this.status.destroy();
@@ -68,86 +69,73 @@ export default class Command {
     }
 
     onButtonA() {
-        if (this.message && this.message.isFinish()) {
-            this.isFinish = true;
-        }
         if (this.isFinish) {
             this.scene.exitCommand();
             return;
         }
-        if (this.menuList.length < 1) return;
 
         this.buttonSound.play();
-        this.command = this.menuList[0].idx;
+        this.command = this.mainMenu.idx;
+        if (this.curMenu == this.mainMenu) this.curMenu.fixCursor(true);
         // はなす
         if (this.command == COMMAND.TALK) {
-            if (this.message && this.message.isSelectNow()) {
-                this.message.setSelectIdx(this.menu.idx);
-                this.deleteLastMenu();
-            }
-            this.talk();
+            this.talk(true);
         }
         // つよさ
         else if (this.command == COMMAND.ABILITY) {
             if (this.menuList.length == 1) {
-                this.menu.fixCursor(1);
                 const strList = ["つよさをみる", "じょうたい", "ならびかた"];
-                let menu1 = new Menu(this.menu, this.scene, strList, WIN_X-14, WIN_Y+60, 140, 125);
-                menu1.setTitle("つよさ", true);
-                this.menuList.push(menu1);
-                this.menu = menu1;
+                this.curMenu = createMenu(MenuType.Ability, strList, WIN_X-14, WIN_Y+60, 140, 125);
+                this.curMenu.setTitle("つよさ", true);
             }
         }
         // そうび
         else if (this.command == COMMAND.EQUIP) {
-            if (this.menuList.length == 1) {
+            if (this.menuList.length == 0) {
 		        drawMembers.call(this, 151, 45);
-            } else if (this.menuList.length == 3) {
-		        if (this.menu.nest == 1) {
+            } else if (this.menuList.length == 2) {
+		        if (this.curMenu.nest == 1) {
                     this.buttonSound.play();
-	                this.member = this.members[this.menu.idx];
+	                this.member = this.members[this.curMenu.idx];
                     let menu = this.menuList[this.menuList.length-1];
 	                menu.setVisible(false);
-	                this.menu.setVisible(false);
-	                let menu1 = new Menu(menu, this.scene, null, WIN_X, WIN_Y, 214, 126, 0, -1);
-	                this.menuList.push(menu1);
+	                this.curMenu.setVisible(false);
+	                let menu1 = createMenu(MenuType.Power, null, WIN_X, WIN_Y, 214, 126);
 	                // 装備一覧を左下に表示
-	                let menu2 = new Menu(menu, this.scene, null, WIN_X, WIN_Y+125, 170, 145, 0, -1);
+	                let menu2 = createMenu(MenuType.Equipment, null, WIN_X, WIN_Y+125, 170, 145);
 	                menu2.setStrList(this.member.items, true);
-	                this.menuList.push(menu2);
 	                // 装備選択画面を右上に表示
-	                let menu3 = new Menu(menu, this.scene, null, WIN_X+213, WIN_Y, 150, 0);
+	                let menu3 = createMenu(MenuType.SelectEquip, null, WIN_X+213, WIN_Y, 150, 0);
 	                menu3.setEquipment(this.member, menu1, EQUIP.WEAPON);
-	                this.menuList.push(menu3);
-	                this.menu = menu3;
+	                this.curMenu = menu3;
 		        }
-            } else if (this.menuList.length > 3) {
+            } else if (this.menuList.length > 2) {
 	            console.log("meshList", this.menuList.length);
             }
         }
         // じゅもん
         else if (this.command == COMMAND.SPELL) {
-            if (this.menuList.length == 1) {
+            if (this.menuList.length == 0) {
 		        drawMembers.call(this, 166, 47);
             }
         }
         // どうぐ
         else if (this.command == COMMAND.ITEM) {
-            if (this.menuList.length == 1) {
-		        drawMembers.call(this, 158, 79);
-            } else if (this.menuList.length == 3) {
-		        if (this.menu.nest == 1) {
+            if (this.menuList.length == 0) {
+		        drawMembers.call(this, 158, 79, 114);
+            } else if (this.menuList.length == 2) {
+		        if (this.curMenu.nest == 1) {
                     this.member = this.members[this.menu.idx];
-                    this.menu.fixCursor(true);
-                    this.menu = this.menuList[this.menuList.length-1];
-                    this.menu.setCursor(0);
+                    this.curMenu.fixCursor(true);
+                    this.curMenu = this.menuList[this.menuList.length-1];
+                    this.curMenu.setCursor(0);
                     this.buttonSound.play();
 		        }
             }
         }
         // しらべる
         else if (this.command == COMMAND.CHECK) {
-	        if (this.menuList.length == 1) {
+	        if (!this.message) {
 	            this.createTalkMenu();
 	        }
         }
@@ -158,46 +146,33 @@ export default class Command {
             this.scene.exitCommand();
             return;
         }
-        let nest = this.menu.nest;
+        let nest = this.curMenu.nest;
         if (this.command == COMMAND.TALK) {
-            if (this.message && this.message.isSelectNow()) {
-                this.message.setSelectIdx(-1);
-                this.deleteLastMenu();
+            if (this.curMenu) {
+                let chk = this.curMenu.onButtonB();
                 this.talk();
-                return;
+                if (chk) return;
             }
         } else if (this.command == COMMAND.ITEM) {
-            if (nest == 2 && this.menuList.length == 3) {
-                this.member = null;
-                this.menu.setCursor(-1);
-                this.menu = this.menuList[1];
-                this.menu.fixCursor(false);
-                return;
-            }
+            this.scene.exitCommand();
+            return;
         } else if (this.command == COMMAND.EQUIP) {
             if (this.menuList.length == 6) {
                 for (let i = 0; i < 3; i++) {
-                    this.deleteLastMenu();
+                    this.deleteCurMenu();
                 }
                 this.menuList[1].setVisible(true);
                 this.menuList[2].setVisible(true);
-                this.menu = this.menuList[1];
+                this.curMenu = this.menuList[1];
                 return;
             }
         }
 
-        this.deleteLastMenu();
+        this.deleteCurMenu();
         if (this.menuList.length < 1) {
             this.scene.exitCommand();
             return;
         }
-
-        if (nest == 1 && this.menuList.length == 2) {
-            this.deleteLastMenu();
-        }
-        menu = this.menuList[this.menuList.length-1];
-        menu.fixCursor(false);
-	    this.menu = menu;
     }
 
     update() {
@@ -210,20 +185,16 @@ export default class Command {
         else if (this.keys.right.isDown || this.wasd.right.isDown) dir = DIR.RIGHT;
         else return;
 
-        if (this.message && this.message.isFinish()) {
-            this.isFinish = true;
-            dir = -1;
-        }
         if (this.isFinish) {
             this.scene.exitCommand();
             return;
         }
 
         this.isListen = false;
-        if (this.menu.moveCursor(dir)) {
-            if (this.menu.nest == 1 && this.menuList.length == 3) {
+        if (this.curMenu.moveCursor(dir)) {
+            if (this.curMenu.nest == 1 && this.menuList.length == 3) {
                 if (this.command == COMMAND.EQUIP || this.command == COMMAND.ITEM) {
-	                let member = this.members[this.menu.idx];
+	                let member = this.members[this.curMenu.idx];
 	                this.menuList[2].setStrList(member.items);
 	            }
             } else if (this.menuList.length == 6) {
@@ -239,26 +210,50 @@ export default class Command {
         });
     }
 
-    deleteLastMenu() {
-        let menu = this.menuList.pop();
-        if (!menu) return;
-        let isThis = (menu == this.menu)? true : false;
-        menu.destroy();
-        if (isThis) {
-            this.menu = (this.menuList.length > 0)? this.menuList[0] : null;
-        }
+    createMenu(type, strList, x, y, w, h, flags=0) {
+        let menu = new Menu(type, this.scene, strList, x, y, w, h, flags);
+        this.menuList.push(menu);
+        if (flags & MenuFlags.ShowCursor) this.curMenu = menu;
+        return menu;
     }
 
-    talk() {
+    deleteCurMenu() {
+        if (!this.curMenu) return;
+        if (this.curMenu == this.mainMenu) {
+            this.scene.exitCommand();
+            return;
+        }
+        let lastMenu = null;
+        let delidx = -1;
+        for (let i = this.menuList.length-1; i >= 0; i--) {
+            let menu = this.menuList[i];
+            if (menu == this.curMenu) {
+                delidx = i;
+            } else if (menu.flags & MenuFlags.ShowCursor) {
+                if (!lastMenu) lastMenu = menu;
+            }
+        }
+
+        if (delidx >= 0) this.menuList.splice(delidx);
+        this.curMenu.destroy();
+        this.curMenu = (lastMenu)? lastMenu : this.mainMenu;
+    }
+
+    talk(pressA=false) {
         if (!this.message) {
             if (this.npc) {
                 this.npc.setTalking(true, this.members[0].direction);
                 this.createTalkMenu(this.npc);
             } else {
                 this.createTalkMenu();
+                this.isFinish = true;
                 return;
             }
         } else {
+            if (pressA && this.curMenu && (this.curMenu.flags & MenuFlags.ShowCursor)) {
+                this.curMenu.fixCursor(true);
+            }
+
             if (!this.message.updateTalk()) {
                 this.isFinish = true;
                 return;
@@ -267,33 +262,46 @@ export default class Command {
     }
 
     createTalkMenu(npc=null) {
-        let parent = this.menu;
-        let strList = [];
+        let parent = this.curMenu;
+        let strList = [], canTalk = false;
         if (this.command == COMMAND.TALK) {
-            if (npc) strList = TalkManager.findTalks(this.scene.layer, npc);
+            if (npc) {
+                strList = TalkManager.findTalks(this.scene.layer, npc);
+                canTalk = true;
+            } else {
+                strList = ["そのほうこうには　だれも　いない。"];
+            }
         } else if (this.command == COMMAND.CHECK) {
             strList = [this.members[0].name + "は　あしもとを　しらべた。", "<btn>"];
         }
-        this.menu.fixCursor(true);
-        this.message = new Message(this, strList, 80, 270, 640, 320);
+        this.curMenu.fixCursor(true);
+        this.message = new Message(this, strList, canTalk, 80, 270, 640, 320);
+    }
+
+    getSelectIndex() {
+        return (this.curMenu)? this.curMenu.idx : -1;
+    }
+
+    getSelectString() {
+        return (this.curMenu)? this.curMenu.getCurString() : "";
     }
 }
 
-function drawMembers(x, y) {
-    let menu = this.menuList[this.menuList.length-1];
-    let idx = menu.idx;
-    menu.fixCursor(true);
+function drawMembers(x, y, w=120) {
+    // let menu = this.menuList[this.menuList.length-1];
+    // let idx = menu.idx;
+    // menu.fixCursor(true);
 
     let nameList = [];
     this.members.forEach(member => nameList.push(member.name));
-    menu = new Menu(menu, this.scene, nameList, x, y, 120, 155);
-    menu.setTitle(cmdList[idx]);
-    this.menuList.push(menu);
-    this.menu = menu;
+    let h = 27 + nameList.length*32;
+    let menu = this.createMenu(MenuType.Member, nameList, x, y, w, h, MenuFlags.ShowCursor);
+    menu.setTitle(cmdList[this.command]);
+    this.curMenu = menu;
 
     if (this.command != COMMAND.SPELL) {
 	    let member = this.members[0];
-	    menu = new Menu(menu, this.scene, member.items, WIN_X+191, WIN_Y, 155, 215, 0, -1);
-	    this.menuList.push(menu);
+        h = 27 + member.items.length*32;
+	    this.createMenu(MenuType.Item, member.items, WIN_X+191, WIN_Y, 155, h);
     }
 }

@@ -1,18 +1,19 @@
 import Player from "./player.js";
-import Menu from "./Menu.js";
-import { getNumberStr } from "./util.js";
+import { MenuType, MenuFlags } from "./Menu.js";
+import { getNumberStr, trim } from "./util.js";
 
 export default class Message {
-    constructor(command, strList, x, y, w, h) {
-        let slen = (strList)? strList.length : 0;
+    constructor(command, strList, canTalk, x, y, w, h) {
         this.command = command;
-        this.parent = command.menu;
         this.scene = command.scene;
         x *= SCALE;
         y *= SCALE;
         this.width = w;
         this.height = h;
-        this.idx = 0;
+        this.drawIdx = 0; // メッセージ出力の最終行の位置
+        this.talkIdx = 0; // this.talkListの現在位置
+        this.forIdx = -1; // this.talkListでのfor文の位置
+        this.nest = 0;
         this.drawList = this.scene.add.container(x, y);
         this.drawList.setScrollFactor(0);
         this.drawList.setDepth(1000);
@@ -20,20 +21,18 @@ export default class Message {
         this.textList.setScrollFactor(0);
         this.textList.setDepth(1010);
         this.cursor = null;
-        this.selectList = [];
-        this.selectIdx = -1;
         if (w > 0 && h > 0) this.drawRect(0, 0, w, h);
 
+        this.canTalk = canTalk;
         this.talkBGM = this.scene.sound.add("talk", { loop: false, volume: 0.2 });
         if (strList) this.talkList = [...strList];
-        let canTalk = (strList)? true : false;
-        this.updateTalk(canTalk);
+        this.updateTalk();
 
         this.timer = this.scene.time.addEvent({
             delay: 270,
             loop: true,
             callback: () => {
-                if (!this.fix && this.idx >= 0 && this.cursor)
+                if (!this.fix && this.drawIdx >= 0 && this.cursor)
                     this.cursor.setVisible(!this.cursor.visible);
             }
         });
@@ -50,71 +49,103 @@ export default class Message {
         this.textList.setVisible(onoff);
     }
 
-    setSelectIdx(idx) {
-        this.selectIdx = idx;
-        this.selectList = [];
-    }
-
-    isSelectNow() {
-        return (this.selectList.length > 0)? true : false;
-    }
-
-    isFinish() {
-        return (this.cursor || this.selectList.length > 0)? false : true;
-    }
-
-    updateTalk(canTalk=true) {
-        if (canTalk) {
-	        if (this.talkList.length == 0) return false;
-        } else {
-            this.talkList = ["そのほうこうには　だれも　いない。"];
-	    }
+    updateTalk() {
+        if (this.talkList.length == 0) return false;
 
         // 会話テキスト
-        let chList = [], isCursor = false, isMatch = false, isSkip = false;
-        while (this.talkList.length > 0) {
-            let str = this.talkList.shift();
-            if (canTalk) {
-                str = str.replace("<hero>", Player.getHero().name);
-	            if (str == "<btn>") {
-                    isCursor = true;
-	                break;
-                } else if (str.substring(0, 8) == "<select>") {
-                    if (this.showSelectMenu(str)) break;
-                } else if (str.substring(0, 12) == "<selectitem>") {
-                    if (this.showSelectShopMenu(str)) break;
-                } else if (str.substring(0, 2) == "if") {
-                    str = str.slice(2).trim();
+        let chList = [], isCursor = false, isMatch = false, isSkip = false, isBreak = false;
+        let ifCnt = 0, forIdx = -1;
+        while (this.talkIdx < this.talkList.length) {
+            let str = trim(this.talkList[this.talkIdx++]);
+            if (isBreak) {
+                if (str != "endfor") continue;
+                forIdx = -1;
+                isBreak = false;
+                continue;
+            }
+            str = str.replace("<hero>", Player.getHero().name);
+            str = str.replace("<item>", this.command.getSelectString());
+            str = str.replace("<member>", this.command.getSelectString());
+            // console.log(this.talkIdx, str, isMatch, isSkip);
+            if (str == "<btn>") {
+                if (isSkip) continue;
+                isCursor = true;
+                break;
+            } else if (str.substring(0, 12) == "<selectshop>") {
+                if (isSkip) continue;
+                if (this.showSelectShopMenu(str)) break;
+            } else if (str.substring(0, 12) == "<selectitem>") {
+                if (isSkip) continue;
+                if (this.showSelectBuyMenu(str)) break;
+            } else if (str.substring(0, 14) == "<selectmember>") {
+                if (isSkip) continue;
+                if (this.showSelectMemberMenu(str)) break;
+            } else if (str.substring(0, 10) == "<showgold>") {
+                if (isSkip) continue;
+                this.showGoldMenu(str);
+                continue;
+            } else if (str.substring(0, 7) == "<yesno>") {
+                if (isSkip) continue;
+                if (this.showSelectYesNoMenu(str)) break;
+            } else if (str.substring(0, 2) == "if") {
+                if (isSkip) {
+                    ifCnt++;
+                    continue;
+                }
+                str = str.slice(2).trim();
+                isMatch = this.isMatchCondition(str);
+                if (!isMatch) isSkip = true;
+                continue;
+            } else if (str.substring(0, 4) == "elif") {
+                str = str.slice(4).trim();
+                if (isMatch) isSkip = true;
+                else {
                     isMatch = this.isMatchCondition(str);
                     if (!isMatch) isSkip = true;
-                    continue;
-                } else if (str.substring(0, 4) == "elif") {
-                    str = str.slice(4).trim();
-                    if (isMatch) isSkip = true;
-                    else {
-                        isMatch = this.isMatchCondition(str);
-                        if (!isMatch) isSkip = true;
-                    }
-                    continue;
-                } else if (str.substring(0, 4) == "else") {
-                    if (isMatch) {
-                        isSkip = true;
-                    } else {
+                }
+                continue;
+            } else if (str.substring(0, 4) == "else") {
+                if (isMatch) {
+                    isSkip = true;
+                } else {
+                    isMatch = true;
+                    isSkip = false;
+                }
+                continue;
+            } else if (str.substring(0, 5) == "endif") {
+                if (isSkip) {
+                    ifCnt--;
+                    if (ifCnt < 0) {
                         isMatch = true;
                         isSkip = false;
                     }
-                    continue;
-                } else {
-                    if (isSkip) continue;
                 }
-                if (this.parent.idx == COMMAND.TALK) {
-                    str = ((chList.length == 0)? "＊「" : "　　") + str;
+                continue;
+            } else if (str == "for") {
+                if (!isSkip) this.forIdx = this.talkIdx;
+                continue;
+            } else if (str == "endfor") {
+                if (isBreak) break;
+                if (!isSkip && this.forIdx >= 0) {
+                    this.talkIdx = this.forIdx;
                 }
-		    }
+                continue;
+            } else if (str == "break") {
+                if (!isSkip) isBreak = true;
+                continue;
+            } else {
+                if (isSkip) continue;
+            }
+
             for (const ch of str) {
                 chList.push(ch);
             }
             chList.push('\n');
+        }
+
+        if (this.talkIdx >= this.talkList.length) {
+            this.talkList = [];
+            this.talkIdx = 0;
         }
 
         if (this.cursor) {
@@ -123,17 +154,17 @@ export default class Message {
 	    }
         let idx = 0, x = 25;
         this.scene.time.addEvent({
-            delay: 10,
+            delay: 12,
             repeat: chList.length-1,
             callback: () => {
-		        if (canTalk && (idx % 6) == 0) this.talkBGM.play();
-                let y = 65 + this.idx*64;
+		        if (this.canTalk && (idx % 6) == 0) this.talkBGM.play();
+                let y = 65 + this.drawIdx*64;
                 let ch = chList[idx++];
                 if (ch == '\n') {
-                    this.idx++;
+                    this.drawIdx++;
                     x = 25;
-                    // 最後に行に来たら、１行ずつ上にずらす
-                    if (this.idx == 4) {
+                    // 最後の行に来たら、１行ずつ上にずらす
+                    if (this.drawIdx == 4) {
                         const removeList = [];
                         this.textList.iterate((child) => {
                             if (child instanceof Phaser.GameObjects.Text) {
@@ -146,7 +177,7 @@ export default class Message {
                                 child.y -= 64;
                             }
                         });
-                        this.idx--;
+                        this.drawIdx--;
                         y -= 64;
                     }
                 } else {
@@ -165,10 +196,11 @@ export default class Message {
                 }
             }
         });
-        return (isCursor || this.selectList.length > 0)? true : false;
+        return (this.talkList.length > 0)? true : false;
     }
 
     isMatchCondition(condstr) {
+        condstr = condstr.replace("<index>", String(this.command.getSelectIndex()));
         let signList = ["==", "!=", "<=", ">=", "<", ">"];
         let tokenList = [];
         for (let i = 0; i < signList.length; i++) {
@@ -181,10 +213,6 @@ export default class Message {
             break;
         }
         if (tokenList.length == 0) tokenList.push(condstr);
-
-        for (let i = 0; i < tokenList.length; i++) {
-            if (tokenList[i] == "<select>") tokenList[i] = String(this.selectIdx);
-        }
 
         if (tokenList.length == 3) {
             let num1 = Number(tokenList[0]), num2 = Number(tokenList[2]);
@@ -208,43 +236,66 @@ export default class Message {
         }
     }
 
-    // 選択メニューの表示
-    showSelectMenu(str)
+    // メニューを表示する
+    showMenu(type, strList, geoms, flags=MenuFlags.Default)
     {
-        this.selectList = [];
-        str = str.substring(8).trim();
+        let menu = this.command.createMenu(type, strList, geoms[0], geoms[1], geoms[2], geoms[3], flags);
+        return menu;
+    }
+
+    // 買う、売るメニューの表示
+    showSelectShopMenu(str)
+    {
+        str = str.substring(12).trim();
         let idx = str.indexOf(']');
-        if (str[0] != '[' || idx < 1) return false;
-        this.selectList = JSON.parse(str.substring(0, idx+1)); // メニュー項目
-        if (this.selectList.length < 2) return false;
-        str = str.substring(idx+1).trim();
-        idx = (str)? str.indexOf(']') : -1;
-        if (!str || str[0] != '[' || idx < 8) return false;
+        if (str[0] != '[' || idx < 3) return false;
         let geoms = JSON.parse(str.substring(0, idx+1)); // 表示位置とサイズ
-        if (geoms.length < 4) return false;
+        if (geoms.length < 2) return false;
+        geoms[2] = geoms[3] = 125;
         str = str.substring(idx+1).trim();
-        if (str.indexOf("<gold>") >= 0) { // Goldの表示
-            str = str.replace("<gold>", "").trim();
-            this.showGoldMenu(geoms[0], geoms[1]-60, geoms[2], 60);
-        }
         let delay = (str)? Number(str) : -1; // 表示の遅延時間
         if (delay < 0) delay = 700;
         this.scene.time.delayedCall(delay, () => {
-            let menu = new Menu(this.parent, this.scene, this.selectList, geoms[0], geoms[1], geoms[2], geoms[3]);
-            this.command.menuList.push(menu);
-            this.command.menu = menu;
+            let selectList = ["かいにきた", "うりにきた", "やめる"];
+            this.showMenu(MenuType.BuySell, selectList, geoms, MenuFlags.ShowCursor);
         });
         return true;
     }
 
     // どうぐ屋選択メニューの表示
-    showSelectShopMenu(str)
+    showSelectBuyMenu(str)
     {
-        this.selectList = [];
         str = str.substring(12).trim();
-        this.selectList = this.scene.getItemList();
-        if (this.selectList.length < 1) return false;
+        let itemList = this.scene.getItemList();
+        if (itemList.length < 1) return false;
 
+        let idx = (str)? str.indexOf(']') : -1;
+        if (str[0] != '[' || idx < 3) return false;
+        let geoms = JSON.parse(str.substring(0, idx+1)); // 表示位置とサイズ
+        if (geoms.length < 2) return false;
+        geoms[2] = 255;
+        geoms[3] = 29 + itemList.length*32;
+
+        str = str.substring(idx+1).trim();
+        let delay = (str)? Number(str) : -1; // 表示の遅延時間
+        if (delay < 0) delay = 700;
+        this.scene.time.delayedCall(delay, () => {
+            this.command.mainMenu.setVisible(false);
+            let menu = this.showMenu(MenuType.Shop, null, geoms);
+            menu.setShopList(itemList);
+        });
+        return true;
+    }
+
+    // メンバー選択メニューの表示
+    showSelectMemberMenu(str)
+    {
+        let memList = this.scene.getMemberList();
+        if (memList.length < 1) return false;
+        let strList = [];
+        memList.forEach(member => strList.push(member.name));
+
+        str = str.substring(14).trim();
         let idx = (str)? str.indexOf(']') : -1;
         if (!str || str[0] != '[' || idx < 8) return false;
         let geoms = JSON.parse(str.substring(0, idx+1)); // 表示位置とサイズ
@@ -252,22 +303,43 @@ export default class Message {
 
         str = str.substring(idx+1).trim();
         let delay = (str)? Number(str) : -1; // 表示の遅延時間
+        if (delay < 0) delay = 800;
+        this.scene.time.delayedCall(delay, () => {
+            let menu = this.showMenu(MenuType.Member, strList, geoms, MenuFlags.ShowCursor);
+        });
+        return true;
+    }
+
+    // 「はい、いいえ」選択メニューの表示
+    showSelectYesNoMenu(str)
+    {
+        str = str.substring(7).trim();
+        let idx = (str)? str.indexOf(']') : -1;
+        if (!str || str[0] != '[' || idx < 3) return false;
+        let geoms = JSON.parse(str.substring(0, idx+1)); // 表示位置とサイズ
+        if (geoms.length < 2) return false;
+
+        str = str.substring(idx+1).trim();
+        let delay = (str)? Number(str) : -1; // 表示の遅延時間
         if (delay < 0) delay = 700;
         this.scene.time.delayedCall(delay, () => {
-            this.command.menu.setVisible(false);
-            let menu = new Menu(this.command.menu, this.scene, null, geoms[0], geoms[1], geoms[2], geoms[3]);
-            menu.setShopList(this.selectList);
-            this.command.menuList.push(menu);
-            this.command.menu = menu;
+            geoms[2] = geoms[3] = 95;
+            let strList = ["はい", "いいえ"];
+            this.showMenu(MenuType.YesNo, strList, geoms, MenuFlags.ShowCursor);
         });
         return true;
     }
 
     // Goldメニュー表示
-    showGoldMenu(x, y, w, h) {
+    showGoldMenu(str) {
+        str = str.substring(10).trim();
+        let idx = (str)? str.indexOf(']') : -1;
+        if (!str || str[0] != '[' || idx < 3) return;
+        let geoms = JSON.parse(str.substring(0, idx+1)); // 表示位置とサイズ
+        geoms[2] = 125;
+        geoms[3] = 60;
         const gameData = this.scene.cache.json.get("gameData");
-        let menu = new Menu(this.parent, this.scene, null, x, y, w, h, 1, -1);
-        this.command.menuList.push(menu);
+        let menu = this.showMenu(MenuType.Gold, null, geoms, 0);
         menu.drawText(20, 60, "Ｇ", '36px');
         menu.drawText(70, 60, getNumberStr(gameData.gold, 5));
     }

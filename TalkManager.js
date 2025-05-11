@@ -1,3 +1,5 @@
+import { trim } from "./util.js";
+
 export default class TalkManager {
     static talkMap = {};
 
@@ -10,7 +12,7 @@ export default class TalkManager {
             let layname = "", npcname = "";
             let strList = [];
             for (let idx = 0; idx < lines.length; idx++) {
-                let line = lines[idx].trim();
+                let line = trim(lines[idx]);
                 if (line.substring(0, 6) == "layer:") {
                     layname = line.substring(6, line.length-1).trim();
                 } else if (line.substring(0, 5) == "name:") {

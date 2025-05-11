@@ -36,7 +36,7 @@ class TownScene extends Phaser.Scene {
         if (this.command) return;
         if (!this.layer) return;
 
-        this.command = new Command(this, members, this.layer);
+        this.command = new Command(this, this.members, this.layer);
     }
 
     onButtonB() {
@@ -54,6 +54,12 @@ class TownScene extends Phaser.Scene {
         update.call(this);
     }
 
+    // パーティのメンバーリストを取得する
+    getMemberList() {
+        return this.members;
+    }
+
+    // どうぐ屋の売り物リストを取得する
     getItemList() {
         const townData = this.cache.json.get("townData");
         return townData.items;
@@ -67,7 +73,7 @@ class TownScene extends Phaser.Scene {
         npcList = [];
         this.layer = layer;
         npcList = layer.npcs;
-        members.forEach(member => member.setPosition(newpos));
+        this.members.forEach(member => member.setPosition(newpos));
         layer.setVisible(true);
         this.cameras.main.fadeIn(1000, 0, 0, 0);
         return true;
@@ -118,7 +124,7 @@ class TownScene extends Phaser.Scene {
             return false;
         }
         if (!isPlayer) {
-            if (members.some(mem => pos[0] == mem.pos[0] && pos[1] == mem.pos[1])) return false;
+            if (this.members.some(mem => pos[0] == mem.pos[0] && pos[1] == mem.pos[1])) return false;
         }
         if (npcList.some(npc => pos[0] == npc.pos[0] && pos[1] == npc.pos[1])) return false;
         return true;
@@ -136,7 +142,6 @@ class TownScene extends Phaser.Scene {
 }
 
 let player, camera;
-let members = [];	// パーティメンバ
 let npcList = [];	// 町人リスト
 
 function preload()
@@ -153,6 +158,8 @@ function create()
     }
 
     this.command = null;
+    this.layerMap = {};
+    this.members = [];
     this.isMoving = true;
     this.range = townData.range;
     this.field = townData.field;
@@ -165,7 +172,6 @@ function create()
 
     // 各レイヤーを作成
     this.layer = null;
-    this.layerMap = {};
     townData.layers.forEach(layData => {
         let drawLayer = map.createLayer(layData.name, tileset, 0, 0);
         drawLayer.setScale(SCALE);
@@ -180,11 +186,10 @@ function create()
 
     // プレイヤーを追加
     let order = 1;
-    members = [];
     gameData.members.forEach(member => {
-        members.push(new Player(this, member, order++, this.layer.start, this.layer.dir, CARA_OFFSET));
+        this.members.push(new Player(this, member, order++, this.layer.start, this.layer.dir, CARA_OFFSET));
     });
-    player = members[0];
+    player = this.members[0];
 
     // カメラ設定
     this.physics.world.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
@@ -215,7 +220,7 @@ function create()
         delay: 250,
         loop: true,
         callback: () => {
-            members.forEach(member => member.updateFrame());
+            this.members.forEach(member => member.updateFrame());
         }
     });
 
@@ -241,10 +246,10 @@ function update(time)
     else if (this.keys.down.isDown	|| this.wasd.down.isDown)  newDir = DIR.DOWN;
     else return;
 
-    let dir = members[0].direction;
-	members[0].direction = newDir;
+    let dir = this.members[0].direction;
+	this.members[0].direction = newDir;
 
-    let pos = [...members[0].pos];
+    let pos = [...this.members[0].pos];
     if (!updatePosition(pos, newDir)) return;
 
     // 壁などにぶつからないようにチェック
@@ -252,15 +257,15 @@ function update(time)
 
     this.isMoving = true;
     let wkpos = [...pos], lastIdx = 0;
-    for (let idx = 0; idx < members.length; idx++) {
-        let prePos = [...members[idx].pos];
-        let preDir = (idx == 0)? dir : members[idx].direction;
+    for (let idx = 0; idx < this.members.length; idx++) {
+        let prePos = [...this.members[idx].pos];
+        let preDir = (idx == 0)? dir : this.members[idx].direction;
         if (idx > 0) {
             if (wkpos[0] == prePos[0] && wkpos[1] == prePos[1]) break;
 	        lastIdx = idx;
-            members[idx].direction = dir;
+            this.members[idx].direction = dir;
         }
-	    members[idx].move(this, wkpos, CARA_OFFSET, () => {
+	    this.members[idx].move(this, wkpos, CARA_OFFSET, () => {
 		    if (idx == lastIdx) {
                 this.isMoving = false;
                 this.postMove(pos);
