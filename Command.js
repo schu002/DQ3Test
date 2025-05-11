@@ -247,7 +247,6 @@ export default class Command {
             } else {
                 this.createTalkMenu();
                 this.isFinish = true;
-                return;
             }
         } else {
             if (pressA && this.curMenu && (this.curMenu.flags & MenuFlags.ShowCursor)) {
@@ -256,7 +255,6 @@ export default class Command {
 
             if (!this.message.updateTalk()) {
                 this.isFinish = true;
-                return;
             }
         }
     }
@@ -276,6 +274,8 @@ export default class Command {
         }
         this.curMenu.fixCursor(true);
         this.message = new Message(this, strList, canTalk, 80, 270, 640, 320);
+        if (npc && this.message.isFinish)
+            this.isFinish = true;
     }
 
     getSelectIndex() {

@@ -26,7 +26,9 @@ export default class Message {
         this.canTalk = canTalk;
         this.talkBGM = this.scene.sound.add("talk", { loop: false, volume: 0.2 });
         if (strList) this.talkList = [...strList];
-        this.updateTalk();
+        this.isFinish = false;
+        if (!this.updateTalk())
+            this.isFinish = true;
 
         this.timer = this.scene.time.addEvent({
             delay: 270,
@@ -50,6 +52,7 @@ export default class Message {
     }
 
     updateTalk() {
+        if (!this.talkList) return false;
         if (this.talkList.length == 0) return false;
 
         // 会話テキスト
@@ -71,9 +74,9 @@ export default class Message {
                 if (isSkip) continue;
                 isCursor = true;
                 break;
-            } else if (str.substring(0, 12) == "<selectshop>") {
+            } else if (str.substring(0, 8) == "<select>") {
                 if (isSkip) continue;
-                if (this.showSelectShopMenu(str)) break;
+                if (this.showSelectMenu(str)) break;
             } else if (str.substring(0, 12) == "<selectitem>") {
                 if (isSkip) continue;
                 if (this.showSelectBuyMenu(str)) break;
@@ -246,21 +249,37 @@ export default class Message {
         return menu;
     }
 
-    // 買う、売るメニューの表示
-    showSelectShopMenu(str)
+    // 選択メニューの表示
+    showSelectMenu(str)
     {
-        str = str.substring(12).trim();
-        let idx = str.indexOf(']');
-        if (str[0] != '[' || idx < 3) return false;
+        str = str.substring(8).trim();
+        let type = MenuType.Other;
+        let idx = str.indexOf("type<");
+        if (idx >= 0) {
+            let idx2 = str.indexOf('>', idx+5);
+            if (idx2 > idx+5) {
+                let typestr = str.substring(idx+5, idx2);
+                if      (typestr == "Luida") type = MenuType.Luida;
+                else if (typestr == "Vault") type = MenuType.Vault;
+                else if (typestr == "Shop") type = MenuType.BuySell;
+            }
+            str = str.substring(idx2+1).trim();
+        }
+
+        idx = str.indexOf(']');
+        if (str[0] != '[' || idx < 8) return false;
+        let selectList = JSON.parse(str.substring(0, idx+1)); // 選択メニュー
+        if (selectList < 2) return false;
+        str = str.substring(idx+1).trim();
+        idx = str.indexOf(']');
+        if (str[0] != '[' || idx < 8) return false;
         let geoms = JSON.parse(str.substring(0, idx+1)); // 表示位置とサイズ
-        if (geoms.length < 2) return false;
-        geoms[2] = geoms[3] = 125;
+        if (geoms.length < 4) return false;
         str = str.substring(idx+1).trim();
         let delay = (str)? Number(str) : -1; // 表示の遅延時間
-        if (delay < 0) delay = 700;
+        if (delay < 0) delay = 500;
         this.scene.time.delayedCall(delay, () => {
-            let selectList = ["かいにきた", "うりにきた", "やめる"];
-            this.showMenu(MenuType.BuySell, selectList, geoms, MenuFlags.ShowCursor);
+            this.showMenu(type, selectList, geoms, MenuFlags.ShowCursor);
         });
         return true;
     }
@@ -268,7 +287,7 @@ export default class Message {
     // どうぐ屋選択メニューの表示
     showSelectBuyMenu(str)
     {
-        let len = (str.substring(12) == "<selectitem>")? 12 : 14;
+        let len = (str.substring(0, 12) == "<selectitem>")? 12 : 14;
         str = str.substring(len).trim();
         let itemList = (len == 12)? this.scene.getItemList() : this.scene.getWeaponList();
         if (itemList.length < 1) return false;

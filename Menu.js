@@ -14,6 +14,9 @@ export const MenuType = {
     Equipment:  10, // そうび一覧
     Ability:    11, // つよさ
     Spell:      12, // じゅもん
+    Luida:      13, // ルイーダの酒場
+    Vault:      14, // あずかり所
+    Other:      15, // その他
 };
 
 export const MenuFlags = {
@@ -150,7 +153,8 @@ export default class Menu {
         } else if (dir == DIR.DOWN) {
             idx = (idx == rows-1 || idx == len-1)? Math.floor(idx/rows)*rows : idx+1;
         } else if (dir == DIR.LEFT || dir == DIR.RIGHT) {
-            if (MenuFlags.MultiCols) idx += (idx < rows)? rows : -rows;
+            if ((this.flags & MenuFlags.MultiCols) == 0) return false;
+            idx += (idx < rows)? rows : -rows;
         } else {
             return false;
         }
