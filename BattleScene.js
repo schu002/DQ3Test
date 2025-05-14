@@ -1,6 +1,7 @@
 import MonsterData from "./MonsterData.js";
 import OccupationData from "./OccupationData.js";
 import DrawStatus from "./DrawStatus.js";
+import Message from "./Message.js";
 
 const ACTWIN_Y = 560;
 
@@ -42,22 +43,22 @@ class BattleScene extends Phaser.Scene {
 
         this.monsters.push(MonsterData.getRandomMonster(1));
         this.monsters.push(MonsterData.getRandomMonster(1));
+        this.drawMonsterImage();
 
         // ステータス
         this.status = new DrawStatus(this, this.members, 66, 21);
 
-        let rect1 = this.drawRect(130, ACTWIN_Y, 700, 245);
+        // メッセージウィンドウ
+        this.message = new Message(this, 63, 276, 370, 154);
         let textList = [];
         for (let i = 0; i < this.monsters.length; i++) {
-            this.drawText(148, ACTWIN_Y+30+i*60, this.monsters[i].name + "が　あらわれた！", textList);
+            textList.push(this.monsters[i].name + "が　あらわれた！");
         }
-
-        this.drawMonsterImage();
+        this.message.setStrList(textList);
 
         // コマンド
         this.time.delayedCall(1200, () => {
-            rect1.destroy();
-            textList.forEach(text => { text.destroy(); });
+            this.message.setVisible(false);
             this.drawAction();
             this.drawMonster();
             this.isListen = true;

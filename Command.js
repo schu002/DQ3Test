@@ -25,7 +25,6 @@ export default class Command {
         this.buttonSound = scene.sound.add("button", { loop: false, volume: 0.2 });
         this.buttonSound.play();
         this.isListen = true;
-        this.isFinish = false;
         let player = members[0];
 	    this.npc = (layer)? layer.findNPC(player.pos, player.direction) : null;
 	    if (this.npc) {
@@ -69,14 +68,17 @@ export default class Command {
     }
 
     onButtonA() {
-        if (this.isFinish) {
+        if (!this.isListen) return;
+        if (this.message && this.message.isFinish()) {
             this.scene.exitCommand();
             return;
         }
 
+        this.isListen = false;
         this.buttonSound.play();
         this.command = this.mainMenu.idx;
         if (this.curMenu == this.mainMenu) this.curMenu.fixCursor(true);
+
         // はなす
         if (this.command == COMMAND.TALK) {
             this.talk(true);
@@ -139,10 +141,12 @@ export default class Command {
 	            this.createTalkMenu();
 	        }
         }
+
+        this.isListen = true;
     }
 
     onButtonB() {
-        if (this.isFinish) {
+        if (this.message && this.message.isFinish()) {
             this.scene.exitCommand();
             return;
         }
@@ -185,7 +189,7 @@ export default class Command {
         else if (this.keys.right.isDown || this.wasd.right.isDown) dir = DIR.RIGHT;
         else return;
 
-        if (this.isFinish) {
+        if (this.message && this.message.isFinish()) {
             this.scene.exitCommand();
             return;
         }
@@ -246,26 +250,22 @@ export default class Command {
                 this.createTalkMenu(this.npc);
             } else {
                 this.createTalkMenu();
-                this.isFinish = true;
             }
         } else {
             if (pressA && this.curMenu && (this.curMenu.flags & MenuFlags.ShowCursor)) {
                 this.curMenu.fixCursor(true);
             }
 
-            if (!this.message.updateTalk()) {
-                this.isFinish = true;
-            }
+            this.message.update();
         }
     }
 
     createTalkMenu(npc=null) {
         let parent = this.curMenu;
-        let strList = [], canTalk = false;
+        let strList = [];
         if (this.command == COMMAND.TALK) {
             if (npc) {
                 strList = TalkManager.findTalks(this.scene.layer, npc);
-                canTalk = true;
             } else {
                 strList = ["そのほうこうには　だれも　いない。"];
             }
@@ -273,9 +273,8 @@ export default class Command {
             strList = [this.members[0].name + "は　あしもとを　しらべた。", "<btn>"];
         }
         this.curMenu.fixCursor(true);
-        this.message = new Message(this, strList, canTalk, 80, 270, 640, 320);
-        if (npc && this.message.isFinish)
-            this.isFinish = true;
+        this.message = new Message(this.scene, 80, 270, 320, 160);
+        this.message.setStrList(strList, this);
     }
 
     getSelectIndex() {

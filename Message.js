@@ -3,34 +3,33 @@ import { MenuType, MenuFlags } from "./Menu.js";
 import { getNumberStr, trim } from "./util.js";
 
 export default class Message {
-    constructor(command, strList, canTalk, x, y, w, h) {
-        this.command = command;
-        this.scene = command.scene;
+    constructor(scene, x, y, w, h) {
+        this.command = null;
+        this.scene = scene;
         x *= SCALE;
         y *= SCALE;
+        w *= SCALE;
+        h *= SCALE;
         this.width = w;
         this.height = h;
         this.drawIdx = 0; // メッセージ出力の最終行の位置
-        this.talkIdx = 0; // this.talkListの現在位置
-        this.forIdx = -1; // this.talkListでのfor文の位置
+        this.talkIdx = 0; // this.strListの現在位置
+        this.forIdx = -1; // this.strListでのfor文の位置
         this.nest = 0;
-        this.drawList = this.scene.add.container(x, y);
+        this.drawList = scene.add.container(x, y);
         this.drawList.setScrollFactor(0);
         this.drawList.setDepth(1000);
-        this.textList = this.scene.add.container(x, y);
+        this.textList = scene.add.container(x, y);
         this.textList.setScrollFactor(0);
         this.textList.setDepth(1010);
         this.cursor = null;
         if (w > 0 && h > 0) this.drawRect(0, 0, w, h);
 
-        this.canTalk = canTalk;
-        this.talkBGM = this.scene.sound.add("talk", { loop: false, volume: 0.2 });
-        if (strList) this.talkList = [...strList];
-        this.isFinish = false;
-        if (!this.updateTalk())
-            this.isFinish = true;
+        this.talkBGM = scene.sound.add("talk", { loop: false, volume: 0.2 });
+        this.strList = [];
+        this.isBusy = false;
 
-        this.timer = this.scene.time.addEvent({
+        this.timer = scene.time.addEvent({
             delay: 270,
             loop: true,
             callback: () => {
@@ -46,20 +45,30 @@ export default class Message {
         this.timer.remove();
     }
 
+    setStrList(strList, cmd=null) {
+        this.strList = [...strList];
+        this.talkIdx = 0;
+        this.command = cmd;
+        this.update();
+    }
+
     setVisible(onoff) {
         this.drawList.setVisible(onoff);
         this.textList.setVisible(onoff);
     }
 
-    updateTalk() {
-        if (!this.talkList) return false;
-        if (this.talkList.length == 0) return false;
+    update() {
+        if (this.isBusy) return;
+        if (!this.strList) return;
+        if (this.strList.length == 0) return;
+        if (this.isFinish()) return;
+        this.isBusy = true;
 
         // 会話テキスト
         let chList = [], isCursor = false, isMatch = false, isSkip = false, isBreak = false;
         let ifCnt = 0, forIdx = -1;
-        while (this.talkIdx < this.talkList.length) {
-            let str = trim(this.talkList[this.talkIdx++]);
+        while (this.talkIdx < this.strList.length) {
+            let str = trim(this.strList[this.talkIdx++]);
             if (isBreak) {
                 if (str != "endfor") continue;
                 forIdx = -1;
@@ -67,8 +76,10 @@ export default class Message {
                 continue;
             }
             str = str.replace("<hero>", Player.getHero().name);
-            str = str.replace("<item>", this.command.getSelectString());
-            str = str.replace("<member>", this.command.getSelectString());
+            if (this.command) {
+                str = str.replace("<item>", this.command.getSelectString());
+                str = str.replace("<member>", this.command.getSelectString());
+            }
             // console.log(this.talkIdx, str, isMatch, isSkip);
             if (str == "<btn>") {
                 if (isSkip) continue;
@@ -149,25 +160,27 @@ export default class Message {
             chList.push('\n');
         }
 
-        if (this.talkIdx >= this.talkList.length) {
-            this.talkList = [];
-            this.talkIdx = 0;
-        }
-
         if (this.cursor) {
 	        this.cursor.destroy();
 	        this.cursor = null;
 	    }
-        let idx = 0, x = 25;
+
+        this.drawText(chList, isCursor, () => {
+            this.isBusy = false;
+        });
+    }
+
+    drawText(chList, isCursor, onComplete) {
+        let idx = 0, x = 25, isHead = true, isTalk = false;
         this.scene.time.addEvent({
             delay: 12,
             repeat: chList.length-1,
             callback: () => {
-		        if (this.canTalk && (idx % 6) == 0) this.talkBGM.play();
                 let y = 65 + this.drawIdx*64;
                 let ch = chList[idx++];
                 if (ch == '\n') {
                     this.drawIdx++;
+                    isHead = true;
                     x = 25;
                     // 最後の行に来たら、１行ずつ上にずらす
                     if (this.drawIdx == 4) {
@@ -187,22 +200,34 @@ export default class Message {
                         y -= 64;
                     }
                 } else {
-	                let text = this.scene.add.text(x, y, ch, {
-	                    fontFamily: "PixelMplus10-Regular",
-	                    fontSize: '38px',
-	                    color: '#ffffff'
-	                });
-		            text.setScrollFactor(0);
-		            text.setScale(0.95, 1.0);
+                    let text = this.scene.add.text(x, y, ch, {
+                        fontFamily: "PixelMplus10-Regular",
+                        fontSize: '38px',
+                        color: '#ffffff'
+                    });
+                    text.setScrollFactor(0);
+                    text.setScale(0.95, 1.0);
                     this.textList.add(text);
-		            x += 34;
-	            }
-                if (isCursor && idx == chList.length) {
-                    this.createDownArrow(450, y+620);
+                    x += 34;
+                    if (isHead) {
+                        isTalk = (ch == '＊' || ch == '　')? true : false;
+                        isHead = false;
+                    }
+                    if (isTalk && (idx % 6) == 0) this.talkBGM.play();
                 }
-            }
+
+                if (idx === chList.length) {
+                    if (isCursor) this.createDownArrow(450, y+620);
+                    if (onComplete) onComplete();  // 最後に通知
+                }
+            },
+            callbackScope: this
         });
-        return (this.talkList.length > 0)? true : false;
+    }
+
+    isFinish() {
+        let ret = (this.strList.length > 0 && this.talkIdx >= this.strList.length);
+        return ret;
     }
 
     isMatchCondition(condstr) {
