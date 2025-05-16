@@ -80,7 +80,7 @@ export default class Message {
                 str = str.replace("<item>", this.command.getSelectString());
                 str = str.replace("<member>", this.command.getSelectString());
             }
-            // console.log(this.talkIdx, str, isMatch, isSkip);
+            // console.log(this.talkIdx, str, isSkip);
             if (str == "<btn>") {
                 if (isSkip) continue;
                 isCursor = true;
@@ -118,7 +118,7 @@ export default class Message {
                 if (isMatch) isSkip = true;
                 else {
                     isMatch = this.isMatchCondition(str);
-                    if (!isMatch) isSkip = true;
+                    isSkip = (isMatch)? false : true;
                 }
                 continue;
             } else if (str.substring(0, 4) == "else") {
@@ -309,6 +309,16 @@ export default class Message {
         return true;
     }
 
+    getDelay(str)
+    {
+        let idx = str.indexOf("/delay:");
+        if (idx < 0) return -1;
+        str = str.slice(idx+7);
+        idx = str.indexOf(' ');
+        if (idx > 0) str = str.slice(0, idx);
+        return Number(str);
+    }
+
     // どうぐ屋選択メニューの表示
     showSelectBuyMenu(str)
     {
@@ -324,8 +334,8 @@ export default class Message {
         geoms[2] = 255;
         geoms[3] = 29 + itemList.length*32;
 
-        str = str.substring(idx+1).trim();
-        let delay = (str)? Number(str) : -1; // 表示の遅延時間
+        str = trim(str.substring(idx+1));
+        let delay = getDelay(str);
         if (delay < 0) delay = 700;
         this.scene.time.delayedCall(delay, () => {
             this.command.mainMenu.setVisible(false);
@@ -347,15 +357,34 @@ export default class Message {
         let idx = (str)? str.indexOf(']') : -1;
         if (!str || str[0] != '[' || idx < 8) return false;
         let geoms = JSON.parse(str.substring(0, idx+1)); // 表示位置とサイズ
-        if (geoms.length < 4) return false;
+        if (geoms.length < 2) return false;
+        geoms[2] = 125;
+        geoms[3] = 29 + memList.length*32;
 
         str = str.substring(idx+1).trim();
-        let delay = (str)? Number(str) : -1; // 表示の遅延時間
+        let delay = this.getDelay(str);
         if (delay < 0) delay = 800;
+
         this.scene.time.delayedCall(delay, () => {
             let menu = this.showMenu(MenuType.Member, strList, geoms, MenuFlags.ShowCursor);
+            this.showMemberItem(str, memList[0].items);
         });
         return true;
+    }
+
+    showMemberItem(str, items)
+    {
+        let idx = str.indexOf("/item");
+        if (idx < 0) return;
+        str = trim(str.slice(idx+5));
+        idx = str.indexOf(']');
+        if (!str || str[0] != '[' || idx < 3) return;
+        let geoms = JSON.parse(str.substring(0, idx+1)); // 表示位置とサイズ
+        if (geoms.length < 2) return;
+        geoms[2] = 160;
+        geoms[3] = 29 + 9*32;
+
+        let menu = this.showMenu(MenuType.Item, items, geoms, 0);
     }
 
     // 「はい、いいえ」選択メニューの表示

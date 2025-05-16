@@ -287,10 +287,6 @@ export default class Command {
 }
 
 function drawMembers(x, y, w=120) {
-    // let menu = this.menuList[this.menuList.length-1];
-    // let idx = menu.idx;
-    // menu.fixCursor(true);
-
     let nameList = [];
     this.members.forEach(member => nameList.push(member.name));
     let h = 27 + nameList.length*32;

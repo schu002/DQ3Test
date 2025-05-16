@@ -123,7 +123,6 @@ class FieldScene extends Phaser.Scene {
             }
             member.move(this, wkpos, 0, () => {
     	        if (idx == lastIdx) {
-                    this.isMoving = false;
                     this.postMove(pos);
                 }
             });
