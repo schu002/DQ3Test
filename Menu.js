@@ -277,22 +277,18 @@ export default class Menu {
         this.drawRect(0, 0, this.width, this.height);
         this.setStrList(strList);
         this.setTitle(titleList[equip-1], true);
-        if (this.cursor) {
-            this.cursor.setVisible(true);
-            this.drawList.bringToTop(this.cursor);
-        }
-        menu.setEquipParam(member, equip, strList[0], item);
+        this.cursor.setVisible(true);
+        this.drawList.bringToTop(this.cursor);
+        menu.setEquipParam(member, equip, item);
     }
 
-    setEquipParam(member, type, itemName, eqItem) {
-        if (itemName.length > 2 && itemName[0] == 'E' && itemName[1] == ':')
-            itemName = itemName.substr(2, itemName.length-2);
+    setEquipParam(member, type, eqItem) {
         let strList = [];
         let str = "こうげき：";
-        let curAtk = member.power + eqItem.ability;
+        let curAtk = member.getOffenceValue();
         str += getNumberStr(curAtk, 3);
         if (type == EQUIP.WEAPON) {
-	        let data = EquipmentData.getItemByName(itemName);
+	        let data = EquipmentData.getItemByName(eqItem.name);
 	        let newAtk = member.power + data.ability;
 	        str += " " + getNumberStr(newAtk, 3);
 	    }

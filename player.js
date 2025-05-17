@@ -61,12 +61,26 @@ export default class Player {
         this.sprite.setPosition(pos[1] * TILE_SIZE * SCALE, (pos[0] * TILE_SIZE - this.offset) * SCALE);
     }
 
+    getOffenceValue() {
+        let value = this.power;
+        for (let i = 0; i < this.items.length; i++) {
+            let item = this.items[i];
+            if (item.substring(0, 2) != "E:") continue;
+            item = item.slice(2);
+            if (EquipmentData.getTypeByName(item) != EQUIP.WEAPON) continue;
+            let data = EquipmentData.getItemByName(item);
+            value += data.ability;
+            break;
+        }
+        return value;
+    }
+
     getDefenceValue() {
         let value = Math.floor(this.speed/2);
         for (let i = 0; i < this.items.length; i++) {
             let item = this.items[i];
-            if (item[0] != 'E' || item[1] != ':') continue;
-            item = item.substr(2, item.length-2);
+            if (item.substring(0, 2) != "E:") continue;
+            item = item.slice(2);
             let type = EquipmentData.getTypeByName(item);
             if (type != EQUIP.ARMOR && type != EQUIP.SHIELD && type != EQUIP.HELMET)
                 continue;

@@ -72,7 +72,7 @@ export default class Command {
         }
         // そうび
         else if (this.command == COMMAND.EQUIP) {
-            if (this.menuList.length == 0) {
+            if (this.curMenu.type == MenuType.Command) {
 		        drawMembers.call(this, 151, 45);
             } else if (this.curMenu.type == MenuType.Member) {
                 this.buttonSound.play();
