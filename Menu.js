@@ -197,11 +197,10 @@ export default class Menu {
         }
     }
 
-    createRightArrow(isCursor=true, x=0, y=0) {
+    createRightArrow(x=0, y=0) {
         const w = 14, h = 26;
         let tri = this.scene.add.graphics();
-        if (isCursor) this.drawList.add(tri);
-        else          this.arrowList.add(tri);
+        this.arrowList.add(tri);
         tri.fillStyle(0xffffff, 1);
         tri.beginPath();
         tri.moveTo(x, y);
@@ -266,6 +265,8 @@ export default class Menu {
     }
 
     setEquipment(member, type, menu) {
+        this.drawList.removeAll(true);
+        this.textList.removeAll(true);
         this.setCursor(0);
         const titleList = ["ぶき", "よろい", "たて", "かぶと"];
         let strList = [];
@@ -312,7 +313,7 @@ export default class Menu {
         // this.drawFill(280, 50, 25, 170);
         this.arrowList.removeAll(true);
         let y = (type == EQUIP.WEAPON)? 60 : 124;
-        this.createRightArrow(false, 285, y);
+        this.createRightArrow(285, y);
         this.setTitle(member.name, true);
     }
 }

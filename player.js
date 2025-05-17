@@ -63,6 +63,7 @@ export default class Player {
 
     // itemNameを装備する
     setEquipItem(type, itemName) {
+        if (itemName.substring(0, 2) == "E:") itemName = itemName.slice(2);
         for (let i = 0; i < this.items.length; i++) {
             let item = this.items[i];
             if (item.substring(0, 2) == "E:") item = item.slice(2);

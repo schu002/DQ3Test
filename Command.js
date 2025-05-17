@@ -48,7 +48,7 @@ export default class Command {
 
     onButtonA() {
         if (!this.isListen) return;
-        if (this.message && this.message.isFinish()) {
+        if (!this.curMenu || (this.message && this.message.isFinish())) {
             this.scene.exitCommand();
             return;
         }
@@ -97,7 +97,11 @@ export default class Command {
                 this.member.setEquipItem(type, itemName);
                 let items = this.member.getEquipItems();
                 menu2.setStrList(items);
-                this.curMenu.setEquipment(this.member, type+1, menu1);
+                if (type == EQUIP.HELMET) {
+                    this.deleteCurMenu(false);
+                } else {
+                    this.curMenu.setEquipment(this.member, type+1, menu1);
+                }
             }
         }
         // じゅもん
@@ -131,7 +135,7 @@ export default class Command {
     }
 
     onButtonB() {
-        if (this.message && this.message.isFinish()) {
+        if (!this.curMenu || (this.message && this.message.isFinish())) {
             this.scene.exitCommand();
             return;
         }
@@ -167,7 +171,7 @@ export default class Command {
     update(dir) {
         if (!this.isListen) return;
 
-        if (this.message && this.message.isFinish()) {
+        if (!this.curMenu || (this.message && this.message.isFinish())) {
             this.scene.exitCommand();
             return;
         }
@@ -219,7 +223,7 @@ export default class Command {
         menu.destroy();
     }
 
-    deleteCurMenu() {
+    deleteCurMenu(setLast=true) {
         if (!this.curMenu) return;
         if (this.curMenu == this.mainMenu) {
             this.scene.exitCommand();
@@ -232,7 +236,15 @@ export default class Command {
         }
 
         this.removeMenu(this.curMenu);
-        this.curMenu = this.lastMenu();
+        this.curMenu = null;
+        if (setLast) {
+            for (let i = this.menuList.length-1; i >= 0; i--) {
+                if (this.menuList[i].flags & MenuFlags.ShowCursor) {
+                    this.curMenu = this.menuList[i];
+                    break;
+                }
+            }
+        }
     }
 
     talk(pressA=false) {
