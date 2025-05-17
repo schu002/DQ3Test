@@ -70,19 +70,15 @@ export function getNumberStr(num, digitNum=0)
 {
     let str = "";
     if (digitNum > 0) {
-        let d = 0, n = num;
-        while (n > 0) {
-            n = Math.floor(n/10);
-            d++
-        }
+        let d = num.toString().length;
         for (let i = 0; i < digitNum-d; i++) {
             str += "　";
         }
     }
 
     let n = num;
-    let numstr = "";
     let nums = ["０", "１", "２", "３", "４", "５", "６", "７", "８", "９"];
+    let numstr = (num == 0)? nums[0] : "";
     while (n > 0) {
         let mod = n % 10;
         numstr = nums[mod] + numstr;

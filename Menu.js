@@ -260,7 +260,8 @@ export default class Menu {
 	    }
     }
 
-    setEquipment(member, menu, type) {
+    setEquipment(member, type, menu) {
+        this.setCursor(0);
         const titleList = ["ぶき", "よろい", "たて", "かぶと"];
         let strList = [];
         let itemName;

@@ -86,10 +86,12 @@ export default class Command {
                 menu2.setStrList(this.member.items, true);
                 // 装備選択画面を右上に表示
                 let menu3 = this.createMenu(MenuType.SelectEquip, null, WIN_X+213, WIN_Y, 150, 0, MenuFlags.ShowCursor);
-                menu3.setEquipment(this.member, menu1, EQUIP.WEAPON);
+                menu3.setEquipment(this.member, EQUIP.WEAPON, menu1);
                 this.curMenu = menu3;
             } else if (this.curMenu.type == MenuType.SelectEquip) {
-	            console.log("meshList", this.menuList.length);
+                let type = getEquipType(this.curMenu.title);
+                let menu = this.findMenu(MenuType.Power);
+                this.curMenu.setEquipment(this.member, type+1, menu);
             }
         }
         // じゅもん
