@@ -82,16 +82,22 @@ export default class Command {
                 this.curMenu.setVisible(false);
                 let menu1 = this.createMenu(MenuType.Power, null, WIN_X, WIN_Y, 214, 126);
                 // 装備一覧を左下に表示
-                let menu2 = this.createMenu(MenuType.Equipment, null, WIN_X, WIN_Y+125, 170, 145);
-                menu2.setStrList(this.member.items, true);
+                let menu2 = this.createMenu(MenuType.EquipList, null, WIN_X, WIN_Y+125, 170, 145);
+                let items = this.member.getEquipItems();
+                menu2.setStrList(items);
                 // 装備選択画面を右上に表示
                 let menu3 = this.createMenu(MenuType.SelectEquip, null, WIN_X+213, WIN_Y, 150, 0, MenuFlags.ShowCursor);
                 menu3.setEquipment(this.member, EQUIP.WEAPON, menu1);
                 this.curMenu = menu3;
             } else if (this.curMenu.type == MenuType.SelectEquip) {
                 let type = getEquipType(this.curMenu.title);
-                let menu = this.findMenu(MenuType.Power);
-                this.curMenu.setEquipment(this.member, type+1, menu);
+                let itemName = this.curMenu.getCurString();
+                let menu1 = this.findMenu(MenuType.Power);
+                let menu2 = this.findMenu(MenuType.EquipList);
+                this.member.setEquipItem(type, itemName);
+                let items = this.member.getEquipItems();
+                menu2.setStrList(items);
+                this.curMenu.setEquipment(this.member, type+1, menu1);
             }
         }
         // じゅもん

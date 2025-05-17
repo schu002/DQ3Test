@@ -11,7 +11,7 @@ export const MenuType = {
     BuySell:    7,  // 買う、売る
     Power:      8,  // 攻撃力、守備力
     SelectEquip: 9, // そうび選択
-    Equipment:  10, // そうび一覧
+    EquipList:  10, // そうび一覧
     Ability:    11, // つよさ
     Spell:      12, // じゅもん
     Luida:      13, // ルイーダの酒場
@@ -53,6 +53,9 @@ export default class Menu {
         this.textList = scene.add.container(x, y);
         this.textList.setScrollFactor(0);
         this.textList.setDepth(depth);
+        this.arrowList = scene.add.container(x, y);
+        this.arrowList.setScrollFactor(0);
+        this.arrowList.setDepth(depth);
         this.cursor = null;
         if (w > 0 && h > 0) this.drawRect(0, 0, w, h);
         this.setStrList(strList);
@@ -75,6 +78,7 @@ export default class Menu {
     destroy() {
         this.drawList.destroy();
         this.textList.destroy();
+        this.arrowList.destroy();
         this.timer.remove();
     }
 
@@ -104,9 +108,10 @@ export default class Menu {
     setVisible(onoff) {
         this.drawList.setVisible(onoff);
         this.textList.setVisible(onoff);
+        this.arrowList.setVisible(onoff);
     }
 
-    setStrList(strList, equip=false, left=66) {
+    setStrList(strList, left=66) {
         this.textList.removeAll(true);
         this.strList = [];
         if (!strList) return;
@@ -118,7 +123,6 @@ export default class Menu {
             let x = left + col*164;
             let y = 54 + row*64;
             let str = strList[i];
-            if (equip && (str[0] != 'E' || str[1] != ':')) continue;
             this.drawText(x, y, str);
         }
     }
@@ -193,10 +197,11 @@ export default class Menu {
         }
     }
 
-    createRightArrow(x=0, y=0) {
+    createRightArrow(isCursor=true, x=0, y=0) {
         const w = 14, h = 26;
         let tri = this.scene.add.graphics();
-        this.drawList.add(tri);
+        if (isCursor) this.drawList.add(tri);
+        else          this.arrowList.add(tri);
         tri.fillStyle(0xffffff, 1);
         tri.beginPath();
         tri.moveTo(x, y);
@@ -284,7 +289,7 @@ export default class Menu {
     }
 
     setEquipParam(member, type, itemName) {
-        if (itemName.substring(0, 2) == "E:") itemName = itemName.slice(2);
+        if (itemName && itemName.substring(0, 2) == "E:") itemName = itemName.slice(2);
         let item = EquipmentData.getItemByName(itemName);
         let strList = [];
         let str = "こうげき：";
@@ -298,9 +303,16 @@ export default class Menu {
         str = "　しゅび：";
         let curDef = member.getDefenceValue();
         str += getNumberStr(curDef, 3);
+        if (type != EQUIP.WEAPON) {
+            let newDef = member.getDefenceValue(type, itemName);
+            str += " " + getNumberStr(newDef, 3);
+        }
         strList.push(str);
-        this.setStrList(strList, false, 35);
-        this.createRightArrow(285, 60);
+        this.setStrList(strList, 35);
+        // this.drawFill(280, 50, 25, 170);
+        this.arrowList.removeAll(true);
+        let y = (type == EQUIP.WEAPON)? 60 : 124;
+        this.createRightArrow(false, 285, y);
         this.setTitle(member.name, true);
     }
 }

@@ -48,14 +48,15 @@ export default class EquipmentData {
 
     // 名前から種別（weapons / armors / shields / helmets）を取得
     static getTypeByName(name) {
+        if (name.substring(0, 2) == "E:") name = name.slice(2);
         return this.nameMap.get(name) || EQUIP.NONE;
     }
 
     // 名前からデータ自体を取得
     static getItemByName(name) {
-        const type = this.getTypeByName(name);
-        if (!type) return null;
-
+        if (!name) return null;
+        if (name.substring(0, 2) == "E:") name = name.slice(2);
+        const type = this.nameMap.get(name);
         if (type == EQUIP.WEAPON) {
 	        return EquipmentData.weapons.find(item => item.name === name) || null;
         } else if (type == EQUIP.ARMOR) {

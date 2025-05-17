@@ -61,6 +61,33 @@ export default class Player {
         this.sprite.setPosition(pos[1] * TILE_SIZE * SCALE, (pos[0] * TILE_SIZE - this.offset) * SCALE);
     }
 
+    // itemNameを装備する
+    setEquipItem(type, itemName) {
+        for (let i = 0; i < this.items.length; i++) {
+            let item = this.items[i];
+            if (item.substring(0, 2) == "E:") item = item.slice(2);
+            if (EquipmentData.getTypeByName(item) != type) continue;
+            if (item == itemName) {
+                this.items[i] = "E:" + itemName;
+            } else {
+                this.items[i] = item;
+            }
+        }
+    }
+    
+    // 装備一覧メニュー用の装備リストを取得する
+    getEquipItems() {
+        let itemList = ["", "", "", ""];
+        for (let i = 0; i < this.items.length; i++) {
+            let item = this.items[i];
+            if (item.substring(0, 2) != "E:") continue;
+            let type = EquipmentData.getTypeByName(item);
+            if (type > 0 && type < 5) itemList[type-1] = item;
+        }
+        return itemList;
+    }
+
+    // 攻撃力を取得する
     getOffenceValue() {
         let value = this.power;
         for (let i = 0; i < this.items.length; i++) {
@@ -75,7 +102,8 @@ export default class Player {
         return value;
     }
 
-    getDefenceValue() {
+    // 守備力を取得する
+    getDefenceValue(ignoreType=EQUIP.NONE, itemName="") {
         let value = Math.floor(this.speed/2);
         for (let i = 0; i < this.items.length; i++) {
             let item = this.items[i];
@@ -84,6 +112,10 @@ export default class Player {
             let type = EquipmentData.getTypeByName(item);
             if (type != EQUIP.ARMOR && type != EQUIP.SHIELD && type != EQUIP.HELMET)
                 continue;
+            if (type == ignoreType) {
+                if (!itemName) continue;
+                item = itemName;
+            }
             let data = EquipmentData.getItemByName(item);
             if (data) value += data.ability;
         }
