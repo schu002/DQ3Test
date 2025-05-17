@@ -382,7 +382,7 @@ export default class Message {
         let geoms = JSON.parse(str.substring(0, idx+1)); // 表示位置とサイズ
         if (geoms.length < 2) return;
         geoms[2] = 160;
-        geoms[3] = 29 + 9*32;
+        geoms[3] = 29 + 8*32;
 
         this.showMenu(MenuType.Item, items, geoms, 0);
     }

@@ -277,8 +277,10 @@ export default class Menu {
         this.drawRect(0, 0, this.width, this.height);
         this.setStrList(strList);
         this.setTitle(titleList[equip-1], true);
-        this.cursor.setVisible(true);
-        this.drawList.bringToTop(this.cursor);
+        if (this.cursor) {
+            this.cursor.setVisible(true);
+            this.drawList.bringToTop(this.cursor);
+        }
         menu.setEquipParam(member, equip, strList[0], item);
     }
 

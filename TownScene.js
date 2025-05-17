@@ -38,8 +38,9 @@ class TownScene extends Phaser.Scene {
 
         if (!this.command) {
             this.command = new Command(this, this.members, this.layer);
+        } else {
+            this.command.onButtonA();
         }
-        this.command.onButtonA();
     }
 
     onButtonB() {

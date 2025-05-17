@@ -66,7 +66,7 @@ export default class Command {
         else if (this.command == COMMAND.ABILITY) {
             if (this.menuList.length == 1) {
                 const strList = ["つよさをみる", "じょうたい", "ならびかた"];
-                this.curMenu = createMenu(MenuType.Ability, strList, WIN_X-14, WIN_Y+60, 140, 125);
+                this.curMenu = this.createMenu(MenuType.Ability, strList, WIN_X-14, WIN_Y+60, 140, 125);
                 this.curMenu.setTitle("つよさ", true);
             }
         }
@@ -74,23 +74,21 @@ export default class Command {
         else if (this.command == COMMAND.EQUIP) {
             if (this.menuList.length == 0) {
 		        drawMembers.call(this, 151, 45);
-            } else if (this.menuList.length == 2) {
-		        if (this.curMenu.nest == 1) {
-                    this.buttonSound.play();
-	                this.member = this.members[this.curMenu.idx];
-                    let menu = this.menuList[this.menuList.length-1];
-	                menu.setVisible(false);
-	                this.curMenu.setVisible(false);
-	                let menu1 = createMenu(MenuType.Power, null, WIN_X, WIN_Y, 214, 126);
-	                // 装備一覧を左下に表示
-	                let menu2 = createMenu(MenuType.Equipment, null, WIN_X, WIN_Y+125, 170, 145);
-	                menu2.setStrList(this.member.items, true);
-	                // 装備選択画面を右上に表示
-	                let menu3 = createMenu(MenuType.SelectEquip, null, WIN_X+213, WIN_Y, 150, 0);
-	                menu3.setEquipment(this.member, menu1, EQUIP.WEAPON);
-	                this.curMenu = menu3;
-		        }
-            } else if (this.menuList.length > 2) {
+            } else if (this.curMenu.type == MenuType.Member) {
+                this.buttonSound.play();
+                this.member = this.members[this.curMenu.idx];
+                let menu = this.menuList[this.menuList.length-1];
+                menu.setVisible(false);
+                this.curMenu.setVisible(false);
+                let menu1 = this.createMenu(MenuType.Power, null, WIN_X, WIN_Y, 214, 126);
+                // 装備一覧を左下に表示
+                let menu2 = this.createMenu(MenuType.Equipment, null, WIN_X, WIN_Y+125, 170, 145);
+                menu2.setStrList(this.member.items, true);
+                // 装備選択画面を右上に表示
+                let menu3 = this.createMenu(MenuType.SelectEquip, null, WIN_X+213, WIN_Y, 150, 0, MenuFlags.ShowCursor);
+                menu3.setEquipment(this.member, menu1, EQUIP.WEAPON);
+                this.curMenu = menu3;
+            } else if (this.curMenu.type == MenuType.SelectEquip) {
 	            console.log("meshList", this.menuList.length);
             }
         }
@@ -273,7 +271,7 @@ function drawMembers(x, y, w=120) {
 
     if (this.command != COMMAND.SPELL) {
 	    let member = this.members[0];
-        h = 27 + member.items.length*32;
+        h = 27 + 8*32;
 	    this.createMenu(MenuType.Item, member.items, WIN_X+191, WIN_Y, 155, h);
     }
 }
