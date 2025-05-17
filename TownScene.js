@@ -33,13 +33,18 @@ class TownScene extends Phaser.Scene {
     }
 
     onButtonA() {
-        if (this.command) return;
         if (!this.layer) return;
+        if (this.isMoving) return;
 
-        this.command = new Command(this, this.members, this.layer);
+        if (!this.command) {
+            this.command = new Command(this, this.members, this.layer);
+        }
+        this.command.onButtonA();
     }
 
     onButtonB() {
+        if (!this.command) return;
+        this.command.onButtonB();
     }
 
     exitCommand() {
@@ -243,7 +248,6 @@ function create()
 function update(time)
 {
     if (this.isMoving) return;
-    if (this.command) return;
 
     let newDir = -1;
 	if		(this.keys.left.isDown	|| this.wasd.left.isDown)  newDir = DIR.LEFT;
@@ -251,6 +255,11 @@ function update(time)
     else if (this.keys.up.isDown	|| this.wasd.up.isDown)	   newDir = DIR.UP;
     else if (this.keys.down.isDown	|| this.wasd.down.isDown)  newDir = DIR.DOWN;
     else return;
+
+    if (this.command) {
+        this.command.update(newDir);
+        return;
+    }
 
     let dir = this.members[0].direction;
 	this.members[0].direction = newDir;

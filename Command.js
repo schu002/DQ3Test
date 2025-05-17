@@ -33,24 +33,6 @@ export default class Command {
         } else {
             this.status = new DrawStatus(scene, members, 80, 304);
         }
-
-        scene.input.keyboard.on("keydown-Z", this.onButtonA, this);
-        scene.input.keyboard.on("keydown-X", this.onButtonB, this);
-        this.keys = scene.input.keyboard.createCursorKeys();
-        this.wasd = scene.input.keyboard.addKeys({
-	        up: Phaser.Input.Keyboard.KeyCodes.W,
-	        down: Phaser.Input.Keyboard.KeyCodes.S,
-	        left: Phaser.Input.Keyboard.KeyCodes.A,
-	        right: Phaser.Input.Keyboard.KeyCodes.D
-	    });
-
-        this.timer = scene.time.addEvent({
-            delay: 10,
-            loop: true,
-            callback: () => {
-                this.update();
-            }
-        });
     }
 
     destroy() {
@@ -62,9 +44,6 @@ export default class Command {
         if (this.npc) this.npc.setTalking(false);
         if (this.message) this.message.destroy();
         if (this.status) this.status.destroy();
-        this.scene.input.keyboard.off("keydown-Z", this.onButtonA, this);
-        this.scene.input.keyboard.off("keydown-X", this.onButtonB, this);
-        this.timer.remove();
     }
 
     onButtonA() {
@@ -179,15 +158,8 @@ export default class Command {
         }
     }
 
-    update() {
+    update(dir) {
         if (!this.isListen) return;
-
-        let dir = -1;
-        if		(this.keys.up.isDown || this.wasd.up.isDown) dir = DIR.UP;
-        else if (this.keys.down.isDown || this.wasd.down.isDown) dir = DIR.DOWN;
-        else if (this.keys.left.isDown || this.wasd.left.isDown) dir = DIR.LEFT;
-        else if (this.keys.right.isDown || this.wasd.right.isDown) dir = DIR.RIGHT;
-        else return;
 
         if (this.message && this.message.isFinish()) {
             this.scene.exitCommand();
@@ -196,21 +168,22 @@ export default class Command {
 
         this.isListen = false;
         if (this.curMenu.moveCursor(dir)) {
-            if (this.curMenu.nest == 1 && this.menuList.length == 3) {
-                if (this.command == COMMAND.EQUIP || this.command == COMMAND.ITEM) {
-	                let member = this.members[this.curMenu.idx];
-	                this.menuList[2].setStrList(member.items);
-	            }
+            if (this.curMenu.type == MenuType.Member) {
+                let menu = this.lastMenu();
+                if (menu.type == MenuType.Item) {
+                    let member = this.members[this.curMenu.idx];
+                    menu.setStrList(member.items);
+                }
             } else if (this.menuList.length == 6) {
                 if (this.command == COMMAND.EQUIP) {
-	                let menu = this.menuList[3];
-	                console.log(menu);
+                    let menu = this.lastMenu();
+                    console.log(menu);
                 }
             }
         }
 
         this.scene.time.delayedCall(200, () => {
-	        this.isListen = true;
+            this.isListen = true;
         });
     }
 
@@ -221,26 +194,30 @@ export default class Command {
         return menu;
     }
 
+    lastMenu() {
+        return this.menuList[this.menuList.length-1];
+    }
+
+    removeMenu(menu) {
+        let idx = this.menuList.indexOf(menu);
+        if (idx >= 0) this.menuList.splice(idx);
+        menu.destroy();
+    }
+
     deleteCurMenu() {
         if (!this.curMenu) return;
         if (this.curMenu == this.mainMenu) {
             this.scene.exitCommand();
             return;
         }
-        let lastMenu = null;
-        let delidx = -1;
-        for (let i = this.menuList.length-1; i >= 0; i--) {
-            let menu = this.menuList[i];
-            if (menu == this.curMenu) {
-                delidx = i;
-            } else if (menu.flags & MenuFlags.ShowCursor) {
-                if (!lastMenu) lastMenu = menu;
-            }
+
+        if (this.curMenu.type == MenuType.Member) {
+            let menu = this.lastMenu();
+            if (menu.type == MenuType.Item) this.removeMenu(menu);
         }
 
-        if (delidx >= 0) this.menuList.splice(delidx);
-        this.curMenu.destroy();
-        this.curMenu = (lastMenu)? lastMenu : this.mainMenu;
+        this.removeMenu(this.curMenu);
+        this.curMenu = this.lastMenu();
     }
 
     talk(pressA=false) {

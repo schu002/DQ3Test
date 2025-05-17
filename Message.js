@@ -267,6 +267,16 @@ export default class Message {
         }
     }
 
+    getDelay(str)
+    {
+        let idx = str.indexOf("/delay:");
+        if (idx < 0) return -1;
+        str = str.slice(idx+7);
+        idx = str.indexOf(' ');
+        if (idx > 0) str = str.slice(0, idx);
+        return Number(str);
+    }
+
     // メニューを表示する
     showMenu(type, strList, geoms, flags=MenuFlags.Default)
     {
@@ -307,16 +317,6 @@ export default class Message {
             this.showMenu(type, selectList, geoms, MenuFlags.ShowCursor);
         });
         return true;
-    }
-
-    getDelay(str)
-    {
-        let idx = str.indexOf("/delay:");
-        if (idx < 0) return -1;
-        str = str.slice(idx+7);
-        idx = str.indexOf(' ');
-        if (idx > 0) str = str.slice(0, idx);
-        return Number(str);
     }
 
     // どうぐ屋選択メニューの表示
@@ -384,7 +384,7 @@ export default class Message {
         geoms[2] = 160;
         geoms[3] = 29 + 9*32;
 
-        let menu = this.showMenu(MenuType.Item, items, geoms, 0);
+        this.showMenu(MenuType.Item, items, geoms, 0);
     }
 
     // 「はい、いいえ」選択メニューの表示
