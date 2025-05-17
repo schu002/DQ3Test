@@ -2,7 +2,7 @@ import Menu, { MenuType, MenuFlags } from "./Menu.js";
 import Message from "./Message.js";
 import DrawStatus from "./DrawStatus.js";
 import TalkManager from "./TalkManager.js";
-import { getNumberStr } from "./util.js";
+import { getNumberStr, getEquipType } from "./util.js";
 
 const WIN_X = 40 * SCALE;
 const WIN_Y = 8 * SCALE;
@@ -172,10 +172,12 @@ export default class Command {
                     let member = this.members[this.curMenu.idx];
                     menu.setStrList(member.items);
                 }
-            } else if (this.menuList.length == 6) {
-                if (this.command == COMMAND.EQUIP) {
-                    let menu = this.lastMenu();
-                    console.log(menu);
+            } else if (this.curMenu.type == MenuType.SelectEquip) {
+                let menu = this.findMenu(MenuType.Power);
+                if (menu) {
+                    let str = this.curMenu.getCurString();
+                    let type = getEquipType(this.curMenu.title);
+                    menu.setEquipParam(this.member, type, str);
                 }
             }
         }
@@ -190,6 +192,13 @@ export default class Command {
         this.menuList.push(menu);
         if (flags & MenuFlags.ShowCursor) this.curMenu = menu;
         return menu;
+    }
+
+    findMenu(type) {
+        for (let i = this.menuList.length-1; i >= 0; i--) {
+            if (this.menuList[i].type == type) return this.menuList[i];
+        }
+        return null;
     }
 
     lastMenu() {

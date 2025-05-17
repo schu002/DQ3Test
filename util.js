@@ -38,6 +38,15 @@ window.EQUIP = {
     ACCESS	: 5,
 };
 
+export function getEquipType(str)
+{
+    if      (str == "ぶき")   return EQUIP.WEAPON;
+    else if (str == "よろい") return EQUIP.ARMOR;
+    else if (str == "たて")   return EQUIP.SHIELD;
+    else if (str == "かぶと") return EQUIP.HELMET;
+    else                     return EQUIP.NONE;
+}
+
 export function updatePosition(position, dir)
 {
     if		(dir == DIR.DOWN)  position[0] += 1;

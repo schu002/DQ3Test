@@ -43,6 +43,7 @@ export default class Menu {
         this.width = w;
         this.height = h;
         this.flags = flags;
+        this.title = "";
         this.strList = [];
         Menu.menuCnt++;
         let depth = 1100; // (flags & MenuFlags.BaseDepth)? 1100 : 1100+Menu.menuCnt;
@@ -134,6 +135,7 @@ export default class Menu {
     }
 
     setTitle(title, top=false) {
+        this.title = title;
         let tw = 2 + 33*title.length;
         let ofsx = Math.floor((this.width-tw)/2);
         let ofsy = (top)? 0 : -13;
@@ -258,38 +260,37 @@ export default class Menu {
 	    }
     }
 
-    setEquipment(member, menu, equip) {
+    setEquipment(member, menu, type) {
         const titleList = ["ぶき", "よろい", "たて", "かぶと"];
         let strList = [];
-        let equipVal = 0;
-        let item = null;
+        let itemName;
         for (let i = 0; i < member.items.length; i++) {
             let str = member.items[i];
             let isEquip = (str.length > 2 && str[0] == 'E' && str[1] == ':')? true : false;
-            let itemName = (isEquip)? str.substr(2, str.length-2) : str;
-            let type = EquipmentData.getTypeByName(itemName);
-            if (type != equip) continue;
+            let wkstr = (isEquip)? str.slice(2) : str;
+            if (EquipmentData.getTypeByName(wkstr) != type) continue;
             strList.push(str);
-            if (isEquip) item = EquipmentData.getItemByName(itemName);
+            if (isEquip) itemName = wkstr;
         }
         strList.push("そうびしない");
         this.height = 61 + strList.length*64;
         this.drawRect(0, 0, this.width, this.height);
         this.setStrList(strList);
-        this.setTitle(titleList[equip-1], true);
+        this.setTitle(titleList[type-1], true);
         this.cursor.setVisible(true);
         this.drawList.bringToTop(this.cursor);
-        menu.setEquipParam(member, equip, item);
+        menu.setEquipParam(member, type, itemName);
     }
 
-    setEquipParam(member, type, eqItem) {
+    setEquipParam(member, type, itemName) {
+        if (itemName.substring(0, 2) == "E:") itemName = itemName.slice(2);
+        let item = EquipmentData.getItemByName(itemName);
         let strList = [];
         let str = "こうげき：";
         let curAtk = member.getOffenceValue();
         str += getNumberStr(curAtk, 3);
         if (type == EQUIP.WEAPON) {
-	        let data = EquipmentData.getItemByName(eqItem.name);
-	        let newAtk = member.power + data.ability;
+	        let newAtk = (item)? member.power + item.ability : member.power;
 	        str += " " + getNumberStr(newAtk, 3);
 	    }
         strList.push(str);
