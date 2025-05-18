@@ -73,11 +73,11 @@ export default class Command {
         // そうび
         else if (this.command == COMMAND.EQUIP) {
             if (this.curMenu.type == MenuType.Command) {
-		        drawMembers.call(this, 151, 45);
+		        drawMembers.call(this, 158, 45);
             } else if (this.curMenu.type == MenuType.Member) {
                 this.buttonSound.play();
                 this.member = this.members[this.curMenu.idx];
-                let menu = this.menuList[this.menuList.length-1];
+                let menu = this.lastMenu();
                 menu.setVisible(false);
                 this.curMenu.setVisible(false);
                 let menu1 = this.createMenu(MenuType.Power, null, WIN_X, WIN_Y, 214, 126);
@@ -106,22 +106,25 @@ export default class Command {
         }
         // じゅもん
         else if (this.command == COMMAND.SPELL) {
-            if (this.menuList.length == 0) {
+            if (this.curMenu.type == MenuType.Command) {
 		        drawMembers.call(this, 166, 47);
             }
         }
         // どうぐ
         else if (this.command == COMMAND.ITEM) {
-            if (this.menuList.length == 0) {
-		        drawMembers.call(this, 158, 79, 114);
-            } else if (this.menuList.length == 2) {
-		        if (this.curMenu.nest == 1) {
-                    this.member = this.members[this.menu.idx];
-                    this.curMenu.fixCursor(true);
-                    this.curMenu = this.menuList[this.menuList.length-1];
-                    this.curMenu.setCursor(0);
-                    this.buttonSound.play();
-		        }
+            if (this.curMenu.type == MenuType.Command) {
+		        drawMembers.call(this, 158, 79, true);
+            } else if (this.curMenu.type == MenuType.Member) {
+                this.member = this.members[this.curMenu.idx];
+                this.curMenu.fixCursor(true);
+                this.curMenu = this.lastMenu();
+                this.curMenu.setCursor(0);
+                this.buttonSound.play();
+            } else if (this.curMenu.type == MenuType.Item) {
+                this.curMenu.fixCursor(true);
+                const strList = ["つかう", "わたす", "すてる"];
+                this.curMenu = this.createMenu(MenuType.SelectOpe, strList, WIN_X-14, WIN_Y+160, 92, 125, MenuFlags.ShowCursor);
+                this.curMenu.setTitle("どうする", true);
             }
         }
         // しらべる
@@ -150,15 +153,16 @@ export default class Command {
             this.scene.exitCommand();
             return;
         } else if (this.command == COMMAND.EQUIP) {
-            if (this.menuList.length == 6) {
-                for (let i = 0; i < 3; i++) {
-                    this.deleteCurMenu();
+            if (this.curMenu.type == MenuType.SelectEquip) {
+                let type = getEquipType(this.curMenu.title);
+                if (type > EQUIP.WEAPON) {
+                    let menu1 = this.findMenu(MenuType.Power);
+                    this.curMenu.setEquipment(this.member, type-1, menu1);
+                    return;
                 }
-                this.menuList[1].setVisible(true);
-                this.menuList[2].setVisible(true);
-                this.curMenu = this.menuList[1];
-                return;
             }
+            this.scene.exitCommand();
+            return;
         }
 
         this.deleteCurMenu();
@@ -290,17 +294,18 @@ export default class Command {
     }
 }
 
-function drawMembers(x, y, w=120) {
+function drawMembers(x, y, isRemain=false) {
     let nameList = [];
     this.members.forEach(member => nameList.push(member.name));
-    let h = 27 + nameList.length*32;
-    let menu = this.createMenu(MenuType.Member, nameList, x, y, w, h, MenuFlags.ShowCursor);
+    let w = 120, h = 27 + nameList.length*32;
+    let flags = (isRemain)? MenuFlags.ShowCursor|MenuFlags.Remain : MenuFlags.ShowCursor;
+    let menu = this.createMenu(MenuType.Member, nameList, x, y, w, h, flags);
     menu.setTitle(cmdList[this.command]);
     this.curMenu = menu;
 
     if (this.command != COMMAND.SPELL) {
 	    let member = this.members[0];
         h = 27 + 8*32;
-	    this.createMenu(MenuType.Item, member.items, WIN_X+191, WIN_Y, 155, h);
+	    this.createMenu(MenuType.Item, member.items, x+w, WIN_Y, 155, h, MenuFlags.Remain);
     }
 }

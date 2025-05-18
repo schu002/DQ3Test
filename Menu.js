@@ -12,11 +12,12 @@ export const MenuType = {
     Power:      8,  // 攻撃力、守備力
     SelectEquip: 9, // そうび選択
     EquipList:  10, // そうび一覧
-    Ability:    11, // つよさ
-    Spell:      12, // じゅもん
-    Luida:      13, // ルイーダの酒場
-    Vault:      14, // あずかり所
-    Other:      15, // その他
+    SelectOpe:  11, // どうぐに対する操作を選択
+    Ability:    12, // つよさ
+    Spell:      13, // じゅもん
+    Luida:      14, // ルイーダの酒場
+    Vault:      15, // あずかり所
+    Other:      16, // その他
 };
 
 export const MenuFlags = {
@@ -179,6 +180,7 @@ export default class Menu {
         let rows = (this.flags & MenuFlags.MultiCols)? Math.floor((len+1)/2) : len;
         let row = (idx < rows)? idx : idx-rows;
         let col = (idx < rows || rows < 1)? 0 : 1;
+        if (!this.cursor) this.createCursor();
         this.cursor.x = 42+col*167;
         this.cursor.y = 62+row*64;
         this.idx = idx;
@@ -197,6 +199,11 @@ export default class Menu {
         }
     }
 
+    createCursor() {
+        this.cursor = this.createRightArrow();
+        this.cursor.setVisible(false);
+    }
+
     createRightArrow(x=0, y=0) {
         const w = 14, h = 26;
         let tri = this.scene.add.graphics();
@@ -212,11 +219,6 @@ export default class Menu {
         tri.fillPath();
         tri.setDepth(10);
         return tri;
-    }
-
-    createCursor() {
-        this.cursor = this.createRightArrow();
-        this.cursor.setVisible(false);
     }
 
     drawRect(x, y, w, h, title=null) {

@@ -335,7 +335,7 @@ export default class Message {
         geoms[3] = 29 + itemList.length*32;
 
         str = trim(str.substring(idx+1));
-        let delay = getDelay(str);
+        let delay = this.getDelay(str);
         if (delay < 0) delay = 700;
         this.scene.time.delayedCall(delay, () => {
             this.command.mainMenu.setVisible(false);
