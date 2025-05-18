@@ -297,7 +297,7 @@ export default class Command {
 function drawMembers(x, y, isRemain=false) {
     let nameList = [];
     this.members.forEach(member => nameList.push(member.name));
-    let w = 120, h = 27 + nameList.length*32;
+    let w = 114, h = 27 + nameList.length*32;
     let flags = (isRemain)? MenuFlags.ShowCursor|MenuFlags.Remain : MenuFlags.ShowCursor;
     let menu = this.createMenu(MenuType.Member, nameList, x, y, w, h, flags);
     menu.setTitle(cmdList[this.command]);
@@ -306,6 +306,6 @@ function drawMembers(x, y, isRemain=false) {
     if (this.command != COMMAND.SPELL) {
 	    let member = this.members[0];
         h = 27 + 8*32;
-	    this.createMenu(MenuType.Item, member.items, x+w, WIN_Y, 155, h, MenuFlags.Remain);
+	    this.createMenu(MenuType.Item, member.items, x+w+30, WIN_Y, 155, h, MenuFlags.Remain);
     }
 }

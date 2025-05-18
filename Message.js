@@ -15,7 +15,6 @@ export default class Message {
         this.drawIdx = 0; // メッセージ出力の最終行の位置
         this.talkIdx = 0; // this.strListの現在位置
         this.forIdx = -1; // this.strListでのfor文の位置
-        this.nest = 0;
         this.drawList = scene.add.container(x, y);
         this.drawList.setScrollFactor(0);
         this.drawList.setDepth(1000);
@@ -113,6 +112,10 @@ export default class Message {
             } else if (str.substring(0, 10) == "<showgold>") {
                 if (isSkip) continue;
                 this.showGoldMenu(str);
+                continue;
+            } else if (str.substring(0, 14) == "<clearmember>") {
+                if (isSkip) continue;
+                this.clearMember();
                 continue;
             } else if (str.substring(0, 10) == "<takeitem>") {
                 if (isSkip) continue;
@@ -384,7 +387,7 @@ export default class Message {
         if (delay < 0) delay = 800;
 
         this.scene.time.delayedCall(delay, () => {
-            let menu = this.showMenu(MenuType.Member, strList, geoms, MenuFlags.ShowCursor);
+            let menu = this.showMenu(MenuType.Member, strList, geoms, MenuFlags.Default);
             this.showMemberItem(str, memList[0].items);
             this.isSelectMember = true;
         });
@@ -438,6 +441,11 @@ export default class Message {
         let menu = this.showMenu(MenuType.Gold, null, geoms, 0);
         menu.drawText(20, 60, "Ｇ", '36px');
         menu.drawText(70, 60, getNumberStr(gameData.gold, 5));
+    }
+
+    clearMember() {
+        let menu = this.command.findMenu(MenuType.Member);
+        if (menu) this.command.removeMenu(menu);
     }
 
     takeItem() {
