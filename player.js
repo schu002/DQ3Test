@@ -123,6 +123,11 @@ export default class Player {
         return value;
     }
 
+    // 持ち物を追加する
+    addItem(itemName) {
+        this.items.push(itemName);
+    }
+
     static getHero() {
         return Player.hero;
     }

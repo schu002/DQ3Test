@@ -65,10 +65,19 @@ class TownScene extends Phaser.Scene {
         return this.members;
     }
 
+    getMember(name) {
+        return this.members.find(member => member.name == name);
+    }
+
     // どうぐ屋の売り物リストを取得する
     getItemList() {
         const townData = this.cache.json.get("townData");
         return townData.items;
+    }
+
+    getItem(name) {
+        const townData = this.cache.json.get("townData");
+        return townData.items.find(item => item.name == name);
     }
 
     // 武器と防具の店の売り物リストを取得する

@@ -43,6 +43,7 @@ layer:Town {
         break
       endif
       ＊「はいっ　<member>さん。
+      <takeitem>
       ＊「ほかに　なにか　ごようですか？
     elif <index> == 1
       ＊「どなたの　もちものを
