@@ -13,7 +13,7 @@ export default class Message {
         this.width = w;
         this.height = h;
         this.drawIdx = 0; // メッセージ出力の最終行の位置
-        this.talkIdx = 0; // this.strListの現在位置
+        this.talkIdx = -1; // this.strListの現在位置
         this.forIdx = -1; // this.strListでのfor文の位置
         this.drawList = scene.add.container(x, y);
         this.drawList.setScrollFactor(0);
@@ -50,7 +50,7 @@ export default class Message {
 
     setStrList(strList, cmd=null) {
         this.strList = [...strList];
-        this.talkIdx = 0;
+        this.talkIdx = -1;
         this.command = cmd;
         this.update();
     }
@@ -77,10 +77,10 @@ export default class Message {
         }
 
         // 会話テキスト
-        let chList = [], isCursor = false, isMatch = false, isSkip = false, isBreak = false;
-        let ifCnt = 0, forIdx = -1;
-        while (this.talkIdx < this.strList.length) {
-            let str = trim(this.strList[this.talkIdx++]);
+        let chList = [], isCursor = false, isSkip = false, isBreak = false;
+        let forIdx = -1;
+        while (++this.talkIdx < this.strList.length) {
+            let str = trim(this.strList[this.talkIdx]);
             if (isBreak) {
                 if (str != "endfor") continue;
                 forIdx = -1;
@@ -125,38 +125,16 @@ export default class Message {
                 if (isSkip) continue;
                 if (this.showSelectYesNoMenu(str)) break;
             } else if (str.substring(0, 2) == "if") {
-                if (isSkip) {
-                    ifCnt++;
-                    continue;
-                }
-                str = str.slice(2).trim();
-                isMatch = this.isMatchCondition(str);
-                if (!isMatch) isSkip = true;
+                this.skipToMatch(str);
                 continue;
             } else if (str.substring(0, 4) == "elif") {
-                str = str.slice(4).trim();
-                if (isMatch) isSkip = true;
-                else {
-                    isMatch = this.isMatchCondition(str);
-                    isSkip = (isMatch)? false : true;
-                }
+                isSkip = true;
                 continue;
             } else if (str.substring(0, 4) == "else") {
-                if (isMatch) {
-                    isSkip = true;
-                } else {
-                    isMatch = true;
-                    isSkip = false;
-                }
+                isSkip = true;
                 continue;
             } else if (str.substring(0, 5) == "endif") {
-                if (isSkip) {
-                    ifCnt--;
-                    if (ifCnt < 0) {
-                        isMatch = true;
-                        isSkip = false;
-                    }
-                }
+                isSkip = false;
                 continue;
             } else if (str == "for") {
                 if (!isSkip) this.forIdx = this.talkIdx;
@@ -188,6 +166,31 @@ export default class Message {
         this.drawText(chList, isCursor, () => {
             this.isBusy = false;
         });
+    }
+
+    skipToMatch(str) {
+        str = str.slice(2).trim();
+        if (this.isMatchCondition(str)) return true;
+
+        let ifCnt = 0;
+        while (++this.talkIdx < this.strList.length) {
+            let str = trim(this.strList[this.talkIdx]);
+            if (str.substring(0, 2) == "if") {
+                ifCnt++;
+                this.skipToMatch(str);
+            } else if (str.substring(0, 4) == "elif") {
+                if (ifCnt > 0) continue;
+                str = str.slice(4).trim();
+                if (this.isMatchCondition(str)) return true;
+            } else if (str.substring(0, 4) == "else") {
+                if (ifCnt > 0) continue;
+                return true;
+            } else if (str.substring(0, 5) == "endif") {
+                if (ifCnt <= 0) return false;
+                ifCnt--;
+            }
+        }
+        return false;
     }
 
     drawText(chList, isCursor, onComplete) {
