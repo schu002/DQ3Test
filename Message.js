@@ -27,9 +27,9 @@ export default class Message {
         this.talkBGM = scene.sound.add("talk", { loop: false, volume: 0.2 });
         this.strList = [];
         this.isBusy = false;
-        this.isSelectItem = false; // アイテム選択中かどうか
+        this.isSelectShop = false; // 商品選択中かどうか
         this.isSelectMember = false; // メンバー選択中かどうか
-        this.selectItem = "";
+        this.selectShop = "";
         this.selectMember = "";
 
         this.timer = scene.time.addEvent({
@@ -67,9 +67,9 @@ export default class Message {
         if (this.isFinish()) return;
         this.isBusy = true;
 
-        if (this.isSelectItem) {
-            this.isSelectItem = false;
-            this.selectItem = this.command.getSelectString();
+        if (this.isSelectShop) {
+            this.isSelectShop = false;
+            this.selectShop = this.command.getSelectString();
         }
         if (this.isSelectMember) {
             this.isSelectMember = false;
@@ -89,7 +89,7 @@ export default class Message {
             }
             str = str.replace("<hero>", Player.getHero().name);
             if (this.command) {
-                str = str.replace("<item>", this.selectItem);
+                str = str.replace("<item>", this.selectShop);
                 str = str.replace("<member>", this.selectMember);
             }
             // console.log(this.talkIdx, str, isSkip);
@@ -100,15 +100,15 @@ export default class Message {
             } else if (str.substring(0, 8) == "<select>") {
                 if (isSkip) continue;
                 if (this.showSelectMenu(str)) break;
-            } else if (str.substring(0, 12) == "<selectitem>") {
+            } else if (str.substring(0, 12) == "<selectshop>") {
                 if (isSkip) continue;
-                if (this.showSelectBuyMenu(str)) break;
-            } else if (str.substring(0, 14) == "<selectweapon>") {
-                if (isSkip) continue;
-                if (this.showSelectBuyMenu(str)) break;
+                if (this.showSelectShopMenu(str)) break;
             } else if (str.substring(0, 14) == "<selectmember>") {
                 if (isSkip) continue;
                 if (this.showSelectMemberMenu(str)) break;
+            } else if (str.substring(0, 12) == "<selectitem>") {
+                if (isSkip) continue;
+                if (this.showSelectItemMenu(str)) break;
             } else if (str.substring(0, 10) == "<showgold>") {
                 if (isSkip) continue;
                 this.showGoldMenu(str);
@@ -177,7 +177,6 @@ export default class Message {
             let str = trim(this.strList[this.talkIdx]);
             if (str.substring(0, 2) == "if") {
                 ifCnt++;
-                this.skipToMatch(str);
             } else if (str.substring(0, 4) == "elif") {
                 if (ifCnt > 0) continue;
                 str = str.slice(4).trim();
@@ -343,11 +342,10 @@ export default class Message {
     }
 
     // どうぐ屋選択メニューの表示
-    showSelectBuyMenu(str)
+    showSelectShopMenu(str)
     {
-        let len = (str.substring(0, 12) == "<selectitem>")? 12 : 14;
-        str = str.substring(len).trim();
-        let itemList = (len == 12)? this.scene.getItemList() : this.scene.getWeaponList();
+        str = str.substring(12).trim();
+        let itemList = (this.command.npc.name == "item")? this.scene.getItemList() : this.scene.getWeaponList();
         if (itemList.length < 1) return false;
 
         let idx = (str)? str.indexOf(']') : -1;
@@ -364,7 +362,7 @@ export default class Message {
             this.command.mainMenu.setVisible(false);
             let menu = this.showMenu(MenuType.Shop, null, geoms);
             menu.setShopList(itemList);
-            this.isSelectItem = true;
+            this.isSelectShop = true;
         });
         return true;
     }
@@ -394,6 +392,18 @@ export default class Message {
             this.showMemberItem(str, memList[0].items);
             this.isSelectMember = true;
         });
+        return true;
+    }
+
+    // 持ち物選択メニューの表示
+    showSelectItemMenu(str)
+    {
+        str = str.substring(12).trim();
+        let menu = this.command.findMenu(MenuType.Item);
+        if (!menu) return false;
+
+        menu.setCursor(0);
+        this.command.curMenu = menu;
         return true;
     }
 
@@ -452,11 +462,11 @@ export default class Message {
     }
 
     takeItem() {
-        if (!this.selectItem || !this.selectMember) return;
+        if (!this.selectShop || !this.selectMember) return;
         const gameData = this.scene.cache.json.get("gameData");
         const member = this.scene.getMember(this.selectMember);
         if (!member) return;
-        const item = this.scene.getItem(this.selectItem);
+        const item = this.scene.getItem(this.selectShop);
         if (!item) return;
         member.addItem(item.name);
         gameData.gold -= item.price;

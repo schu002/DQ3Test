@@ -31,7 +31,7 @@ layer:Town {
     <select> type<Shop> ["かいにきた", "うりにきた", "やめる"] [305, 76, 125, 125]
     if <index> == 0
       ＊「どれを　おもとめですか？
-      <selectitem> [50, 16] /delay:300
+      <selectshop> [50, 16] /delay:300
       if <index> < 0
         break
       endif
@@ -54,6 +54,10 @@ layer:Town {
         break
       endif
       ＊「どれを　うってくれますか？
+      <selectitem>
+      if <index> < 0
+        break
+      endif
     else
       break
     endif
@@ -71,7 +75,7 @@ layer:Town {
     endif
     ＊「なにを　かうかね？
     <showgold> [305, 16] /delay:200
-    <selectweapon> [50, 16] /delay:0
+    <selectshop> [50, 16] /delay:0
     if <index> < 0
       break
     endif
