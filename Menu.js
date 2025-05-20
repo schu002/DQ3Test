@@ -184,6 +184,7 @@ export default class Menu {
         this.cursor.x = 42+col*167;
         this.cursor.y = 62+row*64;
         this.idx = idx;
+        this.flags |= MenuFlags.ShowCursor;
     }
 
     fixCursor(onoff) {

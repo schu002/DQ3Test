@@ -43,9 +43,8 @@ layer:Town {
         break
       endif
       ＊「はいっ　<member>さん。
-      <clearmember>
+      <hidemember>
       <takeitem>
-      ＊「ほかに　なにか　ごようですか？
     elif <index> == 1
       ＊「どなたの　もちものを
       　　うってくれますか？
@@ -58,9 +57,21 @@ layer:Town {
       if <index> < 0
         break
       endif
+      ＊「<item>ですね。
+      　　それなら　<sell>ゴールドで
+      　　かいましょう。いいですか？
+      <hidemember>
+      <yesno> [305, 76]
+      if <index> == 0
+        ＊「どうも　ありがとうございます。
+      else
+        ＊「それは　ざんねんです……。
+        <btn>
+      endif
     else
       break
     endif
+    ＊「ほかに　なにか　ごようですか？
   endfor
   ＊「では　またの　おこしを
   　　おまちしてます。

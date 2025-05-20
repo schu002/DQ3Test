@@ -86,6 +86,11 @@ class TownScene extends Phaser.Scene {
         return townData.weapons;
     }
 
+    getWeapon(name) {
+        const townData = this.cache.json.get("townData");
+        return townData.weapons.find(weapon => weapon.name == name);
+    }
+
     setLayer(layname, pos=null) {
         let layer = this.layerMap[layname];
         if (!layer || this.layer == layer) return false;

@@ -2,6 +2,13 @@ import Player from "./player.js";
 import { MenuType, MenuFlags } from "./Menu.js";
 import { getNumberStr, trim } from "./util.js";
 
+const Attr = {
+    Busy:         0x01, // 処理中
+    SelectShop:   0x02, // 商品選択中かどうか
+    SelectMember: 0x04, // メンバー選択中かどうか
+    SelectItem:   0x08  // 持ち物選択中かどうか
+}
+
 export default class Message {
     constructor(scene, x, y, w, h) {
         this.command = null;
@@ -26,10 +33,8 @@ export default class Message {
 
         this.talkBGM = scene.sound.add("talk", { loop: false, volume: 0.2 });
         this.strList = [];
-        this.isBusy = false;
-        this.isSelectShop = false; // 商品選択中かどうか
-        this.isSelectMember = false; // メンバー選択中かどうか
-        this.selectShop = "";
+        this.attr = 0
+        this.selectItem = "";
         this.selectMember = "";
 
         this.timer = scene.time.addEvent({
@@ -61,18 +66,20 @@ export default class Message {
     }
 
     update() {
-        if (this.isBusy) return;
+        if (this.attr & Attr.Busy) return;
         if (!this.strList) return;
         if (this.strList.length == 0) return;
         if (this.isFinish()) return;
-        this.isBusy = true;
+        this.attr |= Attr.Busy;
 
-        if (this.isSelectShop) {
-            this.isSelectShop = false;
-            this.selectShop = this.command.getSelectString();
-        }
-        if (this.isSelectMember) {
-            this.isSelectMember = false;
+        if (this.attr & Attr.SelectShop) {
+            this.attr &= ~Attr.SelectShop;
+            this.selectItem = this.command.getSelectString();
+        } else if (this.attr & Attr.SelectItem) {
+            this.attr &= ~Attr.SelectItem;
+            this.selectItem = this.command.getSelectString();
+        } else if (this.attr & Attr.SelectMember) {
+            this.attr &= ~Attr.SelectMember;
             this.selectMember = this.command.getSelectString();
         }
 
@@ -89,8 +96,9 @@ export default class Message {
             }
             str = str.replace("<hero>", Player.getHero().name);
             if (this.command) {
-                str = str.replace("<item>", this.selectShop);
+                str = str.replace("<item>", this.selectItem);
                 str = str.replace("<member>", this.selectMember);
+                str = str.replace("<sell>", getNumberStr(this.getSellPrice(this.selectItem)));
             }
             // console.log(this.talkIdx, str, isSkip);
             if (str == "<btn>") {
@@ -113,9 +121,9 @@ export default class Message {
                 if (isSkip) continue;
                 this.showGoldMenu(str);
                 continue;
-            } else if (str.substring(0, 14) == "<clearmember>") {
+            } else if (str.substring(0, 14) == "<hidemember>") {
                 if (isSkip) continue;
-                this.clearMember();
+                this.hideMember();
                 continue;
             } else if (str.substring(0, 10) == "<takeitem>") {
                 if (isSkip) continue;
@@ -164,7 +172,7 @@ export default class Message {
 	    }
 
         this.drawText(chList, isCursor, () => {
-            this.isBusy = false;
+            this.attr &= ~Attr.Busy;
         });
     }
 
@@ -299,6 +307,18 @@ export default class Message {
         return Number(str);
     }
 
+    getSellPrice(name) {
+        let price = 1;
+        const item = this.scene.getItem(name);
+        if (item) {
+            price = Math.floor(item.price*0.75);
+        } else {
+            const weapon = this.scene.getWeapon(name);
+            if (weapon) price = Math.floor(weapon.price*0.75);
+        }
+        return price;
+    }
+
     // メニューを表示する
     showMenu(type, strList, geoms, flags=MenuFlags.Default)
     {
@@ -362,7 +382,7 @@ export default class Message {
             this.command.mainMenu.setVisible(false);
             let menu = this.showMenu(MenuType.Shop, null, geoms);
             menu.setShopList(itemList);
-            this.isSelectShop = true;
+            this.attr |= Attr.SelectShop;
         });
         return true;
     }
@@ -390,7 +410,7 @@ export default class Message {
         this.scene.time.delayedCall(delay, () => {
             let menu = this.showMenu(MenuType.Member, strList, geoms, MenuFlags.Default);
             this.showMemberItem(str, memList[0].items);
-            this.isSelectMember = true;
+            this.attr |= Attr.SelectMember;
         });
         return true;
     }
@@ -404,6 +424,7 @@ export default class Message {
 
         menu.setCursor(0);
         this.command.curMenu = menu;
+        this.attr |= Attr.SelectItem;
         return true;
     }
 
@@ -456,17 +477,17 @@ export default class Message {
         menu.drawText(70, 60, getNumberStr(gameData.gold, 5));
     }
 
-    clearMember() {
+    hideMember() {
         let menu = this.command.findMenu(MenuType.Member);
         if (menu) this.command.removeMenu(menu);
     }
 
     takeItem() {
-        if (!this.selectShop || !this.selectMember) return;
+        if (!this.selectItem || !this.selectMember) return;
         const gameData = this.scene.cache.json.get("gameData");
         const member = this.scene.getMember(this.selectMember);
         if (!member) return;
-        const item = this.scene.getItem(this.selectShop);
+        const item = this.scene.getItem(this.selectItem);
         if (!item) return;
         member.addItem(item.name);
         gameData.gold -= item.price;
