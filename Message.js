@@ -125,9 +125,9 @@ export default class Message {
                 if (isSkip) continue;
                 this.hideMember();
                 continue;
-            } else if (str.substring(0, 10) == "<takeitem>") {
+            } else if (str.substring(0, 10) == "<buyitem>") {
                 if (isSkip) continue;
-                this.takeItem();
+                this.buyItem();
                 continue;
             } else if (str.substring(0, 7) == "<yesno>") {
                 if (isSkip) continue;
@@ -464,15 +464,20 @@ export default class Message {
     }
 
     // Goldメニュー表示
-    showGoldMenu(str) {
-        str = str.substring(10).trim();
-        let idx = (str)? str.indexOf(']') : -1;
-        if (!str || str[0] != '[' || idx < 3) return;
-        let geoms = JSON.parse(str.substring(0, idx+1)); // 表示位置とサイズ
-        geoms[2] = 125;
-        geoms[3] = 60;
+    showGoldMenu(str=null) {
         const gameData = this.scene.cache.json.get("gameData");
-        let menu = this.showMenu(MenuType.Gold, null, geoms, 0);
+        let menu = this.command.findMenu(MenuType.Gold);
+        if (menu) {
+            menu.clearText();
+        } else {
+            str = str.substring(10).trim();
+            let idx = (str)? str.indexOf(']') : -1;
+            if (!str || str[0] != '[' || idx < 3) return;
+            let geoms = JSON.parse(str.substring(0, idx+1)); // 表示位置とサイズ
+            geoms[2] = 125;
+            geoms[3] = 60;
+            menu = this.showMenu(MenuType.Gold, null, geoms, 0);
+        }
         menu.drawText(20, 60, "Ｇ", '36px');
         menu.drawText(70, 60, getNumberStr(gameData.gold, 5));
     }
@@ -482,15 +487,17 @@ export default class Message {
         if (menu) this.command.removeMenu(menu);
     }
 
-    takeItem() {
+    buyItem() {
         if (!this.selectItem || !this.selectMember) return;
         const gameData = this.scene.cache.json.get("gameData");
         const member = this.scene.getMember(this.selectMember);
         if (!member) return;
-        const item = this.scene.getItem(this.selectItem);
+        const item = (this.command.npc.name == "item")?
+                    this.scene.getItem(this.selectItem) : this.scene.getWeapon(this.selectItem);
         if (!item) return;
         member.addItem(item.name);
         gameData.gold -= item.price;
+        this.showGoldMenu();
     }
 
     createDownArrow(x, y) {

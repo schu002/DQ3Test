@@ -204,9 +204,19 @@ export default class Command {
     }
 
     createMenu(type, strList, x, y, w, h, flags=0) {
-        let menu = new Menu(type, this.scene, strList, x, y, w, h, flags);
-        this.menuList.push(menu);
-        if (flags & MenuFlags.ShowCursor) this.curMenu = menu;
+        let menu = this.findMenu(type);
+        if (menu) {
+            menu.setStrList(strList);
+            menu.setVisible(true);
+        } else {
+            menu = new Menu(type, this.scene, strList, x, y, w, h, flags);
+            this.menuList.push(menu);
+        }
+        if (flags & MenuFlags.ShowCursor) {
+            this.curMenu = menu;
+            this.curMenu.fixCursor(false);
+            this.curMenu.setCursor(0);
+        }
         return menu;
     }
 

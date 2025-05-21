@@ -267,6 +267,10 @@ export default class Menu {
 	    }
     }
 
+    clearText() {
+        this.textList.removeAll(true);
+    }
+
     setEquipment(member, type, menu) {
         this.drawList.removeAll(true);
         this.textList.removeAll(true);
