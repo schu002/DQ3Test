@@ -233,7 +233,7 @@ export default class Command {
 
     removeMenu(menu) {
         let idx = this.menuList.indexOf(menu);
-        if (idx >= 0) this.menuList.splice(idx);
+        if (idx >= 0) this.menuList.splice(idx, 1);
         menu.destroy();
     }
 
