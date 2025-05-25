@@ -91,7 +91,7 @@ export default class Message {
         }
 
         // 会話テキスト
-        let chList = [], isCursor = false, isSkip = false, isBreak = false;
+        let chList = [], isCursor = false, isBreak = false;
         let forIdx = -1;
         while (++this.talkIdx < this.strList.length) {
             let str = trim(this.strList[this.talkIdx]);
@@ -107,64 +107,55 @@ export default class Message {
                 str = str.replace("<member>", this.selectMember);
                 str = str.replace("<sell>", getNumberStr(this.getSellPrice(this.selectItem)));
             }
-            // console.log(this.talkIdx, str, isSkip);
+            // console.log(this.talkIdx, str);
             if (str == "<btn>") {
-                if (isSkip) continue;
                 isCursor = true;
                 break;
             } else if (str.substring(0, 8) == "<select>") {
-                if (isSkip) continue;
                 if (this.showSelectMenu(str)) break;
             } else if (str.substring(0, 12) == "<selectshop>") {
-                if (isSkip) continue;
                 if (this.showSelectShopMenu(str)) break;
             } else if (str.substring(0, 14) == "<selectmember>") {
-                if (isSkip) continue;
                 if (this.showSelectMemberMenu(str)) break;
             } else if (str.substring(0, 12) == "<selectitem>") {
-                if (isSkip) continue;
                 if (this.showSelectItemMenu(str)) break;
             } else if (str.substring(0, 10) == "<showgold>") {
-                if (isSkip) continue;
                 this.showGoldMenu(str);
                 continue;
+            } else if (str.substring(0, 14) == "<hideshop>") {
+                this.hideShop();
+                continue;
             } else if (str.substring(0, 14) == "<hidemember>") {
-                if (isSkip) continue;
                 this.hideMember();
                 continue;
             } else if (str.substring(0, 10) == "<buyitem>") {
-                if (isSkip) continue;
                 this.buyItem();
                 continue;
             } else if (str.substring(0, 7) == "<yesno>") {
-                if (isSkip) continue;
                 if (this.showSelectYesNoMenu(str)) break;
             } else if (str.substring(0, 2) == "if") {
                 this.skipToMatch(str);
                 continue;
             } else if (str.substring(0, 4) == "elif") {
-                isSkip = true;
+                this.skipToEndIf();
                 continue;
             } else if (str.substring(0, 4) == "else") {
-                isSkip = true;
+                this.skipToEndIf();
                 continue;
             } else if (str.substring(0, 5) == "endif") {
-                isSkip = false;
                 continue;
             } else if (str == "for") {
-                if (!isSkip) this.forIdx = this.talkIdx;
+                this.forIdx = this.talkIdx;
                 continue;
             } else if (str == "endfor") {
                 if (isBreak) break;
-                if (!isSkip && this.forIdx >= 0) {
+                if (this.forIdx >= 0) {
                     this.talkIdx = this.forIdx;
                 }
                 continue;
             } else if (str == "break") {
-                if (!isSkip) isBreak = true;
+                isBreak = true;
                 continue;
-            } else {
-                if (isSkip) continue;
             }
 
             for (const ch of str) {
@@ -192,6 +183,19 @@ export default class Message {
                 this.command.curMenu.idx = -1;
         }
         this.onButtonA();
+    }
+
+    skipToEndIf() {
+        let ifCnt = 0;
+        while (++this.talkIdx < this.strList.length) {
+            let str = trim(this.strList[this.talkIdx]);
+            if (str.substring(0, 2) == "if") {
+                ifCnt++;
+            } else if (str.substring(0, 5) == "endif") {
+                if (ifCnt <= 0) return;
+                ifCnt--;
+            }
+        }
     }
 
     skipToMatch(str) {
@@ -504,6 +508,11 @@ export default class Message {
         }
         menu.drawText(20, 60, "Ｇ", '36px');
         menu.drawText(70, 60, getNumberStr(gameData.gold, 5));
+    }
+
+    hideShop() {
+        let menu = this.command.findMenu(MenuType.Shop);
+        if (menu) this.command.removeMenu(menu);
     }
 
     hideMember() {

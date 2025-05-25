@@ -35,16 +35,23 @@ layer:Town {
       if <index> < 0
         break
       endif
-      ＊「<item>ですね。
-      　　まいど　ありがとうございます。
-      ＊「どなたが　おもちになりますか？
-      <selectmember> [305, 75]
-      if <index> < 0
-        break
+      if <gold> < <price>
+        ＊「すみません。それを　かうには
+        　　おかねが　たりませんが……。
+        <btn>
+      else
+        ＊「<item>ですね。
+        　　まいど　ありがとうございます。
+        ＊「どなたが　おもちになりますか？
+        <selectmember> [305, 75]
+        if <index> < 0
+          break
+        endif
+        ＊「はいっ　<member>さん。
+        <hidemember>
+        <buyitem>
       endif
-      ＊「はいっ　<member>さん。
-      <hidemember>
-      <buyitem>
+      <hideshop>
     elif <index> == 1
       ＊「どなたの　もちものを
       　　うってくれますか？
