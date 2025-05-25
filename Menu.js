@@ -83,20 +83,6 @@ export default class Menu {
         this.timer.remove();
     }
 
-    onButtonB() {
-        this.idx = -1;
-        if (this.strList.length == 2 && this.strList[0] == "はい") {
-            this.idx = 1;
-            if (this.flags & MenuFlags.Remain) {
-                this.fixCursor(true);
-            } else {
-                this.setVisible(false);
-            }
-            return true;
-        }
-        return false;
-    }
-
     getCurString() {
         if (this.idx < 0 || this.idx >= this.strList.length) return "";
         if (this.flags & MenuFlags.ShopItem) {
@@ -107,6 +93,10 @@ export default class Menu {
     }
 
     setVisible(onoff) {
+        if (onoff) {
+            this.flags &= ~MenuFlags.FixCursor;
+            this.setCursor(-1);
+        }
         this.drawList.setVisible(onoff);
         this.textList.setVisible(onoff);
         this.arrowList.setVisible(onoff);

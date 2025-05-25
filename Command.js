@@ -60,7 +60,7 @@ export default class Command {
 
         // はなす
         if (this.command == COMMAND.TALK) {
-            this.talk(true);
+            this.talk();
         }
         // つよさ
         else if (this.command == COMMAND.ABILITY) {
@@ -144,11 +144,8 @@ export default class Command {
         }
         let nest = this.curMenu.nest;
         if (this.command == COMMAND.TALK) {
-            if (this.curMenu) {
-                let chk = this.curMenu.onButtonB();
-                this.talk();
-                if (chk) return;
-            }
+            if (!this.message) return;
+            this.message.onButtonB();
         } else if (this.command == COMMAND.ITEM) {
             this.scene.exitCommand();
             return;
@@ -164,15 +161,9 @@ export default class Command {
             this.scene.exitCommand();
             return;
         }
-
-        this.deleteCurMenu();
-        if (this.menuList.length < 1) {
-            this.scene.exitCommand();
-            return;
-        }
     }
 
-    update(dir) {
+    onPressKey(dir) {
         if (!this.isListen) return;
 
         if (!this.curMenu || (this.message && this.message.isFinish())) {
@@ -261,7 +252,7 @@ export default class Command {
         }
     }
 
-    talk(pressA=false) {
+    talk() {
         if (!this.message) {
             if (this.npc) {
                 this.npc.setTalking(true, this.members[0].direction);
@@ -270,11 +261,10 @@ export default class Command {
                 this.createTalkMenu();
             }
         } else {
-            if (pressA && this.curMenu && (this.curMenu.flags & MenuFlags.ShowCursor)) {
+            if (this.curMenu && (this.curMenu.flags & MenuFlags.ShowCursor)) {
                 this.curMenu.fixCursor(true);
             }
-
-            this.message.update();
+            this.message.onButtonA();
         }
     }
 

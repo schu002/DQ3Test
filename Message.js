@@ -57,7 +57,7 @@ export default class Message {
         this.strList = [...strList];
         this.talkIdx = -1;
         this.command = cmd;
-        this.update();
+        this.onButtonA();
     }
 
     setVisible(onoff) {
@@ -65,12 +65,17 @@ export default class Message {
         this.textList.setVisible(onoff);
     }
 
-    update() {
+    onButtonA() {
         if (this.attr & Attr.Busy) return;
         if (!this.strList) return;
         if (this.strList.length == 0) return;
         if (this.isFinish()) return;
         this.attr |= Attr.Busy;
+
+        if (this.cursor) {
+            this.drawList.remove(this.cursor, true);
+            this.cursor = null;
+        }
 
         if (this.attr & Attr.SelectShop) {
             this.attr &= ~Attr.SelectShop;
@@ -78,6 +83,8 @@ export default class Message {
         } else if (this.attr & Attr.SelectItem) {
             this.attr &= ~Attr.SelectItem;
             this.selectItem = this.command.getSelectString();
+            if (this.selectItem.substring(0, 2) == "E:")
+                this.selectItem = this.selectItem.substring(2);
         } else if (this.attr & Attr.SelectMember) {
             this.attr &= ~Attr.SelectMember;
             this.selectMember = this.command.getSelectString();
@@ -166,14 +173,25 @@ export default class Message {
             chList.push('\n');
         }
 
-        if (this.cursor) {
-	        this.cursor.destroy();
-	        this.cursor = null;
-	    }
-
-        this.drawText(chList, isCursor, () => {
+        this.drawText(chList, () => {
+            if (isCursor) {
+                this.createDownArrow();
+            }
             this.attr &= ~Attr.Busy;
         });
+    }
+
+    onButtonB() {
+        if (this.attr & Attr.Busy) return;
+        if (!this.command.curMenu) return;
+        if (this.command.curMenu.type != MenuType.Command) {
+            if (!(this.command.curMenu.flags & MenuFlags.Remain)) {
+                this.command.deleteCurMenu();
+            }
+            if (this.command.curMenu)
+                this.command.curMenu.idx = -1;
+        }
+        this.onButtonA();
     }
 
     skipToMatch(str) {
@@ -200,7 +218,7 @@ export default class Message {
         return false;
     }
 
-    drawText(chList, isCursor, onComplete) {
+    drawText(chList, onComplete) {
         let idx = 0, x = 25, isHead = true, isTalk = false;
         this.scene.time.addEvent({
             delay: 12,
@@ -247,7 +265,6 @@ export default class Message {
                 }
 
                 if (idx === chList.length) {
-                    if (isCursor) this.createDownArrow(450, y+620);
                     if (onComplete) onComplete();  // 最後に通知
                 }
             },
@@ -261,6 +278,13 @@ export default class Message {
     }
 
     isMatchCondition(condstr) {
+        const gameData = this.scene.cache.json.get("gameData");
+        condstr = condstr.replace("<gold>", String(gameData.gold));
+        if (condstr.indexOf("<price>") >= 0) {
+            const item = (this.command.npc.name == "item")?
+                        this.scene.getItem(this.selectItem) : this.scene.getWeapon(this.selectItem);
+            if (item) condstr = condstr.replace("<price>", String(item.price));
+        }
         condstr = condstr.replace("<index>", String(this.command.getSelectIndex()));
         let signList = ["==", "!=", "<=", ">=", "<", ">"];
         let tokenList = [];
@@ -500,10 +524,10 @@ export default class Message {
         this.showGoldMenu();
     }
 
-    createDownArrow(x, y) {
-        const w = 30, h = 18;
-        if (this.cursor) this.cursor.destroy();
+    createDownArrow() {
+        const x = 330, y = 80+this.drawIdx*64, w = 30, h = 18;
         this.cursor = this.scene.add.graphics();
+        this.drawList.add(this.cursor);
         this.cursor.fillStyle(0xffffff, 1);
         this.cursor.beginPath();
         this.cursor.moveTo(x, y);

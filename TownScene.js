@@ -34,7 +34,7 @@ class TownScene extends Phaser.Scene {
 
     onButtonA() {
         if (!this.layer) return;
-        if (this.isMoving) return;
+        if (this.isBusy) return;
 
         if (!this.command) {
             this.command = new Command(this, this.members, this.layer);
@@ -49,10 +49,12 @@ class TownScene extends Phaser.Scene {
     }
 
     exitCommand() {
+        this.isBusy = true;
         this.command.destroy();
+        this.command = null;
         // 0.5秒だけキー入力を無視する
         this.time.delayedCall(500, () => {
-            this.command = null;
+            this.isBusy = false;
         });
     }
 
@@ -76,6 +78,7 @@ class TownScene extends Phaser.Scene {
     }
 
     getItem(name) {
+        if (!name) return null;
         const townData = this.cache.json.get("townData");
         return townData.items.find(item => item.name == name);
     }
@@ -87,6 +90,7 @@ class TownScene extends Phaser.Scene {
     }
 
     getWeapon(name) {
+        if (!name) return null;
         const townData = this.cache.json.get("townData");
         return townData.weapons.find(weapon => weapon.name == name);
     }
@@ -109,7 +113,7 @@ class TownScene extends Phaser.Scene {
         let toLayer = this.layer.getToLayerAt(pos);
         if (!toLayer) return false;
 
-        this.isMoving = true;
+        this.isBusy = true;
         if (this.layer) {
             if (toLayer.sound) this.stepSound.play();
             camera.fadeOut(500, 0, 0, 0);
@@ -121,7 +125,7 @@ class TownScene extends Phaser.Scene {
 
         this.time.delayedCall(500, () => {
             this.setLayer(toLayer.layer, toLayer.to);
-            this.isMoving = false;
+            this.isBusy = false;
         });
         return true;
     }
@@ -186,7 +190,7 @@ function create()
     this.command = null;
     this.layerMap = {};
     this.members = [];
-    this.isMoving = true;
+    this.isBusy = true;
     this.range = townData.range;
     this.field = townData.field;
     MAP_WIDTH = townData.width * TILE_SIZE * SCALE;
@@ -238,7 +242,7 @@ function create()
 
     this.time.delayedCall(500, () => {
         this.bgm.play();
-        this.isMoving = false;
+        this.isBusy = false;
     });
 
     // 歩行アニメーション
@@ -262,7 +266,7 @@ function create()
 
 function update(time)
 {
-    if (this.isMoving) return;
+    if (this.isBusy) return;
 
     let newDir = -1;
 	if		(this.keys.left.isDown	|| this.wasd.left.isDown)  newDir = DIR.LEFT;
@@ -272,7 +276,7 @@ function update(time)
     else return;
 
     if (this.command) {
-        this.command.update(newDir);
+        this.command.onPressKey(newDir);
         return;
     }
 
@@ -285,7 +289,7 @@ function update(time)
     // 壁などにぶつからないようにチェック
     if (!this.canMove(pos, true)) return;
 
-    this.isMoving = true;
+    this.isBusy = true;
     let wkpos = [...pos], lastIdx = 0;
     for (let idx = 0; idx < this.members.length; idx++) {
         let prePos = [...this.members[idx].pos];
@@ -297,7 +301,7 @@ function update(time)
         }
 	    this.members[idx].move(this, wkpos, CARA_OFFSET, () => {
 		    if (idx == lastIdx) {
-                this.isMoving = false;
+                this.isBusy = false;
                 this.postMove(pos);
             }
 	    });
