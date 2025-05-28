@@ -42,16 +42,27 @@ layer:Town {
       else
         ＊「<item>ですね。
         　　まいど　ありがとうございます。
+  LOOP1:
         ＊「どなたが　おもちになりますか？
         <selectmember> [305, 75]
         if <index> < 0
           break
         endif
-        ＊「はいっ　<member>さん。
-        <hidemember>
-        <buyitem>
+        if <itemnum> >= 8
+          ＊「でも　<member>さんはそれいじょう
+          　　ものを　もてないようですよ。
+          <btn>
+          ＊「べつのひとが　もちますか？
+          <yesno> [305, 76]
+          if <index> != 0
+            break
+          endif
+          goto LOOP1
+        else
+          ＊「はいっ　<member>さん。
+          <buyitem>
+        endif
       endif
-      <hideshop>
     elif <index> == 1
       ＊「どなたの　もちものを
       　　うってくれますか？

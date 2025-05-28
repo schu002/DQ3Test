@@ -33,6 +33,7 @@ export default class Message {
 
         this.talkBGM = scene.sound.add("talk", { loop: false, volume: 0.2 });
         this.strList = [];
+        this.labelMap = {};
         this.attr = 0
         this.selectItem = "";
         this.selectMember = "";
@@ -54,7 +55,15 @@ export default class Message {
     }
 
     setStrList(strList, cmd=null) {
-        this.strList = [...strList];
+        let idx = -1;
+        while (++idx < strList.length) {
+            let str = trim(strList[idx]);
+            if (str[str.length-1] == ':') {
+                this.labelMap[str.slice(0, str.length-1)] = this.strList.length-1;
+            } else {
+                this.strList.push(str);
+            }
+        }
         this.talkIdx = -1;
         this.command = cmd;
         this.onButtonA();
@@ -94,7 +103,7 @@ export default class Message {
         let chList = [], isCursor = false, isBreak = false;
         let forIdx = -1;
         while (++this.talkIdx < this.strList.length) {
-            let str = trim(this.strList[this.talkIdx]);
+            let str = this.strList[this.talkIdx];
             if (isBreak) {
                 if (str != "endfor") continue;
                 forIdx = -1;
@@ -143,6 +152,9 @@ export default class Message {
                 this.skipToEndIf();
                 continue;
             } else if (str.substring(0, 5) == "endif") {
+                continue;
+            } else if (str.substring(0, 4) == "goto") {
+                this.talkIdx = this.labelMap[str.slice(4).trim()];
                 continue;
             } else if (str == "for") {
                 this.forIdx = this.talkIdx;
@@ -289,6 +301,10 @@ export default class Message {
                         this.scene.getItem(this.selectItem) : this.scene.getWeapon(this.selectItem);
             if (item) condstr = condstr.replace("<price>", String(item.price));
         }
+        if (condstr.indexOf("<itemnum>") >= 0) {
+            const member = this.scene.getMember(this.selectMember);
+            if (member) condstr = condstr.replace("<itemnum>", String(member.items.length));
+        }
         condstr = condstr.replace("<index>", String(this.command.getSelectIndex()));
         let signList = ["==", "!=", "<=", ">=", "<", ">"];
         let tokenList = [];
@@ -431,12 +447,15 @@ export default class Message {
         geoms[2] = 125;
         geoms[3] = 29 + memList.length*32;
 
+        let flags = MenuFlags.ShowCursor;
+        if (str.indexOf("/remain") >= 0) flags |= MenuFlags.Remain;
+
         str = str.substring(idx+1).trim();
         let delay = this.getDelay(str);
         if (delay < 0) delay = 800;
 
         this.scene.time.delayedCall(delay, () => {
-            let menu = this.showMenu(MenuType.Member, strList, geoms, MenuFlags.Default);
+            let menu = this.showMenu(MenuType.Member, strList, geoms, flags);
             this.showMemberItem(str, memList[0].items);
             this.attr |= Attr.SelectMember;
         });
